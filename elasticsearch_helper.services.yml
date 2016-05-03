@@ -1,0 +1,8 @@
+services:
+  elasticsearch_helper.elasticsearch_client:
+    class: Elasticsearch\Client
+    factory: elasticsearch_helper.elasticsearch_client_builder:build
+
+  elasticsearch_helper.elasticsearch_client_builder:
+    class: Drupal\elasticsearch_helper\ElasticsearchClientBuilder
+    arguments: ['@config.factory']
