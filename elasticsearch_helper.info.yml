@@ -1,0 +1,4 @@
+name: ElasticSearch Helper
+type: module
+description: Provide tools to integrate elasticsearch with Drupal.
+core: 8.x
