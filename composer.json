@@ -1,0 +1,15 @@
+{
+    "name": "drupal/elasticsearch_helper",
+    "description": "Provide tools to integrate elasticsearch with Drupal.",
+    "type": "drupal-module",
+    "require": {
+        "elasticsearch/elasticsearch": "^2.1"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Florian Loretan",
+            "email": "florian.loretan@wunderkraut.com"
+        }
+    ]
+}
