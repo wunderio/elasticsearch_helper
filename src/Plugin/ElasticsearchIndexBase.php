@@ -125,7 +125,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ]
     ];
 
-    print_r($this->client->update($params));
+    $this->client->update($params);
   }
 
   /**
