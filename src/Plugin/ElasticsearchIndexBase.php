@@ -140,7 +140,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       'id' => $this->getId($serialized_data),
     ];
 
-    $this->client->delete($params);
+    try {
+      $this->client->delete($params);
+    }
+    catch (Missing404Exception $e) {
+      $this->logger->notice('Could not delete entry with id @id from elasticsearh index', [
+        '@id' => $params['id'],
+      ]);
+    }
   }
 
   /**
