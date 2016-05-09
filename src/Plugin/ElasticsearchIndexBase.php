@@ -5,14 +5,18 @@ namespace Drupal\elasticsearch_helper\Plugin;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 /**
  * Base class for Elasticsearch index plugins.
  */
 abstract class ElasticsearchIndexBase extends PluginBase implements ElasticsearchIndexInterface, ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * @var Client
@@ -60,9 +64,25 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @inheritdoc
    */
   public function drop() {
-    $this->client->indices()->delete([
+    $params = [
       'index' => $this->indexNamePattern()
-    ]);
+    ];
+
+    try {
+      if ($indices = $this->client->indices()->get($params)) {
+        // Notify user that indices have been deleted.
+        foreach ($indices as $indexName => $index) {
+          drupal_set_message($this->t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
+        }
+
+        // Delete matching indices.
+        $this->client->indices()->delete($params);
+      }
+    } catch (Missing404Exception $e) {
+      drupal_set_message($this->t('No Elasticsearch index matching @pattern could be dropped.', [
+        '@pattern' => $this->indexNamePattern(),
+      ]));
+    }
   }
 
   /**
