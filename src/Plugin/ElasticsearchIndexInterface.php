@@ -32,4 +32,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * Delete all related Elasticsearch indices.
    */
   public function drop();
+
+  /**
+   * Wrapper around the Elasticsearch search() method.
+   */
+  public function search($params);
 }
