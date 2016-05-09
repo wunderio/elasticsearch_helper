@@ -82,6 +82,25 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
+   * Perform a partial update on a document, or create one if it doesn't exist yet.
+   */
+  public function upsert($source) {
+    $serialized_data = $this->serialize($source);
+
+    $params = [
+      'index' => $this->getIndexName($serialized_data),
+      'type' => $this->getTypeName($serialized_data),
+      'id' => $this->getId($serialized_data),
+      'body' => [
+        'doc' => $serialized_data,
+        'doc_as_upsert' => TRUE,
+      ]
+    ];
+
+    print_r($this->client->update($params));
+  }
+
+  /**
    * @inheritdoc
    */
   public function delete($source) {
