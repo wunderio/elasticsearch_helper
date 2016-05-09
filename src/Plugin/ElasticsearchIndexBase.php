@@ -181,9 +181,10 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   public function getId($data) {
-    if (isset($source['id']) && (is_string($source['id']) || is_numeric($source['id']))) {
+
+    if (isset($data['id']) && (is_string($data['id']) || is_numeric($data['id']))) {
       // If there is an attribute with the key 'id', use it.
-      return $source['id'];
+      return $data['id'];
     }
     else {
       // Elasticsearch will generate its own id.
