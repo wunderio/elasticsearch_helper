@@ -10,6 +10,7 @@ use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Psr\Log\LoggerInterface;
 
 /**
  * Base class for Elasticsearch index plugins.
@@ -29,17 +30,23 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   protected $serializer;
 
   /**
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * The regular expression used to identify placeholders in index and type names.
    *
    * @var string
    */
   protected $placeholder_regex = '/{[_\-\w\d]*}/';
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->client = $client;
     $this->serializer = $serializer;
+    $this->logger = $logger;
   }
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -48,7 +55,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $plugin_id,
       $plugin_definition,
       $container->get('elasticsearch_helper.elasticsearch_client'),
-      $container->get('serializer')
+      $container->get('serializer'),
+      $container->get('logger.factory')->get('elasticsearch_helper')
     );
   }
 
