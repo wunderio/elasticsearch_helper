@@ -57,3 +57,19 @@ function elasticsearch_helper_modules_installed($modules) {
     }
   }
 }
+
+/**
+ * Implements hook_module_preuninstall().
+ */
+function elasticsearch_helper_module_preuninstall($module) {
+  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
+
+  foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
+    // If the plugin provider is about to be uninstalled.
+    if ($plugin['provider'] == $module) {
+      // Drop indices for that plugin.
+      $elasticsearchPluginManager->createInstance($plugin['id'])->drop();
+    }
+  }
+}
