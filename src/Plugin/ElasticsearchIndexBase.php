@@ -71,6 +71,21 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * @inheritdoc
    */
+  public function getExistingIndices() {
+    $params = [
+      'index' => $this->indexNamePattern(),
+    ];
+
+    try {
+      return array_keys($this->client->indices()->get($params));
+    } catch (Missing404Exception $e) {
+      return [];
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
   public function drop() {
     $params = [
       'index' => $this->indexNamePattern()

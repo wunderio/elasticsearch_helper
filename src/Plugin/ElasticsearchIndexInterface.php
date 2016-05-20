@@ -39,6 +39,13 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   public function setup();
 
   /**
+   * Get an array of index names for this plugin.
+   *
+   * @return array
+   */
+  public function getExistingIndices();
+
+  /**
    * Delete all related Elasticsearch indices.
    */
   public function drop();

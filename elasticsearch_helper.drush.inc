@@ -67,9 +67,6 @@ function drush_elasticsearch_helper_setup($indices = FALSE) {
 }
 
 function drush_elasticsearch_helper_drop($indices = FALSE) {
-
-  // TODO: ask for confirmation.
-
   // Indices can be specified with a comma-separate value.
   if ($indices && is_string($indices)) {
     $indices = explode(',', $indices);
@@ -80,7 +77,24 @@ function drush_elasticsearch_helper_drop($indices = FALSE) {
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
     if (!$indices || in_array($plugin['id'], $indices)) {
-      $elasticsearchPluginManager->createInstance($plugin['id'])->drop();
+
+      $pluginInstance = $elasticsearchPluginManager->createInstance($plugin['id']);
+
+      $rows = [];
+      foreach ($pluginInstance->getExistingIndices() as $index) {
+        $rows[] = [$index];
+      }
+
+      if (count($rows)) {
+        drush_print('The following indices exist in elasticsearch:');
+        drush_print_table($rows);
+        if (drush_confirm(dt('Are you sure you want to delete them?'))) {
+          $pluginInstance->drop();
+        }
+      }
+      else {
+        drush_print('There are no indices to be deleted.');
+      }
     }
   }
 }
