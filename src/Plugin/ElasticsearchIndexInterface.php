@@ -12,14 +12,24 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Put data into the Elasticsearch index.
    *
-   * $data The data to be indexed.
+   * @param array $source
+   *   The data to be indexed.
    */
   public function index($source);
 
   /**
+   * Get record from Elasticsearch index.
+   *
+   * @param array $source
+   *   The data to get.
+   */
+  public function get($source);
+
+  /**
    * Delete an entry from the Elasticsearch index.
    *
-   * $data The data to be used to determine which entry should be deleted.
+   * @param array $source
+   *   The data to be used to determine which entry should be deleted.
    */
   public function delete($source);
 
@@ -35,6 +45,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
 
   /**
    * Wrapper around the Elasticsearch search() method.
+   *
+   * @param array $params
    */
   public function search($params);
 }
