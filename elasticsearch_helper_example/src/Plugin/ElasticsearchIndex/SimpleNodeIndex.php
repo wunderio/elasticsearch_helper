@@ -16,4 +16,10 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  */
 class SimpleNodeIndex extends ElasticsearchIndexBase{
   
+  /**
+   * NOTE:
+   *
+   * The structure of the indexed data is determined by normalizers,
+   * see NodeNormalizer.php.
+   */
 }
