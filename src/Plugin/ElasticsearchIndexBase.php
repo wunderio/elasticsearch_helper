@@ -204,8 +204,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function serialize($source, $context = array()) {
 
     if ($source instanceof EntityInterface) {
+      if (isset($this->pluginDefinition['normalizerFormat'])) {
+        // Use custom normalizerFormat if it's defined in plugin.
+        $format = $this->pluginDefinition['normalizerFormat'];
+      } else {
+        // Use the default normalizer format.
+        $format = 'elasticsearch_helper';
+      }
       // If we have a Drupal entity, use the serializer.
-      $data = $this->serializer->normalize($source, 'elasticsearch_helper', $context);
+      $data = $this->serializer->normalize($source, $format, $context);
 
       // Set the 'id' field to be the entity id,
       // it will be use by the getID() method.
