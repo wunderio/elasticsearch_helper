@@ -11,7 +11,7 @@ function elasticsearch_helper_entity_insert(EntityInterface $entity) {
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
-    if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
+    if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType'] && (empty($plugin['bundle'])) || $plugin['bundle'] == $entity->bundle()) {
 
       // Index the entity in elasticsearch.
       $elasticsearchPluginManager->createInstance($plugin['id'])->index($entity);
@@ -34,7 +34,7 @@ function elasticsearch_helper_entity_delete(EntityInterface $entity) {
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
-    if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
+    if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType'] && (empty($plugin['bundle'])) || $plugin['bundle'] == $entity->bundle()) {
 
       // Index the entity in elasticsearch.
       $elasticsearchPluginManager->createInstance($plugin['id'])->delete($entity);
