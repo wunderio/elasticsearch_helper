@@ -119,7 +119,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @inheritdoc
    */
   public function index($source) {
-    $serialized_data = $this->serialize($source);
+    $serialized_data = $this->serialize($source, ['method' => 'index']);
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
@@ -135,7 +135,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * {@inheritdoc}
    */
   public function get($source) {
-    $serialized_data = $this->serialize($source);
+    $serialized_data = $this->serialize($source, ['method' => 'get']);
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
@@ -150,7 +150,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Perform a partial update on a document, or create one if it doesn't exist yet.
    */
   public function upsert($source) {
-    $serialized_data = $this->serialize($source);
+    $serialized_data = $this->serialize($source, ['method' => 'upsert']);
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
@@ -169,7 +169,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @inheritdoc
    */
   public function delete($source) {
-    $serialized_data = $this->serialize($source);
+    $serialized_data = $this->serialize($source, ['method' => 'delete']);
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
@@ -201,11 +201,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Transform the data from its native format (most likely a Drupal entity) to
    * the format that should be stored in the Elasticsearch index.
    */
-  public function serialize($source) {
+  public function serialize($source, $context = array()) {
 
     if ($source instanceof EntityInterface) {
       // If we have a Drupal entity, use the serializer.
-      $data = $this->serializer->normalize($source, 'elasticsearch_helper');
+      $data = $this->serializer->normalize($source, 'elasticsearch_helper', $context);
 
       // Set the 'id' field to be the entity id,
       // it will be use by the getID() method.
