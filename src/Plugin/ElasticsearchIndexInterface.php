@@ -3,11 +3,19 @@
 namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\elasticsearch_helper\ElasticsearchClientBuilder;
 
 /**
  * Defines an interface for Elasticsearch index plugins.
  */
 interface ElasticsearchIndexInterface extends PluginInspectionInterface {
+
+  /**
+   * Get the Elasticsearch client.
+   *
+   * @return ElasticsearchClientBuilder
+   */
+  public function getClient();
 
   /**
    * Put data into the Elasticsearch index.

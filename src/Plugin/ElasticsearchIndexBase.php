@@ -61,6 +61,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getClient() {
+    return $this->client;
+  }
+
+  /**
    * @inheritdoc
    */
   public function setup() {
