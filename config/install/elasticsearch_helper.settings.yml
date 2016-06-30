@@ -1,0 +1,6 @@
+elasticsearch_helper:
+  host: "localhost"
+  port: "9200"
+  authentication: "0"
+  user: ""
+  password: ""

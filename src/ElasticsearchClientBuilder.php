@@ -23,8 +23,29 @@ class ElasticsearchClientBuilder {
    * @return Client
    */
   public function build() {
-    return ClientBuilder::fromConfig([
-      'hosts' => $this->config->get('hosts'),
+    $config = [];
+
+    $host = implode(':', [
+      $this->config->get('elasticsearch_helper.host'),
+      $this->config->get('elasticsearch_helper.port')
     ]);
+
+    // Use credentials if authentication is enabled.
+    if ((int) $this->config->get('elasticsearch_helper.authentication')) {
+      $credentials = implode(':', [
+          $this->config->get('elasticsearch_helper.user'),
+          $this->config->get('elasticsearch_helper.password')
+      ]);
+
+      if (!empty($credentials)) {
+        $host = implode('@', [$credentials, $host]);
+      }
+    }
+
+    if (!empty($host)) {
+      $config['hosts'] = [$host];
+    }
+
+    return ClientBuilder::fromConfig($config);
   }
 }
