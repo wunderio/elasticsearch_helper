@@ -198,6 +198,21 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
+   * @inheritdoc
+   */
+  public function bulk($body) {
+    $serialized_data = $this->serialize($body, ['method' => 'bulk']);
+
+    $params = [
+      'index' => $this->getIndexName($serialized_data),
+      'type' => $this->getTypeName($serialized_data),
+      'body' => $serialized_data,
+    ];
+
+    $this->client->bulk($params);
+  }
+
+  /**
    * Transform the data from its native format (most likely a Drupal entity) to
    * the format that should be stored in the Elasticsearch index.
    */
