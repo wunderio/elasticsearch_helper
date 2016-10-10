@@ -124,9 +124,12 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $params = [
       'index' => $this->getIndexName($serialized_data),
       'type' => $this->getTypeName($serialized_data),
-      'id' => $this->getId($serialized_data),
       'body' => $serialized_data,
     ];
+
+    if ($id = $this->getId($serialized_data)) {
+      $params['id'] = $this->getId($serialized_data);
+    }
 
     $this->client->index($params);
   }
