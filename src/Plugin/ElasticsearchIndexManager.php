@@ -2,7 +2,6 @@
 
 namespace Drupal\elasticsearch_helper\Plugin;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -36,7 +35,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    */
-  public function indexEntity(ContentEntityInterface $entity) {
+  public function indexEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
@@ -54,7 +53,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    */
-  public function deleteEntity(ContentEntityInterface $entity) {
+  public function deleteEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
