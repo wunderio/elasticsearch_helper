@@ -2,6 +2,8 @@
 
 namespace Drupal\elasticsearch_helper\Plugin;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -27,6 +29,42 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
 
     $this->alterInfo('elasticsearch_helper_elasticsearch_index_info');
     $this->setCacheBackend($cache_backend, 'elasticsearch_helper_elasticsearch_index_plugins');
+  }
+
+  /**
+   * Index an entity into any matching indices.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   */
+  public function indexEntity(ContentEntityInterface $entity) {
+    foreach ($this->getDefinitions() as $plugin) {
+      if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
+        if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
+          // Do not index if defined plugin bundle differs from entity bundle.
+          continue;
+        }
+        // Index the entity in elasticsearch.
+        $this->createInstance($plugin['id'])->index($entity);
+      }
+    }
+  }
+
+  /**
+   * Delete an entity from any matching indices.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   */
+  public function deleteEntity(ContentEntityInterface $entity) {
+    foreach ($this->getDefinitions() as $plugin) {
+      if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
+        if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
+          // Do not delete if defined plugin bundle differs from entity bundle.
+          continue;
+        }
+        // Index the entity in elasticsearch.
+        $this->createInstance($plugin['id'])->delete($entity);
+      }
+    }
   }
 
 }
