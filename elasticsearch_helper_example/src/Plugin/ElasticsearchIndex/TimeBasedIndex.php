@@ -17,7 +17,10 @@ use Drupal\node\Entity\Node;
  */
 class TimeBasedIndex extends ElasticsearchIndexBase {
 
-  public function serialize($source) {
+  /**
+   * @inheritdoc
+   */
+  public function serialize($source, $context = Array()) {
     /** @var Node $source */
 
     $data = parent::serialize($source);
