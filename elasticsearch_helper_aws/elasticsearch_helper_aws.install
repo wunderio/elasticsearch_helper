@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function elasticsearch_helper_aws_requirements($phase) {
+  $requirements = [];
+  if ($phase == 'install') {
+    if (!class_exists('\Aws\Credentials\CredentialProvider')) {
+      $requirements['aws_credentials_library'] = [
+        'description' => t("Connecting to the AWS Elasticsearch Service requires the aws/aws-sdk-php library."),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    if (!class_exists('\Aws\ElasticsearchService\ElasticsearchPhpHandler')) {
+      $requirements['aws_elasticsearch_library'] = [
+        'description' => t("Connecting to the AWS Elasticsearch Service requires the jsq/amazon-es-php library."),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+
+  return $requirements;
+}

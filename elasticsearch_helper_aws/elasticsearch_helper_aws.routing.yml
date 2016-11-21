@@ -1,0 +1,9 @@
+elasticsearch_helper_aws.settings_form:
+  path: '/admin/config/search/elasticsearch_helper/aws'
+  defaults:
+    _form: '\Drupal\elasticsearch_helper_aws\Form\AwsSettingsForm'
+    _title: 'AWS Elasticsearch Settings'
+  requirements:
+    _permission: 'configured elasticsearch helper'
+  options:
+    _admin_route: TRUE

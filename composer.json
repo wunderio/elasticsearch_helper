@@ -5,6 +5,10 @@
     "require": {
         "elasticsearch/elasticsearch": "^2.1"
     },
+    "suggest": {
+        "jsq/amazon-es-php": "Amazon elasticseach PHP framework",
+        "aws/aws-sdk-php": "Amazon PHP SDK"
+    },
     "license": "GPL-2.0+",
     "authors": [
         {
