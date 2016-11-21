@@ -203,6 +203,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * @inheritdoc
    */
+  public function msearch($params) {
+    return $this->client->msearch([
+      'index' => $this->indexNamePattern(),
+      'type' => $this->typeNamePattern(),
+    ] + $params);
+  }
+
+  /**
+   * @inheritdoc
+   */
   public function bulk($body) {
     $serialized_data = $this->serialize($body, ['method' => 'bulk']);
 

@@ -66,6 +66,13 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   public function search($params);
 
   /**
+   * Wrapper around the Elasticsearch msearch() method.
+   *
+   * @param array $params
+   */
+  public function msearch($params);
+
+  /**
    * Wrapper around the Elasticsearch bulk() method.
    *
    * @param array $body
