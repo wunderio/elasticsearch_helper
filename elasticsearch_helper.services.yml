@@ -9,4 +9,4 @@ services:
 
   plugin.manager.elasticsearch_index.processor:
     class: Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
-    parent: default_plugin_manager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@entity_type.manager', '@queue', '@logger.factory']

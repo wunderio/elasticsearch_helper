@@ -29,6 +29,14 @@ function elasticsearch_helper_drush_command() {
     'aliases' => ['eshd'],
   ];
 
+  $items['elasticsearch-helper-reindex'] =  [
+    'description' => 'Reindex entities associated with an elasticsearch index',
+    'arguments' => [
+      'indices' => 'Comma separated list of indices for which entities should be reindexed'
+    ],
+    'aliases' => ['eshr'],
+  ];
+
   return $items;
 }
 
@@ -97,4 +105,15 @@ function drush_elasticsearch_helper_drop($indices = FALSE) {
       }
     }
   }
+}
+
+function drush_elasticsearch_helper_reindex($indices = FALSE) {
+  // Indices can be specified with a comma-separate value.
+  if ($indices && is_string($indices)) {
+    $indices = explode(',', $indices);
+  }
+
+  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
+   $elasticsearchPluginManager->reindex($indices);
 }
