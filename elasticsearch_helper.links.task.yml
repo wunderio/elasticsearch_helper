@@ -1,0 +1,4 @@
+elasticsearch_helper.elasticsearch_helper_settings_form:
+  title: 'Settings'
+  route_name: elasticsearch_helper.elasticsearch_helper_settings_form
+  base_route: elasticsearch_helper.elasticsearch_helper_settings_form

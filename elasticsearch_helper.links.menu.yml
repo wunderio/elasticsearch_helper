@@ -1,5 +1,5 @@
 elasticsearch_helper.elasticsearch_helper_settings_form:
-  title: 'Elasticsearch Helper settings'
+  title: 'Elasticsearch Helper'
   route_name: elasticsearch_helper.elasticsearch_helper_settings_form
   description: 'Configure elasticsearch host, port and authentication'
   parent: system.admin_config_search
