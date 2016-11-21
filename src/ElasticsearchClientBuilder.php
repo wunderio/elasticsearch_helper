@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper;
 
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 
@@ -13,8 +14,14 @@ class ElasticsearchClientBuilder {
    */
   protected $config;
 
-  public function __construct(ConfigFactory $configFactory) {
+  /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  public function __construct(ConfigFactory $configFactory, ModuleHandlerInterface $moduleHandler) {
     $this->config = $configFactory->get('elasticsearch_helper.settings');
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -23,18 +30,28 @@ class ElasticsearchClientBuilder {
    * @return Client
    */
   public function build() {
-    $config = [];
+    $clientBuilder = ClientBuilder::create();
+    $clientBuilder->setHosts($this->getHosts());
 
+    // Let other modules set their own handlers.
+    $this->moduleHandler->alter('elasticsearch_helper_client_builder', $clientBuilder);
+
+    return $clientBuilder->build();
+  }
+
+  /**
+   * Get the hosts based on the site configuration.
+   */
+  protected function getHosts() {
     $host = implode(':', [
       $this->config->get('elasticsearch_helper.host'),
       $this->config->get('elasticsearch_helper.port')
     ]);
 
-    // Use credentials if authentication is enabled.
-    if ((int) $this->config->get('elasticsearch_helper.authentication')) {
+    if ($this->config->get('elasticsearch_helper.user')) {
       $credentials = implode(':', [
-          $this->config->get('elasticsearch_helper.user'),
-          $this->config->get('elasticsearch_helper.password')
+        $this->config->get('elasticsearch_helper.user'),
+        $this->config->get('elasticsearch_helper.password')
       ]);
 
       if (!empty($credentials)) {
@@ -42,10 +59,6 @@ class ElasticsearchClientBuilder {
       }
     }
 
-    if (!empty($host)) {
-      $config['hosts'] = [$host];
-    }
-
-    return ClientBuilder::fromConfig($config);
+    return [$host];
   }
 }
