@@ -5,6 +5,8 @@ namespace Drupal\elasticsearch_helper\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigManager;
 
@@ -57,6 +59,29 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('elasticsearch_helper.settings');
+
+    /** @var Client $client */
+    $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
+
+    try {
+      $health = $client->cluster()->health();
+
+      drupal_set_message($this->t('Connected to Elasticsearch'));
+
+      $color_states = [
+        'green' => 'status',
+        'yellow' => 'warning',
+        'red' => 'error',
+      ];
+
+      drupal_set_message($this->t('Elasticsearch cluster status is @status', [
+        '@status' => $health['status']
+      ]), $color_states[$health['status']]);
+    }
+    catch (NoNodesAvailableException $e) {
+      drupal_set_message('Could not connect to Elasticsearch', 'error');
+    }
+
 
     $form['host'] = [
       '#type' => 'textfield',
