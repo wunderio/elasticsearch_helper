@@ -18,27 +18,6 @@ use Drupal\Core\Config\ConfigManager;
 class ElasticsearchHelperSettingsForm extends ConfigFormBase {
 
   /**
-   * Drupal\Core\Config\ConfigManager definition.
-   *
-   * @var Drupal\Core\Config\ConfigManager
-   */
-  protected $configManager;
-  public function __construct(
-    ConfigFactoryInterface $config_factory,
-      ConfigManager $config_manager
-    ) {
-    parent::__construct($config_factory);
-        $this->configManager = $config_manager;
-  }
-
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-            $container->get('config.manager')
-    );
-  }
-
-  /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
