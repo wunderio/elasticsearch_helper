@@ -4,11 +4,8 @@ namespace Drupal\elasticsearch_helper\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Config\ConfigManager;
 
 /**
  * Class ElasticsearchHelperSettingsForm.
@@ -60,7 +57,9 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     catch (NoNodesAvailableException $e) {
       drupal_set_message('Could not connect to Elasticsearch', 'error');
     }
-
+    catch (\Exception $e) {
+      drupal_set_message($e->getMessage(), 'error');
+    }
 
     $form['host'] = [
       '#type' => 'textfield',
