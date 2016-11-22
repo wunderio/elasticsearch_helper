@@ -65,7 +65,6 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     $form['host'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Host'),
-      '#maxlength' => 64,
       '#size' => 32,
       '#default_value' => $config->get('elasticsearch_helper.host'),
     ];
