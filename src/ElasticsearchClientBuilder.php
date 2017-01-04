@@ -59,6 +59,13 @@ class ElasticsearchClientBuilder {
       }
     }
 
+    if ($scheme = $this->config->get('elasticsearch_helper.scheme')) {
+      $host = implode('://', [
+        $scheme,
+        $host
+      ]);
+    }
+
     return [$host];
   }
 }

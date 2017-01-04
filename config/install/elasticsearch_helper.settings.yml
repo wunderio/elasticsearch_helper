@@ -1,4 +1,5 @@
 elasticsearch_helper:
+  scheme: "http"
   host: "localhost"
   port: "9200"
   authentication: "0"

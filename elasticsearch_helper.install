@@ -71,3 +71,13 @@ function elasticsearch_helper_update_8001() {
   // set on installation.
   module_set_weight('elasticsearch_helper', 10);
 }
+
+/**
+ * Explicitly set the default scheme to HTTP if it wasn't set before.
+ */
+function elasticsearch_helper_update_8002() {
+  $config = \Drupal::config('elasticsearch_helper.settings');
+  if ($config->get('elasticsearch_helper.scheme')) {
+    $config->set('elasticsearch_helper.scheme', 'http');
+  }
+}

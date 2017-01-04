@@ -61,6 +61,16 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       drupal_set_message($e->getMessage(), 'error');
     }
 
+    $form['scheme'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Scheme'),
+      '#options' => [
+        'http' => 'http',
+        'https' => 'https',
+      ],
+      '#default_value' => $config->get('elasticsearch_helper.scheme'),
+    ];
+
     $form['host'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Host'),
@@ -122,6 +132,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('elasticsearch_helper.settings')
+      ->set('elasticsearch_helper.scheme', $form_state->getValue('scheme'))
       ->set('elasticsearch_helper.host', $form_state->getValue('host'))
       ->set('elasticsearch_helper.port', $form_state->getValue('port'))
       ->set('elasticsearch_helper.authentication', $form_state->getValue('authentication'))
