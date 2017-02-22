@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_views\Plugin\views\field;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -123,17 +124,23 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
    * {@inheritdoc}
    */
   public function render(ResultRow $values) {
-    $entity = $this->getEntityTranslation($this->getEntity($values), $values);
     $build = [];
-    if (isset($entity)) {
-      $access = $entity->access('view', NULL, TRUE);
-      $build['#access'] = $access;
-      if ($access->isAllowed()) {
-        $mode_mode = $this->options['view_mode'][$this->getEntityTypeId()];
-        $view_builder = $this->entityManager->getViewBuilder($this->getEntityTypeId());
-        $build += $view_builder->view($entity, $mode_mode);
+    $entity = $this->getEntity($values);
+
+    // Elasticsearch results might not correspond to a Drupal entity.
+    if ($entity instanceof ContentEntityInterface) {
+      $entity = $this->getEntityTranslation($entity, $values);
+      if (isset($entity)) {
+        $access = $entity->access('view', NULL, TRUE);
+        $build['#access'] = $access;
+        if ($access->isAllowed()) {
+          $mode_mode = $this->options['view_mode'][$this->getEntityTypeId()];
+          $view_builder = $this->entityManager->getViewBuilder($this->getEntityTypeId());
+          $build += $view_builder->view($entity, $mode_mode);
+        }
       }
     }
+
     return $build;
   }
 
