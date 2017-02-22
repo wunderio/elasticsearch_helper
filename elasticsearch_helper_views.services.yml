@@ -1,0 +1,4 @@
+services:
+  elasticsearch_query_builder.manager:
+    class: Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler']

@@ -1,0 +1,51 @@
+<?php
+
+use Drupal\Core\Url;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * This code is borrowed from "views_block_filter_block" module.
+ */
+function elasticsearch_helper_views_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $storage = $form_state->getStorage();
+  $view = $storage['view'];
+
+  // Only react on block Views specifically configured with exposed form blocks.
+  if (get_class($view->display_handler) == 'Drupal\elasticsearch_helper_views\Plugin\views\display\BlockExposedForm') {
+    if ($view->display_handler->getOption('exposed_block')) {
+      // Ensure that the fallback form action is the current page.
+      $request = \Drupal::request();
+      $url = Url::createFromRequest($request);
+      $url->setAbsolute();
+      $form['#action'] = $url->toString();
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function elasticsearch_helper_views_views_data() {
+  $data = [];
+
+  $data['elasticsearch_result']['table']['group'] = t('Elasticsearch result');
+
+  $data['elasticsearch_result']['table']['base'] = [
+    'field' => 'id',
+    'title' => t('Elasticsearch result'),
+    'help' => t('Elasticsearch result'),
+    'query_id' => 'elasticsearch_api_query',
+  ];
+
+  $data['elasticsearch_result']['rendered_entity'] = [
+    'field' => [
+      'title' => t('Rendered entity'),
+      'help' => t('Renders an entity in a view mode.'),
+      'id' => 'elasticsearch_rendered_entity',
+    ],
+  ];
+
+  return $data;
+}
