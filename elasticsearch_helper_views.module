@@ -26,6 +26,11 @@ function elasticsearch_helper_views_form_views_exposed_form_alter(&$form, FormSt
 
 /**
  * Implements hook_views_data().
+ *
+ * Use hook_views_data_alter() hook to alter or add fields or filters to
+ * "elasticsearch_result" data type.
+ *
+ * @see hook_views_data_alter()
  */
 function elasticsearch_helper_views_views_data() {
   $data = [];
