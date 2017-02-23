@@ -3,6 +3,7 @@
     "description": "Provides tools to integrate elasticsearch with Drupal Views.",
     "type": "drupal-module",
     "require": {
+        "drupal/elasticsearch_helper": "1.x-dev",
         "elasticsearch/elasticsearch": "~2.1 || ~5.0"
     },
     "license": "GPL-2.0+",

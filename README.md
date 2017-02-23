@@ -31,6 +31,9 @@ Add the following snippet to `composer.json` file and run `composer require maij
                 "name": "maijs/elasticsearch_helper_views",
                 "version": "1.x-dev",
                 "type": "drupal-module",
+                "require": {
+                    "drupal/elasticsearch_helper": "1.x-dev"
+                },
                 "source": {
                     "url": "https://github.com/maijs/elasticsearch_helper_views.git",
                     "type": "git",
@@ -41,7 +44,6 @@ Add the following snippet to `composer.json` file and run `composer require maij
     ]
 }
 ```
-
 
 ## To-do
 
