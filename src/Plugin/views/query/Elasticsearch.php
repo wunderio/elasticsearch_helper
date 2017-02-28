@@ -125,6 +125,16 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Placeholder method.
+   *
+   * @param $group
+   * @param $snippet
+   * @param array $args
+   */
+  public function addWhereExpression($group, $snippet, $args = array()) {
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function query($get_count = FALSE) {
