@@ -13,7 +13,7 @@ function elasticsearch_helper_views_form_views_exposed_form_alter(&$form, FormSt
   $view = $storage['view'];
 
   // Only react on block Views specifically configured with exposed form blocks.
-  if (get_class($view->display_handler) == 'Drupal\elasticsearch_helper_views\Plugin\views\display\BlockExposedForm') {
+  if (get_class($view->display_handler) == 'Drupal\elasticsearch_helper_views\Plugin\views\display\ElasticsearchBlock') {
     if ($view->display_handler->getOption('exposed_block')) {
       // Ensure that the fallback form action is the current page.
       $request = \Drupal::request();
