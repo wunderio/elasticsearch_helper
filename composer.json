@@ -1,5 +1,5 @@
 {
-    "name": "maijs/elasticsearch_helper",
+    "name": "maijs/elasticsearch_helper_views",
     "description": "Provides tools to integrate elasticsearch with Drupal Views.",
     "type": "drupal-module",
     "require": {
@@ -9,7 +9,7 @@
     "license": "GPL-2.0+",
     "authors": [
         {
-            "name": "Raimonds Kalnins",
+            "name": "maijs",
             "email": "raimonds.kalnins@wunder.io"
         }
     ]
