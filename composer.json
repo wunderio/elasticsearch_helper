@@ -3,7 +3,7 @@
     "description": "Provide tools to integrate elasticsearch with Drupal.",
     "type": "drupal-module",
     "require": {
-        "elasticsearch/elasticsearch": "^2.1"
+        "elasticsearch/elasticsearch": "~5.0"
     },
     "suggest": {
         "jsq/amazon-es-php": "Amazon elasticseach PHP framework",
