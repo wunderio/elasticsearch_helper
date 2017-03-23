@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Annotation\ElasticsearchIndex;
+use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Drupal\node\Entity\Node;
 use Elasticsearch\Client;
@@ -99,7 +100,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
           ]
         ]);
 
-        $analyzer = $this->getLanguageAnalyzer($langcode);
+        $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
 
         $mapping = [
           'index' => 'multilingual-' . $langcode,
@@ -116,40 +117,6 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
         $this->client->indices()->putMapping($mapping);
       }
-    }
-  }
-
-  /**
-   * Get the name of the language analyzer to be used for a given language code.
-   *
-   * @param $langcode
-   * @return mixed|string
-   */
-  protected function getLanguageAnalyzer($langcode) {
-    $language_analyzers = [
-      // Use one of the built-in language analysers. The complete list is
-      // available here https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
-      'en' => 'english',
-      'ee' => 'estonian',
-      'nl' => 'dutch',
-      'fi' => 'finnish',
-      'fr' => 'french',
-      'de' => 'german',
-      'lv' => 'latvian',
-      'se' => 'swedish',
-
-      // Chinese, install the analysis-smartcn elasticsearch plugin.
-      'zh-hans' => 'smartcn',
-
-      // Japanese, install the analysis-kuromoji elasticsearch plugin.
-      'ja' => 'kuromoji',
-    ];
-
-    if (isset($language_analyzers[$langcode])) {
-      return $language_analyzers[$langcode];
-    }
-    else {
-      return 'standard';
     }
   }
 }
