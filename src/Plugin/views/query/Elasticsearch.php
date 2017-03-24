@@ -158,14 +158,18 @@ class Elasticsearch extends QueryPluginBase {
     $query = $view->build_info['query'];
     $result = [];
 
-    if ($data = $this->elasticsearchClient->search($query)) {
-      $index = 0;
-      foreach ($data['hits']['hits'] as $hit) {
-        $row['id'] = $hit['_id'];
-        $row['entity_type'] = $hit['_type'];
-        $row['index'] = $index++;
-        $result[] = new ResultRow($row);
+    try {
+      if ($data = $this->elasticsearchClient->search($query)) {
+        $index = 0;
+        foreach ($data['hits']['hits'] as $hit) {
+          $row['id'] = $hit['_id'];
+          $row['entity_type'] = $hit['_type'];
+          $row['index'] = $index++;
+          $result[] = new ResultRow($row);
+        }
       }
+    } catch (\Exception $e) {
+      watchdog_exception('elasticsearch_helper_views', $e);
     }
 
     $view->result = $result;
