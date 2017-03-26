@@ -156,6 +156,7 @@ class Elasticsearch extends QueryPluginBase {
    */
   public function execute(ViewExecutable $view) {
     $query = $view->build_info['query'];
+    $data = [];
     $result = [];
 
     try {
@@ -175,7 +176,7 @@ class Elasticsearch extends QueryPluginBase {
     $view->result = $result;
 
     $view->pager->postExecute($view->result);
-    $view->pager->total_items = $data['hits']['total'];
+    $view->pager->total_items = isset($data['hits']['total']) ? $data['hits']['total'] : 0;
     $view->pager->updatePageInfo();
     $view->total_rows = $view->pager->getTotalItems();
 
