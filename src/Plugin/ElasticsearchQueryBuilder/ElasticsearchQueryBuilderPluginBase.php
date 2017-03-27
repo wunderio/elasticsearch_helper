@@ -37,8 +37,8 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   public function getValuesFromView(ViewExecutable $view) {
     $values = [];
     /** @var \Drupal\views\Plugin\views\filter\FilterPluginBase $filter */
-    foreach ($view->filter as $filter) {
-      $values[$filter->getPluginId()] = $filter->value;
+    foreach ($view->filter as $field_name => $filter) {
+      $values[$field_name] = $filter->value;
     }
     return $values;
   }
