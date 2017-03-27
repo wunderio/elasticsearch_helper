@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\views\query;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
@@ -270,6 +271,47 @@ class Elasticsearch extends QueryPluginBase {
     }
 
     return $results;
+  }
+
+  /**
+   * Gets all the involved entities of the view.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface[]
+   */
+  protected function getAllEntities() {
+    $entities = [];
+    foreach ($this->view->result as $row) {
+      if ($row->_entity) {
+        $entities[] = $row->_entity;
+      }
+    }
+
+    return $entities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    $tags = [];
+
+    foreach ($this->getAllEntities() as $entity) {
+      $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
+    }
+
+    return $tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    $max_age = parent::getCacheMaxAge();
+    foreach ($this->getAllEntities() as $entity) {
+      $max_age = Cache::mergeMaxAges($max_age, $entity->getCacheMaxAge());
+    }
+
+    return $max_age;
   }
 
 }
