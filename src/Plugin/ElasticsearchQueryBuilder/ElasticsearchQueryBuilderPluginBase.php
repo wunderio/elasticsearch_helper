@@ -43,4 +43,16 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
     return $values;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getArgumentsFromView(ViewExecutable $view) {
+    $arguments = [];
+    /** @var \Drupal\views\Plugin\views\argument\ArgumentPluginBase $argument */
+    foreach ($view->argument as $argument_name => $argument) {
+      $arguments[$argument_name] = $argument->argument;
+    }
+    return $arguments;
+  }
+
 }
