@@ -31,7 +31,7 @@ interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface {
    *
    * @return array
    */
-  public function getValuesFromView(ViewExecutable $view);
+  public function getFilterValues(ViewExecutable $view);
 
   /**
    * Returns argument values from a view.
@@ -40,6 +40,6 @@ interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface {
    *
    * @return array
    */
-  public function getArgumentsFromView(ViewExecutable $view);
+  public function getArgumentValues(ViewExecutable $view);
 
 }

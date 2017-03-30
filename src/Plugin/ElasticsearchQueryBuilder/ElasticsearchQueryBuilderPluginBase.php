@@ -34,11 +34,11 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   /**
    * {@inheritdoc}
    */
-  public function getValuesFromView(ViewExecutable $view) {
+  public function getFilterValues(ViewExecutable $view) {
     $values = [];
     /** @var \Drupal\views\Plugin\views\filter\FilterPluginBase $filter */
-    foreach ($view->filter as $field_name => $filter) {
-      $values[$field_name] = $filter->value;
+    foreach ($view->filter as $name => $filter) {
+      $values[$name] = $filter->value;
     }
     return $values;
   }
@@ -46,11 +46,11 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   /**
    * {@inheritdoc}
    */
-  public function getArgumentsFromView(ViewExecutable $view) {
+  public function getArgumentValues(ViewExecutable $view) {
     $arguments = [];
     /** @var \Drupal\views\Plugin\views\argument\ArgumentPluginBase $argument */
-    foreach ($view->argument as $argument_name => $argument) {
-      $arguments[$argument_name] = $argument->argument;
+    foreach ($view->argument as $name => $argument) {
+      $arguments[$name] = $argument->getValue();
     }
     return $arguments;
   }

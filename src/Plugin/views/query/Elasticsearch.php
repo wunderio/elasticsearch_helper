@@ -136,6 +136,26 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Placeholder method.
+   *
+   * @param $table
+   * @param null $field
+   * @param string $order
+   * @param string $alias
+   * @param array $params
+   */
+  public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', $params = array()) {
+  }
+
+  /**
+   * Placeholder method.
+   *
+   * @param $clause
+   */
+  public function addGroupBy($clause) {
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function query($get_count = FALSE) {
