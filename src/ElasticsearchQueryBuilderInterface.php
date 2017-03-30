@@ -33,4 +33,13 @@ interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface {
    */
   public function getValuesFromView(ViewExecutable $view);
 
+  /**
+   * Returns argument values from a view.
+   *
+   * @param \Drupal\views\ViewExecutable $view
+   *
+   * @return array
+   */
+  public function getArgumentsFromView(ViewExecutable $view);
+
 }
