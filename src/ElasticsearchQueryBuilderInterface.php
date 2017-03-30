@@ -42,4 +42,13 @@ interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface {
    */
   public function getArgumentValues(ViewExecutable $view);
 
+  /**
+   * Returns sort values from a view.
+   *
+   * @param \Drupal\views\ViewExecutable $view
+   *
+   * @return array
+   */
+  public function getSortValues(ViewExecutable $view);
+
 }
