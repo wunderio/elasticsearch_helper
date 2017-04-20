@@ -41,7 +41,7 @@ function elasticsearch_helper_views_views_data() {
     'field' => 'id',
     'title' => t('Elasticsearch result'),
     'help' => t('Elasticsearch result'),
-    'query_id' => 'elasticsearch_api_query',
+    'query_id' => 'elasticsearch_query',
   ];
 
   $data['elasticsearch_result']['rendered_entity'] = [
