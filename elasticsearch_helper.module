@@ -51,8 +51,12 @@ function elasticsearch_helper_module_preuninstall($module) {
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
     // If the plugin provider is about to be uninstalled.
     if ($plugin['provider'] == $module) {
-      // Drop indices for that plugin.
-      $elasticsearchPluginManager->createInstance($plugin['id'])->drop();
+      // Notify user about possibly obsolete indices.
+      $id = $plugin['id'];
+      $pluginDefinition = $elasticsearchPluginManager->createInstance($id)->getPluginDefinition();
+      $class = $pluginDefinition['class'];
+      $index = $pluginDefinition['indexName'];
+      drupal_set_message(t('Plugin "%id" (%class) was removed from the system. You may want to delete the respective index "%index".', ['%id' => $id, '%class' => $class, '%index' => $index]));
     }
   }
 }
