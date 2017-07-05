@@ -71,7 +71,7 @@ class Elasticsearch extends QueryPluginBase {
    */
   protected function setOptionDefaults(array &$storage, array $options) {
     parent::setOptionDefaults($storage, $options);
-    $storage['elasticserach_query_builder'] = '';
+    $storage['query_builder'] = '';
   }
 
   /**
@@ -88,12 +88,12 @@ class Elasticsearch extends QueryPluginBase {
       $query_builder_options[$query_builder_plugin['id']] = sprintf('%s (%s)', $query_builder_plugin['label'], $query_builder_plugin['id']);
     }
 
-    $form['elasticserach_query_builder'] = array(
+    $form['query_builder'] = array(
       '#type' => 'select',
       '#title' => $this->t('Elasticsearch query builder'),
       '#empty_value' => '',
       '#options' => $query_builder_options,
-      '#default_value' => $this->options['elasticserach_query_builder'],
+      '#default_value' => $this->options['query_builder'],
       '#required' => FALSE,
     );
   }
@@ -160,7 +160,7 @@ class Elasticsearch extends QueryPluginBase {
    */
   public function query($get_count = FALSE) {
     /** @var ElasticsearchQueryBuilderInterface $query_builder */
-    $query_builder = $this->elasticsearchQueryBuilderManager->createInstance($this->options['elasticserach_query_builder']);
+    $query_builder = $this->elasticsearchQueryBuilderManager->createInstance($this->options['query_builder']);
     $query = $query_builder->buildQuery($this->view);
 
     // Apply limit and offset to the query.
