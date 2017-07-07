@@ -35,6 +35,9 @@ class Elasticsearch extends QueryPluginBase {
   /** @var \Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderManager $elasticsearchQueryBuilderManager */
   protected $elasticsearchQueryBuilderManager;
 
+  /** @var \Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface $queryBuilder */
+  protected $queryBuilder;
+
   /**
    * Elasticsearch constructor.
    *
@@ -156,11 +159,28 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Returns instance of a query builder plugin.
+   *
+   * @return \Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface|null
+   */
+  public function getQueryBuilder() {
+    if ($this->options['query_builder'] && !isset($this->queryBuilder)) {
+      try {
+        $this->queryBuilder = $this->elasticsearchQueryBuilderManager->createInstance($this->options['query_builder']);
+      } catch (\Exception $e) {
+        watchdog_exception('elasticsearch_helper_views', $e);
+      }
+    }
+
+    return $this->queryBuilder;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function query($get_count = FALSE) {
     /** @var ElasticsearchQueryBuilderInterface $query_builder */
-    $query_builder = $this->elasticsearchQueryBuilderManager->createInstance($this->options['query_builder']);
+    $query_builder = $this->getQueryBuilder();
     $query = $query_builder->buildQuery($this->view);
 
     // Apply limit and offset to the query.
@@ -170,6 +190,20 @@ class Elasticsearch extends QueryPluginBase {
     ];
 
     return array_merge($limits, $query);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate() {
+    $errors = [];
+
+    // Validate query builder settings (on created views only).
+    if (!$this->view->storage->isNew() && empty($this->options['query_builder'])) {
+      $errors[] = $this->t('Query builder plugin needs to be defined for this view to work. Configure query builder in the query settings.');
+    }
+
+    return $errors;
   }
 
   /**
