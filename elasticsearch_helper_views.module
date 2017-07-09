@@ -44,6 +44,14 @@ function elasticsearch_helper_views_views_data() {
     'query_id' => 'elasticsearch_query',
   ];
 
+  $data['elasticsearch_result']['entity_relationship'] = [
+    'relationship' => [
+      'id' => 'entity_relationship',
+      'title' => t('Entity relationship'),
+      'base' => 'elasticsearch_result',
+    ],
+  ];
+
   $data['elasticsearch_result']['rendered_entity'] = [
     'field' => [
       'title' => t('Rendered entity'),
