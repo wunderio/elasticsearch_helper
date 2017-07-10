@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\views\query;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -75,6 +76,10 @@ class Elasticsearch extends QueryPluginBase {
   protected function setOptionDefaults(array &$storage, array $options) {
     parent::setOptionDefaults($storage, $options);
     $storage['query_builder'] = '';
+    $storage['entity_relationship'] = [
+      'entity_type_key' => '',
+      'entity_id_key' => '',
+    ];
   }
 
   /**
@@ -99,6 +104,28 @@ class Elasticsearch extends QueryPluginBase {
       '#default_value' => $this->options['query_builder'],
       '#required' => FALSE,
     );
+
+    $form['entity_relationship'] = array(
+      '#type' => 'details',
+      '#title' => $this->t('Entity relationship'),
+      '#description' => $this->t('Define default entity relationship.'),
+      '#open' => TRUE,
+    );
+
+    $form['entity_relationship']['entity_type_key'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Entity type field'),
+      '#description' => $this->t('A field in Elasticsearch results which contains entity type name. To set a fixed value, prefix the string with @ (e.g., @node).'),
+      '#default_value' => $this->options['entity_relationship']['entity_type_key'],
+    );
+
+    $form['entity_relationship']['entity_id_key'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Entity ID field'),
+      '#description' => $this->t('A field in Elasticsearch results which contains entity ID value.'),
+      '#default_value' => $this->options['entity_relationship']['entity_id_key'],
+      '#group' => 'entity_type_key',
+    );
   }
 
   /**
@@ -115,6 +142,32 @@ class Elasticsearch extends QueryPluginBase {
     $view->pager->query();
 
     $view->build_info['query'] = $this->query();
+  }
+
+  /**
+   * Returns an empty array as there's no physical table in Elasticsearch.
+   *
+   * @param $table
+   * @param null $relationship
+   *
+   * @return string
+   */
+  public function ensureTable($table, $relationship = NULL) {
+    return '';
+  }
+
+  /**
+   * Returns the field as is as there's no need to limit fields in result set.
+   *
+   * @param $table
+   * @param $field
+   * @param string $alias
+   * @param array $params
+   *
+   * @return mixed
+   */
+  public function addField($table, $field, $alias = '', $params = array()) {
+    return $field;
   }
 
   /**
@@ -156,6 +209,12 @@ class Elasticsearch extends QueryPluginBase {
    * @param $clause
    */
   public function addGroupBy($clause) {
+  }
+
+  /**
+   * Placeholder method.
+   */
+  public function addRelationship() {
   }
 
   /**
@@ -207,6 +266,29 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Returns result row from a search hit.
+   *
+   * @param array $hit
+   * @param $index
+   *
+   * @return \Drupal\views\ResultRow
+   */
+  protected function createResultRowFromHit(array $hit, $index) {
+    return new ResultRow($hit);
+  }
+
+  /**
+   * Indexes the result set.
+   *
+   * @param \Drupal\views\ResultRow[] $result
+   */
+  protected function indexResult(array &$result) {
+    array_walk($result, function(ResultRow $row, $index) {
+      $row->index = $index;
+    });
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function execute(ViewExecutable $view) {
@@ -218,16 +300,15 @@ class Elasticsearch extends QueryPluginBase {
       if ($data = $this->elasticsearchClient->search($query)) {
         $index = 0;
         foreach ($data['hits']['hits'] as $hit) {
-          $row['id'] = $hit['_id'];
-          $row['entity_type'] = $hit['_type'];
-          $row['index'] = $index++;
-          $result[] = new ResultRow($row);
+          $result[] = $this->createResultRowFromHit($hit, $index);
+          $index++;
         }
       }
     } catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_views', $e);
     }
 
+    $this->indexResult($result);
     $view->result = $result;
 
     $view->pager->postExecute($view->result);
@@ -240,49 +321,107 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
-   * Returns an empty array as there's no physical table for Elasticsearch.
+   * Returns nested value from the Elasticsearch result.
    *
-   * @param $table
-   * @param null $relationship
+   * Examples:
    *
-   * @return string
+   * - "id" will return value of element "id".
+   * - "_source.id" will return a value of _source][id].
+   * - "@node" will return "node" (value will not be determined).
+   *
+   * @param $key
+   * @param array|object $data
+   * @param $separator
+   * @param $default
+   *
+   * @return mixed|null
    */
-  public function ensureTable($table, $relationship = NULL) {
-    return '';
+  protected function getNestedValue($key, $data, $separator = '.', $default = NULL) {
+    // If $key starts with a @, it means that the key should be returned as a
+    // string and there's no need to look for a value.
+    if (isset($key[0]) && $key[0] == '@') {
+      return substr($key, 1);
+    }
+
+    if (!is_array($data) && !is_object($data)) {
+      return NULL;
+    }
+
+    // Cast $data into an array so that $data can be processed with NestedArray.
+    if (is_object($data)) {
+      $data = (array) $data;
+    }
+
+    $parts = explode($separator, $key);
+
+    if (count($parts) == 1) {
+      return isset($data[$key]) ? $data[$key] : $default;
+    }
+    else {
+      $value = NestedArray::getValue($data, $parts, $key_exists);
+      return $key_exists ? $value : $default;
+    }
   }
 
   /**
-   * Returns the field as is as there's no need to limit fields in result set.
+   * Returns a list of entity relationship information, keyed by relationship
+   * keys.
    *
-   * @param $table
-   * @param $field
-   * @param string $alias
-   * @param array $params
+   * Also only valid relationship information is returned (i.e., with defined
+   * entity type and entity ID keys).
    *
-   * @return mixed
+   * @return array
+   *
+   * @see hook_views_data_alter()
    */
-  public function addField($table, $field, $alias = '', $params = array()) {
-    return $field;
+  public function getEntityRelationships() {
+    $result = [];
+
+    foreach ($this->displayHandler->getHandlers('relationship') as $handler_id => $handler) {
+      if (isset($handler->options['entity_type_key'], $handler->options['entity_id_key'])) {
+        $result[$handler_id] = [
+          'entity_type_key' => $handler->options['entity_type_key'],
+          'entity_id_key' => $handler->options['entity_id_key'],
+        ];
+      }
+    }
+
+    return ['none' => $this->options['entity_relationship']] + $result;
   }
 
   /**
    * Loads all entities contained in the passed-in $results.
-   *.
-   * If the entity belongs to the base table, then it gets stored in
-   * $result->_entity. Otherwise, it gets stored in
+   *
+   * Entities defined by a "entity_relationship" relationship are stored in
    * $result->_relationship_entities[$relationship_id];
    *
    * @param \Drupal\views\ResultRow[] $results
    *   The result of the SQL query.
    */
   public function loadEntities(&$results) {
+    $entity_relationships = $this->getEntityRelationships();
+
+    // No entity tables found, nothing else to do here.
+    if (empty($entity_relationships)) {
+      return;
+    }
+
     $entity_types = array_keys($this->entityTypeManager->getDefinitions());
     $entity_ids_by_type = [];
 
-    foreach ($results as $index => $result) {
-      // Store entity ID if found.
-      if (!empty($result->entity_type) && in_array($result->entity_type, $entity_types)) {
-        $entity_ids_by_type[$result->entity_type][$index] = $result->id;
+    foreach ($entity_relationships as $relationship_id => $info) {
+      foreach ($results as $index => $result) {
+        // Get entity type value from result.
+        $entity_type = $this->getNestedValue($info['entity_type_key'], $result);
+
+        if (isset($entity_type) && in_array($entity_type, $entity_types)) {
+          // Get entity ID value from result.
+          $entity_id = $this->getNestedValue($info['entity_id_key'], $result);
+
+          if (isset($entity_id)) {
+            $entity_ids_by_type[$entity_type][$index][$relationship_id] = $entity_id;
+          }
+        }
       }
     }
 
@@ -313,15 +452,23 @@ class Elasticsearch extends QueryPluginBase {
    *   The changed views results.
    */
   protected function assignEntitiesToResult($ids, array $entities, array $results) {
-    foreach ($ids as $index => $id) {
-      if (isset($entities[$id])) {
-        $entity = $entities[$id];
-      }
-      else {
+    foreach ($ids as $index => $relationships) {
+      foreach ($relationships as $relationship_id => $id) {
         $entity = NULL;
-      }
 
-      $results[$index]->_entity = $entity;
+        if (isset($entities[$id])) {
+          $entity = $entities[$id];
+        }
+
+        if ($entity) {
+          if ($relationship_id == 'none') {
+            $results[$index]->_entity = $entity;
+          }
+          else {
+            $results[$index]->_relationship_entities[$relationship_id] = $entity;
+          }
+        }
+      }
     }
 
     return $results;
@@ -337,6 +484,9 @@ class Elasticsearch extends QueryPluginBase {
     foreach ($this->view->result as $row) {
       if ($row->_entity) {
         $entities[] = $row->_entity;
+      }
+      foreach ($row->_relationship_entities as $entity) {
+        $entities[] = $entity;
       }
     }
 

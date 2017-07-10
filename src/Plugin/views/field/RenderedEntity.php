@@ -186,7 +186,14 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
    */
   public function getEntityTypeId() {
     if (($row_index = $this->view->row_index) !== NULL) {
-      return $this->view->result[$row_index]->_entity->getEntityTypeId();
+      if (!empty($this->options['relationship']) && $this->options['relationship'] != 'none') {
+        if ($entity = $this->view->result[$row_index]->_relationship_entities[$this->options['relationship']]) {
+          return $entity->getEntityTypeId();
+        }
+      }
+      elseif ($entity = $this->view->result[$row_index]->_entity) {
+        return $entity->getEntityTypeId();
+      }
     }
 
     return '';
