@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\views\field;
 
+use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
@@ -34,6 +35,9 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
 
   /** @var EntityDisplayRepositoryInterface $entityDisplayRepository */
   protected $entityDisplayRepository;
+
+  /** @var string $entityResultProperty */
+  protected $entityResultProperty = 'search_result';
 
   /**
    * RenderedEntity constructor.
@@ -96,9 +100,9 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
    */
   public function defineOptions() {
     $options = parent::defineOptions();
-    foreach ($this->getContentEntityTypes() as $entity_type_id => $entity_type_label) {
-      $options['view_mode']['default'][$entity_type_id] = 'default';
-    }
+
+    $options['view_mode'] = ['default' => []];
+    $options['set_result_on_entity'] = ['default' => FALSE];
 
     return $options;
   }
@@ -109,15 +113,53 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
-    // Prepare entity type listing.
-    foreach ($this->getContentEntityTypes() as $entity_type_id => $entity_type_label) {
-      $form['view_mode'][$entity_type_id] = [
-        '#type' => 'select',
-        '#options' => $this->entityDisplayRepository->getViewModeOptions($entity_type_id),
-        '#title' => $this->t('View mode for @content_type', ['@content_type' => $entity_type_label]),
-        '#default_value' => $this->options['view_mode'][$entity_type_id],
-      ];
+    $form['view_mode'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('View mode'),
+      '#default_value' => Yaml::encode($this->options['view_mode']),
+      '#description' => $this->t('Provide view mode settings for each entity type and bundle in YAML format. Example: @example', ['@example' => join('<br />', ['- node:article: default'])]),
+    ];
+
+    $form['set_result_on_entity'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Set result on the entity'),
+      '#description' => $this->t('Enable to store the search result on the entity (as %property property)', ['%property' => $this->entityResultProperty]),
+      '#default_value' => !empty($this->options['set_result_on_entity']),
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::validateOptionsForm($form, $form_state);
+
+    $value = &$form_state->getValue(['options', 'view_mode']);
+
+    if (empty($value)) {
+      $value = '';
     }
+
+    try {
+      $validated_value = Yaml::decode($value);
+
+      if (!is_array($validated_value)) {
+        throw new \Exception('View modes must be a list with entity type/bundle pair as key (e.g., "node:page") and view mode as value (e.g, "default").');
+      }
+    } catch (\Exception $e) {
+      $message = $e->getMessage();
+      $form_state->setErrorByName('options][view_mode', !empty($message) ? $message : $this->t('Please enter valid JSON.'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::submitOptionsForm($form, $form_state);
+
+    $value = Yaml::decode($form_state->getValue(['options', 'view_mode']));
+    $form_state->setValue(['options', 'view_mode'], $value);
   }
 
   /**
@@ -130,18 +172,53 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
     // Elasticsearch results might not correspond to a Drupal entity.
     if ($entity instanceof ContentEntityInterface) {
       $entity = $this->getEntityTranslation($entity, $values);
+
       if (isset($entity)) {
         $access = $entity->access('view', NULL, TRUE);
         $build['#access'] = $access;
+
         if ($access->isAllowed()) {
-          $mode_mode = $this->options['view_mode'][$this->getEntityTypeId()];
-          $view_builder = $this->entityManager->getViewBuilder($this->getEntityTypeId());
-          $build += $view_builder->view($entity, $mode_mode);
+          $entity_type = $entity->getEntityTypeId();
+          $entity_bundle = $entity->bundle();
+
+          // Get view mode for the entity.
+          $view_mode = $this->getViewMode($entity_type, $entity_bundle);
+
+          // Assign search results to the entity for reference.
+          if ($this->options['set_result_on_entity']) {
+            $entity->{$this->entityResultProperty} = $values;
+          }
+
+          // Build entity view.
+          $view_builder = $this->entityManager->getViewBuilder($entity_type);
+          $build += $view_builder->view($entity, $view_mode);
         }
       }
     }
 
     return $build;
+  }
+
+  /**
+   * Returns view mode for given entity type and bundle.
+   *
+   * @param $entity_type
+   * @param $bundle
+   *
+   * @return string
+   */
+  protected function getViewMode($entity_type, $bundle) {
+    foreach ($this->options['view_mode'] as $settings) {
+      if (isset($settings[sprintf('%s:%s', $entity_type, $bundle)])) {
+        return $settings[sprintf('%s:%s', $entity_type, $bundle)];
+      }
+
+      if (isset($settings[$entity_type])) {
+        return $settings[$entity_type];
+      }
+    }
+
+    return 'default';
   }
 
   /**
