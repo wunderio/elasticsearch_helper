@@ -277,6 +277,17 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Executes Elasticsearch query and returns the result.
+   *
+   * @param array $query
+   *
+   * @return array
+   */
+  public function executeQuery(array $query) {
+    return $this->elasticsearchClient->search($query);
+  }
+
+  /**
    * Returns result row from a search hit.
    *
    * @param array $hit
@@ -308,7 +319,7 @@ class Elasticsearch extends QueryPluginBase {
     $result = [];
 
     try {
-      if ($data = $this->elasticsearchClient->search($query)) {
+      if ($data = $this->executeQuery($query)) {
         $index = 0;
         foreach ($data['hits']['hits'] as $hit) {
           $result[] = $this->createResultRowFromHit($hit, $index);
