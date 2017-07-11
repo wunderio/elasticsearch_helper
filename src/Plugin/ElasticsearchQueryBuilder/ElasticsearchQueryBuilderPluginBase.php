@@ -2,9 +2,10 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\ElasticsearchQueryBuilder;
 
-use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
+use Drupal\views\Plugin\views\PluginBase;
 use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -29,6 +30,13 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
       $plugin_id,
       $plugin_definition
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    parent::init($view, $display, $options);
   }
 
   /**
