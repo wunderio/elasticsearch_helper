@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\ElasticsearchQueryBuilder;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
@@ -86,7 +87,17 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
    * {@inheritdoc}
    */
   public function getCacheContexts() {
-    return [];
+    $contexts = [];
+
+    // Merge in cache contexts for all exposed filters.
+    foreach ($this->displayHandler->getHandlers('filter') as $filter_handler) {
+      /** @var \Drupal\views\Plugin\views\Filter\FilterPluginBase $filter_handler */
+      if ($filter_handler->isExposed()) {
+        $contexts = Cache::mergeContexts($contexts, $filter_handler->getCacheContexts());
+      }
+    }
+
+    return $contexts;
   }
 
   /**

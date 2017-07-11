@@ -520,6 +520,27 @@ class Elasticsearch extends QueryPluginBase {
   /**
    * {@inheritdoc}
    */
+  public function getCacheContexts() {
+    $contexts = [];
+
+    // Get cache context from the query builder.
+    $contexts = Cache::mergeContexts($contexts, $this->getQueryBuilder()->getCacheContexts());
+
+    // Add base entity type cache context.
+    if (isset($this->options['entity_relationship']['entity_type_key'])) {
+      $entity_type_id = $this->getNestedValue($this->options['entity_relationship']['entity_type_key'], []);
+
+      if ($entity_type = \Drupal::entityManager()->getDefinition($entity_type_id, FALSE)) {
+        $contexts = Cache::mergeContexts($contexts, $entity_type->getListCacheContexts());
+      }
+    }
+
+    return $contexts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCacheMaxAge() {
     $max_age = parent::getCacheMaxAge();
     foreach ($this->getAllEntities() as $entity) {

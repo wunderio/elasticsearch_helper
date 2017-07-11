@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_views\Plugin\views\field;
 
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
@@ -192,6 +193,9 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
           // Build entity view.
           $view_builder = $this->entityManager->getViewBuilder($entity_type);
           $build += $view_builder->view($entity, $view_mode);
+
+          // Add cache contexts to the build.
+          CacheableMetadata::createFromRenderArray($build)->addCacheContexts($this->getCacheContexts())->applyTo($build);
         }
       }
     }
@@ -225,7 +229,14 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
    * {@inheritdoc}
    */
   public function getCacheContexts() {
-    return [];
+    $contexts = [];
+
+    // If results are set on the entity, apply query plugin cache contexts.
+    if ($this->options['set_result_on_entity']) {
+      $contexts = Cache::mergeContexts($contexts, $this->view->getQuery()->getCacheContexts());
+    }
+
+    return $contexts;
   }
 
   /**
