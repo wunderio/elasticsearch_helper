@@ -3,12 +3,13 @@
 namespace Drupal\elasticsearch_helper_views;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\views\ViewExecutable;
 
 /**
  * Defines an interface for Elasticsearch query builder plugins.
  */
-interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface {
+interface ElasticsearchQueryBuilderInterface extends PluginInspectionInterface, CacheableDependencyInterface {
 
   /**
    * Builds Elasticsearch query based on given query/filter values.

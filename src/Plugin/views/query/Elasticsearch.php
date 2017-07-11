@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderManager;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
@@ -68,6 +69,13 @@ class Elasticsearch extends QueryPluginBase {
       $container->get('entity_type.manager'),
       $container->get('elasticsearch_query_builder.manager')
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    parent::init($view, $display, $options);
   }
 
   /**
@@ -226,6 +234,9 @@ class Elasticsearch extends QueryPluginBase {
     if ($this->options['query_builder'] && !isset($this->queryBuilder)) {
       try {
         $this->queryBuilder = $this->elasticsearchQueryBuilderManager->createInstance($this->options['query_builder']);
+        $options = [];
+        // Initialize the plugin.
+        $this->queryBuilder->init($this->view, $this->displayHandler, $options);
       } catch (\Exception $e) {
         watchdog_exception('elasticsearch_helper_views', $e);
       }
@@ -504,6 +515,27 @@ class Elasticsearch extends QueryPluginBase {
     }
 
     return $tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    $contexts = [];
+
+    // Get cache context from the query builder.
+    $contexts = Cache::mergeContexts($contexts, $this->getQueryBuilder()->getCacheContexts());
+
+    // Add base entity type cache context.
+    if (isset($this->options['entity_relationship']['entity_type_key'])) {
+      $entity_type_id = $this->getNestedValue($this->options['entity_relationship']['entity_type_key'], []);
+
+      if ($entity_type = \Drupal::entityManager()->getDefinition($entity_type_id, FALSE)) {
+        $contexts = Cache::mergeContexts($contexts, $entity_type->getListCacheContexts());
+      }
+    }
+
+    return $contexts;
   }
 
   /**

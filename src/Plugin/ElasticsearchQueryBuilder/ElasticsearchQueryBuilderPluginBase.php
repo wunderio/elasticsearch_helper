@@ -2,9 +2,11 @@
 
 namespace Drupal\elasticsearch_helper_views\Plugin\ElasticsearchQueryBuilder;
 
-use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
+use Drupal\views\Plugin\views\PluginBase;
 use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -29,6 +31,13 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
       $plugin_id,
       $plugin_definition
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    parent::init($view, $display, $options);
   }
 
   /**
@@ -65,6 +74,37 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
       $arguments[$sort->realField] = strtolower($sort->options['order']);
     }
     return $arguments;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    $contexts = [];
+
+    // Merge in cache contexts for all exposed filters.
+    foreach ($this->displayHandler->getHandlers('filter') as $filter_handler) {
+      /** @var \Drupal\views\Plugin\views\Filter\FilterPluginBase $filter_handler */
+      if ($filter_handler->isExposed()) {
+        $contexts = Cache::mergeContexts($contexts, $filter_handler->getCacheContexts());
+      }
+    }
+
+    return $contexts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return [];
   }
 
 }
