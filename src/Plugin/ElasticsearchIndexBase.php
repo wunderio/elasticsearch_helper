@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
@@ -131,7 +132,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $params['id'] = $this->getId($serialized_data);
     }
 
-    $this->client->index($params);
+    try {
+      $this->client->index($params);
+    }
+    catch (NoNodesAvailableException $e) {
+      $this->logger->error('Elasticsearch indexing failed: @message', [
+        '@message' => $e->getMessage()
+      ]);
+
+      // TODO: queue for later indexing.
+    }
   }
 
   /**
@@ -165,7 +175,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ]
     ];
 
-    $this->client->update($params);
+    try {
+      $this->client->update($params);
+    }
+    catch (NoNodesAvailableException $e) {
+      $this->logger->error('Elasticsearch upsert failed: @message', [
+        '@message' => $e->getMessage()
+      ]);
+
+      // TODO: queue for later indexing.
+    }
   }
 
   /**
@@ -187,6 +206,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $this->logger->notice('Could not delete entry with id @id from elasticsearh index', [
         '@id' => $params['id'],
       ]);
+    }
+    catch (NoNodesAvailableException $e) {
+      $this->logger->error('Elasticsearch deletion failed: @message', [
+        '@message' => $e->getMessage()
+      ]);
+
+      // TODO: queue for later deletion.
     }
   }
 
