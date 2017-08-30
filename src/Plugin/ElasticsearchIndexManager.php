@@ -13,6 +13,7 @@ use Drupal\Core\Queue\QueueInterface;
 use Drupal\Core\Queue\QueueWorkerInterface;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Psr\Log\LoggerInterface;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
 
 /**
  * Provides the Elasticsearch index plugin manager.
@@ -67,8 +68,18 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           // Do not index if defined plugin bundle differs from entity bundle.
           continue;
         }
-        // Index the entity in elasticsearch.
-        $this->createInstance($plugin['id'])->index($entity);
+
+        try {
+          // Index the entity in elasticsearch.
+          $this->createInstance($plugin['id'])->index($entity);
+        }
+        catch (ElasticsearchException $e) {
+          $this->logger->error('Elasticsearch indexing failed: @message', [
+            '@message' => $e->getMessage()
+          ]);
+
+          // TODO: queue for later indexing.
+        }
       }
     }
   }
@@ -85,8 +96,18 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           // Do not delete if defined plugin bundle differs from entity bundle.
           continue;
         }
-        // Index the entity in elasticsearch.
-        $this->createInstance($plugin['id'])->delete($entity);
+
+        try {
+          // Delete the entity from elasticsearch.
+          $this->createInstance($plugin['id'])->delete($entity);
+        }
+        catch (ElasticsearchException $e) {
+          $this->logger->error('Elasticsearch deletion failed: @message', [
+            '@message' => $e->getMessage()
+          ]);
+
+          // TODO: queue for later indexing.
+        }
       }
     }
   }
