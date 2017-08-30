@@ -1,6 +1,10 @@
 <?php
 
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
+/**
+ * @file
+ *
+ * Drush commands for the elasticsearch_helper module.
+ */
 
 /**
  * Implements hook_drush_command().
@@ -8,31 +12,31 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
 function elasticsearch_helper_drush_command() {
   $items = [];
 
-  $items['elasticsearch-helper-list'] =  [
+  $items['elasticsearch-helper-list'] = [
     'description' => 'List ElasticsearchIndex plugins.',
     'aliases' => ['eshl'],
   ];
 
-  $items['elasticsearch-helper-setup'] =  [
+  $items['elasticsearch-helper-setup'] = [
     'description' => 'Setup Elasticsearch indices.',
     'arguments' => [
-      'indices' => 'Comma separated list of indices to be set up'
+      'indices' => 'Comma separated list of indices to be set up',
     ],
     'aliases' => ['eshs'],
   ];
 
-  $items['elasticsearch-helper-drop'] =  [
+  $items['elasticsearch-helper-drop'] = [
     'description' => 'Drop Elasticsearch indices.',
     'arguments' => [
-      'indices' => 'Comma separated list of indices to be deleted'
+      'indices' => 'Comma separated list of indices to be deleted',
     ],
     'aliases' => ['eshd'],
   ];
 
-  $items['elasticsearch-helper-reindex'] =  [
+  $items['elasticsearch-helper-reindex'] = [
     'description' => 'Reindex entities associated with an elasticsearch index',
     'arguments' => [
-      'indices' => 'Comma separated list of indices for which entities should be reindexed'
+      'indices' => 'Comma separated list of indices for which entities should be reindexed',
     ],
     'aliases' => ['eshr'],
   ];
@@ -40,8 +44,11 @@ function elasticsearch_helper_drush_command() {
   return $items;
 }
 
+/**
+ * List ElasticsearchIndex plugins
+ */
 function drush_elasticsearch_helper_list() {
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   $header = ['id', 'Name'];
@@ -50,13 +57,16 @@ function drush_elasticsearch_helper_list() {
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
     $rows[] = [
       $plugin['id'],
-      $plugin['label']
+      $plugin['label'],
     ];
   }
 
   drush_print_table($rows, $header);
 }
 
+/**
+ * Setup Elasticsearch indices.
+ */
 function drush_elasticsearch_helper_setup($indices = FALSE) {
 
   // Indices can be specified with a comma-separate value.
@@ -64,7 +74,7 @@ function drush_elasticsearch_helper_setup($indices = FALSE) {
     $indices = explode(',', $indices);
   }
 
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
@@ -74,13 +84,16 @@ function drush_elasticsearch_helper_setup($indices = FALSE) {
   }
 }
 
+/**
+ * Drop Elasticsearch indices.
+ */
 function drush_elasticsearch_helper_drop($indices = FALSE) {
   // Indices can be specified with a comma-separate value.
   if ($indices && is_string($indices)) {
     $indices = explode(',', $indices);
   }
 
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
@@ -107,13 +120,16 @@ function drush_elasticsearch_helper_drop($indices = FALSE) {
   }
 }
 
+/**
+ * Reindex entities associated with an elasticsearch index.
+ */
 function drush_elasticsearch_helper_reindex($indices = FALSE) {
   // Indices can be specified with a comma-separate value.
   if ($indices && is_string($indices)) {
     $indices = explode(',', $indices);
   }
 
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
-   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
-   $elasticsearchPluginManager->reindex($indices);
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
+  $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
+  $elasticsearchPluginManager->reindex($indices);
 }

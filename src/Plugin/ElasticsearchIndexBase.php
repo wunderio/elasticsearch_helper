@@ -20,7 +20,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   use StringTranslationTrait;
 
   /**
-   * @var Client
+   * @var \Elasticsearch\Client
    */
   protected $client;
 
@@ -41,6 +41,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   protected $placeholder_regex = '/{[_\-\w\d]*}/';
 
+  /**
+   * ElasticsearchIndexBase constructor.
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
+   * @param \Elasticsearch\Client $client
+   * @param \Symfony\Component\Serializer\Serializer $serializer
+   * @param \Psr\Log\LoggerInterface $logger
+   */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
@@ -49,6 +58,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $this->logger = $logger;
   }
 
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
+   * @return static
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
@@ -85,7 +101,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     try {
       return array_keys($this->client->indices()->get($params));
-    } catch (Missing404Exception $e) {
+    }
+    catch (Missing404Exception $e) {
       return [];
     }
   }
@@ -95,7 +112,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function drop() {
     $params = [
-      'index' => $this->indexNamePattern()
+      'index' => $this->indexNamePattern(),
     ];
 
     try {
@@ -108,7 +125,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         // Delete matching indices.
         $this->client->indices()->delete($params);
       }
-    } catch (Missing404Exception $e) {
+    }
+    catch (Missing404Exception $e) {
       drupal_set_message($this->t('No Elasticsearch index matching @pattern could be dropped.', [
         '@pattern' => $this->indexNamePattern(),
       ]));
@@ -128,7 +146,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     ];
 
     if ($id = $this->getId($serialized_data)) {
-      $params['id'] = $this->getId($serialized_data);
+      $params['id'] = $id;
     }
 
     $this->client->index($params);
@@ -162,7 +180,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       'body' => [
         'doc' => $serialized_data,
         'doc_as_upsert' => TRUE,
-      ]
+      ],
     ];
 
     $this->client->update($params);
@@ -229,13 +247,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Transform the data from its native format (most likely a Drupal entity) to
    * the format that should be stored in the Elasticsearch index.
    */
-  public function serialize($source, $context = array()) {
+  public function serialize($source, $context = []) {
 
     if ($source instanceof EntityInterface) {
       if (isset($this->pluginDefinition['normalizerFormat'])) {
         // Use custom normalizerFormat if it's defined in plugin.
         $format = $this->pluginDefinition['normalizerFormat'];
-      } else {
+      }
+      else {
         // Use the default normalizer format.
         $format = 'elasticsearch_helper';
       }
@@ -310,6 +329,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   /**
    * Replace any placeholders of the form {name} in the given string.
+   *
    * @param $haystack
    * @param $data
    */
@@ -318,7 +338,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $matches = [];
 
     if (preg_match_all($this->placeholder_regex, $haystack, $matches)) {
-      foreach($matches[0] as $match) {
+      foreach ($matches[0] as $match) {
         $key = substr($match, 1, -1);
         $haystack = str_replace($match, $data[$key], $haystack);
       }
@@ -326,4 +346,5 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     return $haystack;
   }
+
 }

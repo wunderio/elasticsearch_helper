@@ -1,7 +1,11 @@
 <?php
 
+/**
+ * @file
+ * This module provides tools to integrate elasticsearch with Drupal.
+ */
+
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
 
 /**
  * Implements hook_entity_insert().
@@ -21,7 +25,7 @@ function elasticsearch_helper_entity_update(EntityInterface $entity) {
  * Implements hook_entity_delete().
  */
 function elasticsearch_helper_entity_delete(EntityInterface $entity) {
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   \Drupal::service('plugin.manager.elasticsearch_index.processor')->deleteEntity($entity);
 }
 
@@ -29,13 +33,13 @@ function elasticsearch_helper_entity_delete(EntityInterface $entity) {
  * Implements hook_modules_installed().
  */
 function elasticsearch_helper_modules_installed($modules) {
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {
     // If the plugin provider was just installed.
     if (in_array($plugin['provider'], $modules)) {
-      // Setup indidices for that plugin
+      // Setup indidices for that plugin.
       $elasticsearchPluginManager->createInstance($plugin['id'])->setup();
     }
   }
@@ -45,7 +49,7 @@ function elasticsearch_helper_modules_installed($modules) {
  * Implements hook_module_preuninstall().
  */
 function elasticsearch_helper_module_preuninstall($module) {
-  /** @var ElasticsearchIndexManager $elasticsearchPluginManager */
+  /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearchPluginManager */
   $elasticsearchPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
   foreach ($elasticsearchPluginManager->getDefinitions() as $plugin) {

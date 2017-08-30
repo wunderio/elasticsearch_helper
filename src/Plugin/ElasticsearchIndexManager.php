@@ -9,10 +9,6 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Queue\QueueFactory;
-use Drupal\Core\Queue\QueueInterface;
-use Drupal\Core\Queue\QueueWorkerInterface;
-use Drupal\Core\Queue\QueueWorkerManagerInterface;
-use Psr\Log\LoggerInterface;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
 
 /**
@@ -26,7 +22,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   protected $entityTypeManager;
 
   /**
-   * @var QueueWorkerInterface
+   * @var \Drupal\Core\Queue\QueueWorkerInterface
    */
   protected $queue;
 
@@ -75,7 +71,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
         }
         catch (ElasticsearchException $e) {
           $this->logger->error('Elasticsearch indexing failed: @message', [
-            '@message' => $e->getMessage()
+            '@message' => $e->getMessage(),
           ]);
 
           // TODO: queue for later indexing.
@@ -103,7 +99,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
         }
         catch (ElasticsearchException $e) {
           $this->logger->error('Elasticsearch deletion failed: @message', [
-            '@message' => $e->getMessage()
+            '@message' => $e->getMessage(),
           ]);
 
           // TODO: queue for later indexing.
@@ -114,9 +110,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
 
   /**
    * Reindex elasticsearch with all entities.
+   *
    * @param $indices
    */
-  public function reindex($indices = array()) {
+  public function reindex($indices = []) {
 
     foreach ($this->getDefinitions() as $plugin) {
       if (empty($indices) || in_array($plugin['id'], $indices)) {

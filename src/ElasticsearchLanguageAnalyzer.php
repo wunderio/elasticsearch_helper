@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper;
 
 /**
- * Class ElasticsearchLanguageAnalyzer
+ * Class ElasticsearchLanguageAnalyzer.
  *
  * @package Drupal\elasticsearch_helper
  */
@@ -12,8 +12,11 @@ class ElasticsearchLanguageAnalyzer {
   /**
    * Get the name of a language analyzer for a given language code.
    *
-   * @param $langcode
+   * @param string $langcode
+   *   The language code for which to get the language analyzer.
+   *
    * @return string
+   *   The name of the Elasticsearch language analyzer to be used.
    */
   public static function get($langcode) {
     // Map language codes to the built-in language analysers documented here:
@@ -60,7 +63,6 @@ class ElasticsearchLanguageAnalyzer {
 
       // For improved chinese support install the analysis-smartcn
       // elasticsearch plugin with the 'smartcn' analyzer.
-
       // For improved japanese support install the analysis-kuromoji
       // elasticsearch plugin with the 'kuromoji' analyzer.
     ];
@@ -72,4 +74,5 @@ class ElasticsearchLanguageAnalyzer {
       return 'standard';
     }
   }
+
 }

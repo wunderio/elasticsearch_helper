@@ -4,9 +4,13 @@ namespace Drupal\elasticsearch_helper;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 
+/**
+ * Class ElasticsearchClientBuilder.
+ *
+ * @package Drupal\elasticsearch_helper
+ */
 class ElasticsearchClientBuilder {
 
   /**
@@ -19,6 +23,11 @@ class ElasticsearchClientBuilder {
    */
   protected $moduleHandler;
 
+  /**
+   * ElasticsearchClientBuilder constructor.
+   * @param \Drupal\Core\Config\ConfigFactory $configFactory
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   */
   public function __construct(ConfigFactory $configFactory, ModuleHandlerInterface $moduleHandler) {
     $this->config = $configFactory->get('elasticsearch_helper.settings');
     $this->moduleHandler = $moduleHandler;
@@ -27,7 +36,7 @@ class ElasticsearchClientBuilder {
   /**
    * Create an elasticsearch client.
    *
-   * @return Client
+   * @return \Elasticsearch\Client
    */
   public function build() {
     $clientBuilder = ClientBuilder::create();
@@ -45,13 +54,13 @@ class ElasticsearchClientBuilder {
   protected function getHosts() {
     $host = implode(':', [
       $this->config->get('elasticsearch_helper.host'),
-      $this->config->get('elasticsearch_helper.port')
+      $this->config->get('elasticsearch_helper.port'),
     ]);
 
     if ($this->config->get('elasticsearch_helper.user')) {
       $credentials = implode(':', [
         $this->config->get('elasticsearch_helper.user'),
-        $this->config->get('elasticsearch_helper.password')
+        $this->config->get('elasticsearch_helper.password'),
       ]);
 
       if (!empty($credentials)) {
@@ -62,10 +71,11 @@ class ElasticsearchClientBuilder {
     if ($scheme = $this->config->get('elasticsearch_helper.scheme')) {
       $host = implode('://', [
         $scheme,
-        $host
+        $host,
       ]);
     }
 
     return [$host];
   }
+
 }

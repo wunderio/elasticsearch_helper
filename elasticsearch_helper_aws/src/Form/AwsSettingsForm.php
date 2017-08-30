@@ -2,11 +2,8 @@
 
 namespace Drupal\elasticsearch_helper_aws\Form;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ConfigManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class AWSSettingsForm.
@@ -81,4 +78,5 @@ class AWSSettingsForm extends ConfigFormBase {
       ->set('secret_access_key', $form_state->getValue('secret_access_key'))
       ->save();
   }
+
 }

@@ -3,7 +3,6 @@
 namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\elasticsearch_helper\ElasticsearchClientBuilder;
 
 /**
  * Defines an interface for Elasticsearch index plugins.
@@ -13,7 +12,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Get the Elasticsearch client.
    *
-   * @return ElasticsearchClientBuilder
+   * @return \Drupal\elasticsearch_helper\ElasticsearchClientBuilder
    */
   public function getClient();
 
@@ -79,4 +78,5 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *   The body of the bulk operation.
    */
   public function bulk($body);
+
 }

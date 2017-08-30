@@ -3,7 +3,6 @@
 namespace Drupal\elasticsearch_helper_example\Plugin\Normalizer;
 
 use Drupal\serialization\Normalizer\ContentEntityNormalizer;
-use Drupal\node\Entity\Node;
 
 /**
  * Normalizes / denormalizes Drupal nodes into an array structure good for ES.
@@ -27,10 +26,10 @@ class NodeNormalizer extends ContentEntityNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function normalize($object, $format = NULL, array $context = array()) {
-    /** @var Node $object */
+  public function normalize($object, $format = NULL, array $context = []) {
+    /** @var \Drupal\node\Entity\Node $object */
 
-    $data =  [
+    $data = [
       'id' => $object->id(),
       'uuid' => $object->uuid(),
       'title' => $object->getTitle(),
@@ -38,9 +37,10 @@ class NodeNormalizer extends ContentEntityNormalizer {
       'user' => [
         'name' => $object->getRevisionAuthor()->getAccountName(),
         'id' => $object->getRevisionAuthor()->id(),
-      ]
+      ],
     ];
 
     return $data;
   }
+
 }

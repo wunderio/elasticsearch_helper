@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install functions for the elasticsearch_helper_aws module.
+ */
+
+/**
  * Implements hook_requirements().
  */
 function elasticsearch_helper_aws_requirements($phase) {

@@ -2,7 +2,6 @@
 
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
-use Drupal\elasticsearch_helper\Annotation\ElasticsearchIndex;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
@@ -14,12 +13,10 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   entityType = "node"
  * )
  */
-class SimpleNodeIndex extends ElasticsearchIndexBase{
-  
+class SimpleNodeIndex extends ElasticsearchIndexBase {
+
   /**
-   * NOTE:
-   *
-   * The structure of the indexed data is determined by normalizers,
+   * NOTE: The structure of the indexed data is determined by normalizers,
    * see NodeNormalizer.php.
    */
 }

@@ -2,10 +2,12 @@
 
 namespace Drupal\elasticsearch_helper\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ElasticsearchHelperSettingsForm.
@@ -13,6 +15,37 @@ use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
  * @package Drupal\elasticsearch_helper\Form
  */
 class ElasticsearchHelperSettingsForm extends ConfigFormBase {
+
+  /**
+   * The Elasticsearch client.
+   *
+   * @var \Elasticsearch\Client
+   */
+  protected $client;
+
+  /**
+   * ElasticsearchHelperSettingsForm constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Elasticsearch\Client $elasticsearch_client
+   *   The Elasticsearch client.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, Client $elasticsearch_client) {
+    parent::__construct($config_factory);
+
+    $this->client = $elasticsearch_client;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('elasticsearch_helper.elasticsearch_client')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -36,11 +69,8 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('elasticsearch_helper.settings');
 
-    /** @var Client $client */
-    $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
-
     try {
-      $health = $client->cluster()->health();
+      $health = $this->client->cluster()->health();
 
       drupal_set_message($this->t('Connected to Elasticsearch'));
 
@@ -51,11 +81,11 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       ];
 
       drupal_set_message($this->t('Elasticsearch cluster status is @status', [
-        '@status' => $health['status']
+        '@status' => $health['status'],
       ]), $color_states[$health['status']]);
     }
     catch (NoNodesAvailableException $e) {
-      drupal_set_message('Could not connect to Elasticsearch', 'error');
+      drupal_set_message($this->t('Could not connect to Elasticsearch'), 'error');
     }
     catch (\Exception $e) {
       drupal_set_message($e->getMessage(), 'error');
@@ -98,7 +128,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         'visible' => [
           ':input[name="authentication"]' => ['checked' => TRUE],
         ],
-      ]
+      ],
     ];
 
     $form['credentials']['user'] = [
@@ -116,13 +146,6 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     ];
 
     return parent::buildForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
   }
 
   /**

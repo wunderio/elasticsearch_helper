@@ -2,9 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
-use Drupal\elasticsearch_helper\Annotation\ElasticsearchIndex;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
-use Drupal\node\Entity\Node;
 
 /**
  * @ElasticsearchIndex(
@@ -20,8 +18,8 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   /**
    * @inheritdoc
    */
-  public function serialize($source, $context = Array()) {
-    /** @var Node $source */
+  public function serialize($source, $context = []) {
+    /** @var \Drupal\node\Entity\Node $source */
 
     $data = parent::serialize($source);
 
@@ -34,7 +32,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
 
     return $data;
   }
-  
+
   /**
    * @inheritdoc
    */
@@ -58,11 +56,11 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
               'month' => [
                 'enabled' => FALSE,
               ],
-            ]
-          ]
-        ]
-      ]
+            ],
+          ],
+        ],
+      ],
     ]);
   }
-  
+
 }
