@@ -535,7 +535,9 @@ class Elasticsearch extends QueryPluginBase {
     $contexts = [];
 
     // Get cache context from the query builder.
-    $contexts = Cache::mergeContexts($contexts, $this->getQueryBuilder()->getCacheContexts());
+    if ($query_builder = $this->getQueryBuilder()) {
+      $contexts = Cache::mergeContexts($contexts, $query_builder->getCacheContexts());
+    }
 
     // Add base entity type cache context.
     if (isset($this->options['entity_relationship']['entity_type_key'])) {
