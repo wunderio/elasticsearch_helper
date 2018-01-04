@@ -60,5 +60,13 @@ function elasticsearch_helper_views_views_data() {
     ],
   ];
 
+  $data['elasticsearch_result']['source'] = [
+    'title' => t('Source field'),
+    'help' => t('Returns a value from the "_source" field.'),
+    'field' => [
+      'id' => 'elasticsearch_source',
+    ],
+  ];
+
   return $data;
 }
