@@ -8,6 +8,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -175,28 +176,26 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
       $entity = $this->getEntityTranslation($entity, $values);
 
       if (isset($entity)) {
-        $access = $entity->access('view', NULL, TRUE);
-        $build['#access'] = $access;
+        $entity_type = $entity->getEntityTypeId();
+        $entity_bundle = $entity->bundle();
 
-        if ($access->isAllowed()) {
-          $entity_type = $entity->getEntityTypeId();
-          $entity_bundle = $entity->bundle();
+        // Get view mode for the entity.
+        $view_mode = $this->getViewMode($entity_type, $entity_bundle);
 
-          // Get view mode for the entity.
-          $view_mode = $this->getViewMode($entity_type, $entity_bundle);
-
-          // Assign search results to the entity for reference.
-          if ($this->options['set_result_on_entity']) {
-            $entity->{$this->entityResultProperty} = $values;
-          }
-
-          // Build entity view.
-          $view_builder = $this->entityManager->getViewBuilder($entity_type);
-          $build += $view_builder->view($entity, $view_mode);
-
-          // Add cache contexts to the build.
-          CacheableMetadata::createFromRenderArray($build)->addCacheContexts($this->getCacheContexts())->applyTo($build);
+        // Assign search results to the entity for reference.
+        if ($this->options['set_result_on_entity']) {
+          $entity->{$this->entityResultProperty} = $values;
         }
+
+        // Build entity view.
+        $view_builder = $this->entityManager->getViewBuilder($entity_type);
+        $build += $view_builder->view($entity, $view_mode);
+
+        // Add cache contexts to the build.
+        CacheableMetadata::createFromRenderArray($build)->addCacheContexts($this->getCacheContexts())->applyTo($build);
+
+        // Check access and provide the context of the build.
+        $build['#access'] = $this->getAccess($entity, $build);
       }
     }
 
@@ -223,6 +222,18 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
     }
 
     return 'default';
+  }
+
+  /**
+   * Returns access result object for given entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param array $build
+   *
+   * @return bool|\Drupal\Core\Access\AccessResultInterface
+   */
+  protected function getAccess(EntityInterface $entity, array $build) {
+    return $entity->access('view', NULL, TRUE);
   }
 
   /**
