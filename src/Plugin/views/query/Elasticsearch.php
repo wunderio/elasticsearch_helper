@@ -256,7 +256,7 @@ class Elasticsearch extends QueryPluginBase {
     // Apply limit and offset to the query.
     $limits = [
       'size' => $this->getLimit(),
-      'from' => $this->offset,
+      'from' => isset($this->offset) ? $this->offset : 0,
     ];
 
     return array_merge($limits, $query);
