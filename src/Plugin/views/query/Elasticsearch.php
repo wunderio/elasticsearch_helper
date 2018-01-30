@@ -251,7 +251,7 @@ class Elasticsearch extends QueryPluginBase {
   public function query($get_count = FALSE) {
     /** @var ElasticsearchQueryBuilderInterface $query_builder */
     $query_builder = $this->getQueryBuilder();
-    $query = $query_builder->buildQuery($this->view);
+    $query = $query_builder->buildQuery();
 
     // Apply limit and offset to the query.
     $limits = [

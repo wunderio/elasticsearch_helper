@@ -3,7 +3,6 @@
 namespace Drupal\elasticsearch_helper_views\Plugin\ElasticsearchQueryBuilder;
 
 use Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface;
-use Drupal\views\ViewExecutable;
 
 /**
  * @ElasticsearchQueryBuilder(
@@ -17,7 +16,7 @@ class DefaultElasticsearchQueryBuilder extends ElasticsearchQueryBuilderPluginBa
   /**
    * {@inheritdoc}
    */
-  public function buildQuery(ViewExecutable $view) {
+  public function buildQuery() {
     return [];
   }
 

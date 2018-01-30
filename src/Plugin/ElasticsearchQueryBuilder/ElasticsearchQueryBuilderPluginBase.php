@@ -43,12 +43,12 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   /**
    * {@inheritdoc}
    */
-  public function getFilterValues(ViewExecutable $view) {
+  public function getFilterValues() {
     $values = [];
 
-    if (!empty($view->filter)) {
+    if (!empty($this->view->filter)) {
       /** @var \Drupal\views\Plugin\views\filter\FilterPluginBase $filter */
-      foreach ($view->filter as $filter) {
+      foreach ($this->view->filter as $filter) {
         $values[$filter->realField] = $filter->value;
       }
     }
@@ -59,12 +59,12 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   /**
    * {@inheritdoc}
    */
-  public function getArgumentValues(ViewExecutable $view) {
+  public function getArgumentValues() {
     $values = [];
 
-    if (!empty($view->argument)) {
+    if (!empty($this->view->argument)) {
       /** @var \Drupal\views\Plugin\views\argument\ArgumentPluginBase $argument */
-      foreach ($view->argument as $argument) {
+      foreach ($this->view->argument as $argument) {
         $values[$argument->realField] = $argument->getValue();
       }
     }
@@ -75,12 +75,12 @@ abstract class ElasticsearchQueryBuilderPluginBase extends PluginBase implements
   /**
    * {@inheritdoc}
    */
-  public function getSortValues(ViewExecutable $view) {
+  public function getSortValues() {
     $values = [];
 
-    if (!empty($view->sort)) {
+    if (!empty($this->view->sort)) {
       /** @var \Drupal\views\Plugin\views\sort\SortPluginBase $sort */
-      foreach ($view->sort as $sort) {
+      foreach ($this->view->sort as $sort) {
         $values[$sort->realField] = strtolower($sort->options['order']);
       }
     }
