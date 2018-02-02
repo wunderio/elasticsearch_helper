@@ -4,9 +4,12 @@
 
 The module contains a Views query plugin `Elasticsearch` which acts as a bridge between Views display and Elasticsearch. The module defines an `ElasticsearchQueryBuilder` plugin type and an extendable base implementation which allows building Query DSL definition accepted by [`Elasticsearch`][elasticsearch_client] client.
 
-Given the arbitrary nature of Elasticsearch document properties, it's impossible to create a definitive list of field and filter plugins that cover all the data stored in Elasticsearch. For that reason for each data listing you might want to create your own views field and filter plugins that correspond to specific fields in the index. The same applies to Query DSL builder which you will have to create on your own.
+Given the arbitrary nature of Elasticsearch document properties, it's impossible to create a definitive list of field and filter plugins that cover all the data stored in Elasticsearch. For that reason for each data listing you might want to create your own views field and filter plugins that correspond to specific fields in the index. The same applies to Query DSL builder plugin which you will have to create on your own.
 
-The module provides a `Rendered entity` views field plugin which will display rendered Drupal entities in pre-selected view mode per entity type if Elasticsearch indices are created using [`Elasticsearch Helper`][elasticsearch_helper] module or Elasticsearch indices contain `id` and `entity_type` properties which correspond to ids and entity types in Drupal.
+The following views field plugins are provided out of the box:
+
+- `Rendered entity` plugin which displays rendered Drupal entities in pre-selected view mode per entity type; if Elasticsearch documents contain identification ID to other Drupal entities (e.g., author ID), `Rendered entity` plugin can be used to display entities of different types (together with provided views relationship plugin);
+- `Source` field plugin which displays raw values from the Elasticsearch document `_source` array.
 
 ## Usage
 
@@ -20,36 +23,19 @@ The module provides a `Rendered entity` views field plugin which will display re
 
 ## Composer
 
-Add the following snippet to `composer.json` file and run `composer require maijs/elasticsearch_helper_views 1.x-dev` to have the module added to your project.
+Add the following snippet to `composer.json` file and run `composer require maijs/elasticsearch_helper_views` to have the module added to your project.
 
 ```
 {
     "repositories": [
         {
-            "type": "package",
-            "package": {
-                "name": "maijs/elasticsearch_helper_views",
-                "version": "1.x-dev",
-                "type": "drupal-module",
-                "require": {
-                    "drupal/elasticsearch_helper": "1.x-dev"
-                },
-                "source": {
-                    "url": "https://github.com/maijs/elasticsearch_helper_views.git",
-                    "type": "git",
-                    "reference": "8.x-1.x"
-                }
-            }
+            "name": "maijs/elasticsearch_helper_views",
+            "type": "vcs",
+            "url": "https://github.com/maijs/elasticsearch_helper_views.git"
         }
     ]
 }
 ```
-
-## To-do
-
-- [x] Pager support
-- [ ] Contextual filter support
-- [ ] Sorting support
 
 [elasticsearch_download]: https://www.elastic.co/downloads/elasticsearch
 [elasticsearch_helper]: https://www.drupal.org/project/elasticsearch_helper
