@@ -1,0 +1,6 @@
+services:
+  elasticsearch_helper.commands:
+    class: \Drupal\elasticsearch_helper\Commands\ElasticsearchHelperCommands
+    arguments: ['@plugin.manager.elasticsearch_index.processor']
+    tags:
+      - { name: drush.command }
