@@ -1,0 +1,19 @@
+typeahead:
+  remote: https://typeahead.js.org
+  version: 1.2.0
+  license:
+    name: MIT
+    url: https://github.com/corejavascript/typeahead.js/blob/master/license
+    gpl-compatible: true
+  js:
+    /libraries/typeahead/typeahead.bundle.min.js: { minified: true }
+  dependencies:
+    - core/jquery
+
+instant-search:
+  js:
+    js/elasticsearch-helper-instant.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - elasticsearch_helper_instant/typeahead

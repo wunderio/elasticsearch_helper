@@ -1,0 +1,6 @@
+<?php
+
+/**
+ * @file
+ * Instant search functionality based on elasticssearch_helper_content.module.
+ */
