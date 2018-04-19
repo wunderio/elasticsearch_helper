@@ -1,6 +1,16 @@
 
 # Elasticsearch Helper Content
 
+## Start
+
+
+* Enable thew modules: `drush -y en elasticsearch_helper_instant`
+* Configure the `search_index` viewmode of your relevant entities to contain sensible data (or have the default view mode handle it)
+* Setup new indices: `drush elasticsearch-helper-setup`
+* (Re-) Index the data:
+  * `drush elasticsearch-helper-reindex`
+  * `drush queue-run elasticsearch_helper_indexing`
+
 ## Decide whether an entity is indexed
 
 You can decide whether an entity is indexed via custom hook implementation:
