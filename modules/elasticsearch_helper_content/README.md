@@ -6,8 +6,8 @@
 
 * Enable thew modules: `drush -y en elasticsearch_helper_instant`
 * Configure the following viewmodes of your relevant entities to contain sensible data (or have the default view mode handle it):
-  * search_index
-  * search_result
+  * search_index - used by default for indexing content of an entity
+  * search_result - used by default for search result output of an entity
 * Setup new indices: `drush elasticsearch-helper-setup`
 * (Re-) Index the data:
   * `drush elasticsearch-helper-reindex`

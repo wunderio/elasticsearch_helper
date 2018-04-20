@@ -1,8 +1,6 @@
 
 # Elasticsearch Helper Instant
 
-## Ensure typeahead.js library is present
+## Start
 
-This sub-module's composer.json contains the requirement to the external typeahead.js library at https://github.com/twitter/typeahead.js - check and ensure that it's present at your webroot's libraries/typehead.js/... folder.
-
-
+* Configure the search_result viewmode of your relevant entities to contain the desired data for search result output (used by default for search result output of an entity).
