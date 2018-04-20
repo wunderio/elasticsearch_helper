@@ -22,6 +22,9 @@ function elasticsearch_helper_content_entity_extra_field_info() {
   /* @var $entity_type_definitions EntityTypeInterface */
   foreach ($entity_type_definitions as $entity_type_id => $entity_type_definition) {
     if ($entity_type_definition instanceof ContentEntityType) {
+      if (empty($bundle_infos[$entity_type_id])) {
+        $bundle_infos[$entity_type_id] = [$entity_type_id];
+      }
       foreach ($bundle_infos[$entity_type_id] as $bundle_id => $bundle_info) {
         $extra[$entity_type_id][$bundle_id]['display']['search_result_excerpt'] = [
           'label' => t('Search result excerpt'),
