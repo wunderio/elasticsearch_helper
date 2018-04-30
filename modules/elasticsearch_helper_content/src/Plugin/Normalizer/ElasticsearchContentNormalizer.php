@@ -142,7 +142,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
       $data['url_alias'] = $object->toUrl()->toString();
       $data['created'] = $object->hasField('created') ? $object->created->value : NULL;
       // No status field => assume 1 to simplify filtering cross entity types.
-      $data['status'] = $object->hasField('status') ? $object->status->value : 1;
+      $data['status'] = $object->hasField('status') ? boolval($object->status->value) : TRUE;
 
       // Add full plain text render of $object in search_index viewmode.
       // This view mode can be configured to contain all relevant output.
