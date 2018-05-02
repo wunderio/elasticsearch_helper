@@ -155,7 +155,7 @@ class ElasticsearchInstantSearchService {
               ],
             ],
             'filter' => $this->bool('must',
-              $this->optionalTermFilter('status', 1),
+              $this->optionalTermFilter('status', TRUE),
               $this->optionalTermFilter('langcode', $langcode)
             ),
           ],
