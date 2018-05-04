@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * A multilingual content index base class.
  */
-abstract class MultilingualContentIndex extends ElasticsearchIndexBase {
+abstract class MultilingualContentIndexBase extends ElasticsearchIndexBase {
 
   /**
    * @var \Drupal\Core\Language\LanguageManagerInterface
@@ -21,7 +21,7 @@ abstract class MultilingualContentIndex extends ElasticsearchIndexBase {
   protected $languageManager;
 
   /**
-   * MultilingualContentIndex constructor.
+   * MultilingualContentIndexBase constructor.
    *
    * @param array $configuration
    * @param string $plugin_id
