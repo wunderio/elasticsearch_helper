@@ -88,6 +88,10 @@ abstract class MultilingualContentIndexBase extends ElasticsearchIndexBase {
   public function delete($source) {
     /** @var \Drupal\core\Entity\ContentEntityBase $source */
     foreach ($source->getTranslationLanguages() as $langcode => $language) {
+      // @Todo How to delete a deleted translation of an entity?
+      //       (->hasTranslation will be false, but the old translation will
+      //        still be in the index and needs to be deleted).
+      // @Todo How to delete translations of a language that gets removed?
       if ($source->hasTranslation($langcode)) {
         parent::delete($source->getTranslation($langcode));
       }
@@ -98,6 +102,10 @@ abstract class MultilingualContentIndexBase extends ElasticsearchIndexBase {
    * @inheritdoc
    */
   public function setup() {
+    // @Todo How to add (sub-) index for newly added language?
+    // @Todo How to drop (sub-) index for newly removed language?
+    // @Todo How to consider content with neutral or undefined language?
+
     // Create one index per language, so that we can have different analyzers.
     foreach ($this->languageManager->getLanguages() as $langcode => $language) {
       // Determine index name from configured index name and language.
