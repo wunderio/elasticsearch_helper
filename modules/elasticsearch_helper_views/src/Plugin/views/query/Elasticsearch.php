@@ -539,8 +539,8 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
- * {@inheritdoc}
- */
+   * {@inheritdoc}
+   */
   public function getCacheContexts() {
     $contexts = [];
 
