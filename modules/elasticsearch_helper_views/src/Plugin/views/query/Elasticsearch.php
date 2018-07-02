@@ -529,7 +529,7 @@ class Elasticsearch extends QueryPluginBase {
       if (isset($relationship['entity_type_key'])) {
         $entity_type_id = $this->getNestedValue($relationship['entity_type_key'], []);
 
-        if ($entity_type = \Drupal::entityManager()->getDefinition($entity_type_id, FALSE)) {
+        if ($entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE)) {
           $tags = Cache::mergeTags($tags, $entity_type->getListCacheTags());
         }
       }
@@ -553,7 +553,7 @@ class Elasticsearch extends QueryPluginBase {
       if (isset($relationship['entity_type_key'])) {
         $entity_type_id = $this->getNestedValue($relationship['entity_type_key'], []);
 
-        if ($entity_type = \Drupal::entityManager()->getDefinition($entity_type_id, FALSE)) {
+        if ($entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE)) {
           $contexts = Cache::mergeContexts($contexts, $entity_type->getListCacheContexts());
         }
       }
