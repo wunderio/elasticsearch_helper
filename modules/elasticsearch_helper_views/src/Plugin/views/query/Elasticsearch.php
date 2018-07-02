@@ -525,6 +525,16 @@ class Elasticsearch extends QueryPluginBase {
       $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
     }
 
+    foreach ($this->getEntityRelationships() as $relationship) {
+      if (isset($relationship['entity_type_key'])) {
+        $entity_type_id = $this->getNestedValue($relationship['entity_type_key'], []);
+
+        if ($entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE)) {
+          $tags = Cache::mergeTags($tags, $entity_type->getListCacheTags());
+        }
+      }
+    }
+
     return $tags;
   }
 
@@ -539,12 +549,13 @@ class Elasticsearch extends QueryPluginBase {
       $contexts = Cache::mergeContexts($contexts, $query_builder->getCacheContexts());
     }
 
-    // Add base entity type cache context.
-    if (isset($this->options['entity_relationship']['entity_type_key'])) {
-      $entity_type_id = $this->getNestedValue($this->options['entity_relationship']['entity_type_key'], []);
+    foreach ($this->getEntityRelationships() as $relationship) {
+      if (isset($relationship['entity_type_key'])) {
+        $entity_type_id = $this->getNestedValue($relationship['entity_type_key'], []);
 
-      if ($entity_type = \Drupal::entityManager()->getDefinition($entity_type_id, FALSE)) {
-        $contexts = Cache::mergeContexts($contexts, $entity_type->getListCacheContexts());
+        if ($entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE)) {
+          $contexts = Cache::mergeContexts($contexts, $entity_type->getListCacheContexts());
+        }
       }
     }
 
