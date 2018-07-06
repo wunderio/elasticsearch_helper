@@ -15,6 +15,16 @@ services:
     tags:
       - { name: normalizer, priority: 50 }
 
+  elasticsearch_helper_content.normalizer.elasticsearch_content_reference_id_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentReferenceIdFieldNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+
+  elasticsearch_helper_content.normalizer.elasticsearch_content_reference_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentReferenceFieldNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+
   logger.channel.elasticsearch_helper_content:
     parent: logger.channel_base
     arguments: ['elasticsearch_helper_content']
