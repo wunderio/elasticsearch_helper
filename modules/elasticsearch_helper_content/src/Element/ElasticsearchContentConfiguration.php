@@ -44,6 +44,25 @@ class ElasticsearchContentConfiguration extends FormElement {
       '#default_value' => ($default_config != NULL) ? $default_config->getDefaultLangcode() : NULL,
     ];
 
+    // Per-field options.
+    $bundleFields_labels =[];
+    $entity_type_id = $element['#entity_information']['entity_type'];
+    $bundle = $element['#entity_information']['bundle'];
+    foreach (\Drupal::entityManager()->getFieldDefinitions($entity_type_id, $bundle) as $field_name => $field_definition) {
+      if ($field_definition->getFieldStorageDefinition()->isBaseField() == FALSE) {
+        $bundleFields_types[] = $field_definition->getType();
+        $bundleFields_labels[] = $field_definition->getLabel();
+      }
+    }
+
+    $element['per_field_options'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Per-field options'),
+      '#options' => $bundleFields_labels,
+      '#description' => t('Select fileds to be indexed'),
+      '#default_value' => [],
+    ];
+
     // Add the entity type and bundle information to the form if they are set.
     // They will be used, in the submit handler, to generate the names of the
     // configuration entities that will store the settings and are a way to uniquely
