@@ -8,3 +8,7 @@ services:
   logger.channel.elasticsearch_helper_content:
     parent: logger.channel_base
     arguments: ['elasticsearch_helper_content']
+
+  elasticsearch_helper_content.index:
+    class: Drupal\elasticsearch_helper_content\IndexService
+    arguments: ['@config.factory']
