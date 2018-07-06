@@ -22,15 +22,10 @@ class ElasticsearchContentReferenceIdFieldNormalizer extends FieldNormalizer {
   public function normalize($object, $format = NULL, array $context = []) {
     $attributes = [];
 
-    foreach ($object as $field_item) {
-      if ($field_item instanceof EntityReferenceItem) {
-        $entity = $field_item
-          ->get('entity')
-          ->getTarget()
-          ->getValue();
-
-        $attributes[] = ['id' => $entity->id()];
-      }
+    foreach ($object->referencedEntities() as $entity) {
+      $attributes[] = [
+        $entity->id(),
+      ];
     }
 
     return $attributes;
