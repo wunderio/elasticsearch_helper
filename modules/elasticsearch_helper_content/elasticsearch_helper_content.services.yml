@@ -5,23 +5,34 @@ services:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity.manager', '@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager', '@entity_type.bundle.info']
 
-  elasticsearch_helper_content.normalizer.elasticsearch_content_text_normalizer:
-    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentTextFieldNormalizer
+  elasticsearch_helper_content.normalizer.entity_field_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\EntityFieldNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+    arguments: ['@entity.manager']
+
+  elasticsearch_helper_content.normalizer.field_text_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\FieldTextNormalizer
     tags:
       - { name: normalizer, priority: 50 }
 
-  elasticsearch_helper_content.normalizer.elasticsearch_content_numeric_normalizer:
-    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentNumericFieldNormalizer
+  elasticsearch_helper_content.normalizer.field_numeric_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\FieldNumericNormalizer
     tags:
       - { name: normalizer, priority: 50 }
 
-  elasticsearch_helper_content.normalizer.elasticsearch_content_reference_id_normalizer:
-    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentReferenceIdFieldNormalizer
+  elasticsearch_helper_content.normalizer.entity_reference_id_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\FieldEntityReferenceIdNormalizer
     tags:
       - { name: normalizer, priority: 50 }
 
-  elasticsearch_helper_content.normalizer.elasticsearch_content_reference_normalizer:
-    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentReferenceFieldNormalizer
+  elasticsearch_helper_content.normalizer.entity_reference_label_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\FieldEntityReferenceLabelNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+
+  elasticsearch_helper_content.normalizer.entity_reference_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\FieldEntityReferenceNormalizer
     tags:
       - { name: normalizer, priority: 50 }
 
