@@ -11,6 +11,11 @@ class FieldEntityReferenceLabelNormalizer extends FieldEntityReferenceNormalizer
 
   /**
    * {@inheritdoc}
+   */
+  protected $format = ['elasticsearch_helper_content.field_entity_reference_label'];
+
+  /**
+   * {@inheritdoc}
    *
    * Returns entity label.
    */

@@ -10,6 +10,11 @@ use Drupal\Core\Field\FieldItemInterface;
 class FieldNumericNormalizer extends FieldNormalizerBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $format = ['elasticsearch_helper_content.field_numeric'];
+
+  /**
    * Returns field value.
    *
    * @param \Drupal\Core\Field\FieldItemInterface $item

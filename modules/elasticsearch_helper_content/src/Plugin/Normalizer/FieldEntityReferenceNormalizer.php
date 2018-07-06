@@ -20,7 +20,7 @@ class FieldEntityReferenceNormalizer extends FieldNormalizer {
   /**
    * {@inheritdoc}
    */
-  protected $format = ['elasticsearch_helper'];
+  protected $format = ['elasticsearch_helper_content.field_entity_reference'];
 
   /**
    * {@inheritdoc}

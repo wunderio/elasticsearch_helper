@@ -28,8 +28,10 @@ class EntityContentNormalizer extends ContentEntityNormalizer {
 
   /**
    * {@inheritdoc}
+   *
+   * "elasticsearch_helper" format is depricated.
    */
-  protected $format = ['elasticsearch_helper'];
+  protected $format = ['elasticsearch_helper', 'elasticsearch_helper_content.entity_content'];
 
   /**
    * The entity_type.manager service.

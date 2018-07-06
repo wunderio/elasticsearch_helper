@@ -20,7 +20,7 @@ class FieldNormalizerBase extends FieldNormalizer {
   /**
    * {@inheritdoc}
    */
-  protected $format = ['elasticsearch_helper'];
+  protected $format = [];
 
   /**
    * {@inheritdoc}

@@ -11,6 +11,11 @@ class FieldEntityReferenceIdNormalizer extends FieldEntityReferenceNormalizer {
 
   /**
    * {@inheritdoc}
+   */
+  protected $format = ['elasticsearch_helper_content.field_entity_reference_id'];
+
+  /**
+   * {@inheritdoc}
    *
    * Returns entity ID.
    */

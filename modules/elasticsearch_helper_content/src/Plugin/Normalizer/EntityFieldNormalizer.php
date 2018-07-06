@@ -18,7 +18,7 @@ class EntityFieldNormalizer extends ContentEntityNormalizer {
   /**
    * {@inheritdoc}
    */
-  protected $format = ['elasticsearch_helper'];
+  protected $format = ['elasticsearch_helper_content.entity_field'];
 
   /**
    * {@inheritdoc}
