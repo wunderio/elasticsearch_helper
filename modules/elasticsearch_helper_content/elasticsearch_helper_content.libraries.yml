@@ -1,0 +1,11 @@
+elasticsearch_helper_content.admin:
+  version: VERSION
+  js:
+    elasticsearch_helper_content.admin.js: {}
+  css:
+    theme:
+      css/elasticsearch_helper_content.admin.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/jquery.once

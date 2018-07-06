@@ -1,0 +1,11 @@
+/**
+ * @file
+ * Styles for the elasticsearch helper content administration page.
+ */
+
+#elasticsearch-helper-content-settings-form table .bundle {
+  width: 25%;
+}
+#elasticsearch-helper-content-settings-form table .operations {
+  width: 75%;
+}

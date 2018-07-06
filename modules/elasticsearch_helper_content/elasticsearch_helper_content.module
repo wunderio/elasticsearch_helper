@@ -73,3 +73,14 @@ function elasticsearch_helper_content_get_excerpt_placeholder() {
   return elasticsearch_helper_content_get_excerpt_markup('This is a <em>placeholder</em> for elasticsearch <em>result</em> highlights.');
 }
 
+/**
+ * Implements hook_theme().
+ */
+function elasticsearch_helper_content_theme() {
+  return [
+    'elasticsearch_helper_content_settings_table' => [
+      'render element' => 'element',
+      'file' => 'elasticsearch_helper_content.admin.inc',
+    ],
+  ];
+}
