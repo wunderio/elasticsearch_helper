@@ -5,6 +5,16 @@ services:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity.manager', '@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager', '@entity_type.bundle.info']
 
+  elasticsearch_helper_content.normalizer.elasticsearch_content_text_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentTextFieldNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+
+  elasticsearch_helper_content.normalizer.elasticsearch_content_numeric_normalizer:
+    class: Drupal\elasticsearch_helper_content\Plugin\Normalizer\ElasticsearchContentNumericFieldNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+
   logger.channel.elasticsearch_helper_content:
     parent: logger.channel_base
     arguments: ['elasticsearch_helper_content']
