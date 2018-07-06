@@ -1,0 +1,15 @@
+elasticsearch_helper_content.index:
+  type: sequence
+  sequence:
+    type: sequence
+    label: 'Entity type configuration'
+    sequence:
+      type: mapping
+      label: 'Bundle configuration'
+      mappding:
+        normalizer:
+          type: text
+          label: 'Entity normalizer'
+        fields:
+          type: sequence
+          label: 'Fields to be displayed'
