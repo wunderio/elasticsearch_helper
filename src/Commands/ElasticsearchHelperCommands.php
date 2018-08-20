@@ -58,7 +58,7 @@ class ElasticsearchHelperCommands extends DrushCommands {
    * @param $indices Comma separated list of indices to be set up
    * @aliases eshs,elasticsearch-helper-setup
    */
-  public function helperSetup($indices) {
+  public function helperSetup($indices = NULL) {
     // Indices can be specified with a comma-separate value.
     if ($indices && is_string($indices)) {
       $indices = explode(',', $indices);
@@ -116,7 +116,7 @@ class ElasticsearchHelperCommands extends DrushCommands {
    * @param $indices Comma separated list of indices for which entities should be reindexed
    * @aliases eshr,elasticsearch-helper-reindex
    */
-  public function helperReindex($indices) {
+  public function helperReindex($indices = NULL) {
     // Indices can be specified with a comma-separate value.
     if ($indices && is_string($indices)) {
       $indices = explode(',', $indices);
