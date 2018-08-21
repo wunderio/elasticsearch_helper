@@ -2,7 +2,6 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\Normalizer;
 
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\TypedData\TranslatableInterface;
@@ -20,6 +19,20 @@ use Drupal\Core\Site\Settings;
  * Normalizes / denormalizes Drupal nodes into an array structure good for ES.
  */
 class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
+
+  /**
+   * View mode to use for general textual content field.
+   *
+   * @var string
+   */
+  protected $contentViewMode = 'search_index';
+
+  /**
+   * View mode to use for search result snipped field.
+   *
+   * @var string
+   */
+  protected $searchResultViewMode = 'search_result';
 
   /**
    * The interface or class that this Normalizer supports.
@@ -144,15 +157,15 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
       // No status field => assume 1 to simplify filtering cross entity types.
       $data['status'] = $object->hasField('status') ? boolval($object->status->value) : TRUE;
 
-      // Add full plain text render of $object in search_index viewmode.
+      // Add full plain text render of $object in specific view mode.
       // This view mode can be configured to contain all relevant output.
       // Use this field for full regular text search.
-      $data['content'] = $this->renderEntityPlainText($object, 'search_index');
+      $data['content'] = $this->renderEntityPlainText($object, $this->getContentViewMode($object, $format, $context));
 
-      // Add full markup render of $object in search_result viewmode.
+      // Add full markup render of $object in search_result view mode.
       // This view mode can be configured for display of search results.
       // Query and display this field for snappy results display in frontend.
-      $data['rendered_search_result'] = $this->renderEntity($object, 'search_result');
+      $data['rendered_search_result'] = $this->renderEntity($object, $this->getSearchResultViewMode($object, $format, $context));
     }
     finally {
       // Revert the interface language.
@@ -163,7 +176,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
   }
 
   /**
-   * Renders a content to a string using the search_index view mode.
+   * Renders a content to a string.
    *
    * @param \Drupal\core\Entity\ContentEntityBase $entity
    *   The node that needs to rendered.
@@ -355,6 +368,8 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
    *   The key to which to return the settings value for.
    * @param mixed $default
    *   The value of the settings key.
+   *
+   * @return string
    */
   public function getSetting($key, $default = NULL) {
     $value = $default;
@@ -363,6 +378,32 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
       $value = $settings[$key];
     }
     return $value;
+  }
+
+  /**
+   * Returns view mode to use for textual content.
+   *
+   * @param $object
+   * @param null $format
+   * @param array $context
+   *
+   * @return string
+   */
+  protected function getContentViewMode($object, $format = NULL, array $context = []) {
+    return $this->contentViewMode;
+  }
+
+  /**
+   * Returns view mode to use for search result snippet.
+   *
+   * @param $object
+   * @param null $format
+   * @param array $context
+   *
+   * @return string
+   */
+  protected function getSearchResultViewMode($object, $format = NULL, array $context = []) {
+    return $this->searchResultViewMode;
   }
 
 }
