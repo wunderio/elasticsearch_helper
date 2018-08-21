@@ -201,13 +201,13 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
    *
    * @param \Drupal\core\Entity\ContentEntityBase $entity
    *   The node that needs to rendered.
-   * @param string $view_mode
-   *   The id of thze view_mode.
+   * @param $view_mode
+   *   The id of thee view_mode.
    *
    * @return string
    *   The rendered content as a string.
    */
-  private function renderEntity(ContentEntityBase $entity, string $view_mode) {
+  protected function renderEntity(ContentEntityBase $entity, $view_mode) {
     $render_markup = '';
 
     $current_active_theme = $this->themeManager->getActiveTheme();
@@ -227,7 +227,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
       // Get the object language.
       $langcode = $entity->language()->getId();
       // Build a render array and render it into markup.
-      $render_array= $this->renderEntityHelper($entity, $view_mode, $langcode);
+      $render_array = $this->renderEntityHelper($entity, $view_mode, $langcode);
       $render_markup = $this->renderer->renderPlain($render_array);
     }
     finally {
