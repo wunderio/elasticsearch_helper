@@ -1,0 +1,29 @@
+elasticsearch_helper.settings:
+  type: config_object
+  label: 'Elasticsearch helper config.'
+  mapping:
+    elasticsearch_helper:
+      type: config_object
+      label: 'Elasticsearch helper config.'
+      mapping:
+        scheme:
+          type: string
+          label: Scheme
+        host:
+          type: string
+          label: Host
+        port:
+          type: integer
+          label: Port
+        authentication:
+          type: integer
+          label: Authentication
+        user:
+          type: string
+          label: User
+        password:
+          type: string
+          label: Password
+        index_in_queue:
+          type: integer
+          label: 'Only index in queue'
