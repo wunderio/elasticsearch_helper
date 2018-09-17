@@ -145,6 +145,13 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       '#size' => 32,
     ];
 
+    $form['defer_indexing'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Defer indexing'),
+      '#description' => $this->t('Defer indexing to a queue worker instead of indexing immediately. This can be useful when importing very large amounts of Drupal entities.'),
+      '#default_value' => (int) $config->get('elasticsearch_helper.defer_indexing'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -161,6 +168,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       ->set('elasticsearch_helper.authentication', $form_state->getValue('authentication'))
       ->set('elasticsearch_helper.user', $form_state->getValue('user'))
       ->set('elasticsearch_helper.password', $form_state->getValue('password'))
+      ->set('elasticsearch_helper.defer_indexing', $form_state->getValue('defer_indexing'))
       ->save();
   }
 
