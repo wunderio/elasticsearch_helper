@@ -24,6 +24,6 @@ elasticsearch_helper.settings:
         password:
           type: string
           label: Password
-        index_in_queue:
-          type: integer
-          label: 'Only index in queue'
+        defer_indexing:
+          type: boolean
+          label: 'Defer indexing'
