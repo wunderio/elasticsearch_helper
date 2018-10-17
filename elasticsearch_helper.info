@@ -1,0 +1,4 @@
+name = ElasticSearch Helper
+description = Provide tools to integrate elasticsearch with Drupal.
+core = 7.x
+package = ElasticSearch Helper

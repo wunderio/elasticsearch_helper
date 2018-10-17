@@ -1,10 +1,7 @@
 <?php
 
-namespace Drupal\elasticsearch_helper;
-
-use Drupal\Core\Config\ConfigFactory;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Elasticsearch\ClientBuilder;
+use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 
 /**
  * Class ElasticsearchClientBuilder.
@@ -12,26 +9,6 @@ use Elasticsearch\ClientBuilder;
  * @package Drupal\elasticsearch_helper
  */
 class ElasticsearchClientBuilder {
-
-  /**
-   * @var \Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig
-   */
-  protected $config;
-
-  /**
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
-  protected $moduleHandler;
-
-  /**
-   * ElasticsearchClientBuilder constructor.
-   * @param \Drupal\Core\Config\ConfigFactory $configFactory
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
-   */
-  public function __construct(ConfigFactory $configFactory, ModuleHandlerInterface $moduleHandler) {
-    $this->config = $configFactory->get('elasticsearch_helper.settings');
-    $this->moduleHandler = $moduleHandler;
-  }
 
   /**
    * Create an elasticsearch client.
@@ -42,8 +19,7 @@ class ElasticsearchClientBuilder {
     $clientBuilder = ClientBuilder::create();
     $clientBuilder->setHosts($this->getHosts());
 
-    // Let other modules set their own handlers.
-    $this->moduleHandler->alter('elasticsearch_helper_client_builder', $clientBuilder);
+    drupal_alter('elasticsearch_helper_client_builder', $clientBuilder);
 
     return $clientBuilder->build();
   }
@@ -53,14 +29,14 @@ class ElasticsearchClientBuilder {
    */
   protected function getHosts() {
     $host = implode(':', [
-      $this->config->get('elasticsearch_helper.host'),
-      $this->config->get('elasticsearch_helper.port'),
+      variable_get('elasticsearch_helper_host'),
+      variable_get('elasticsearch_helper_port'),
     ]);
 
-    if ($this->config->get('elasticsearch_helper.user')) {
+    if (variable_get('elasticsearch_helper_user')) {
       $credentials = implode(':', [
-        $this->config->get('elasticsearch_helper.user'),
-        $this->config->get('elasticsearch_helper.password'),
+        variable_get('elasticsearch_helper_user'),
+        variable_get('elasticsearch_helper_password'),
       ]);
 
       if (!empty($credentials)) {
@@ -68,7 +44,7 @@ class ElasticsearchClientBuilder {
       }
     }
 
-    if ($scheme = $this->config->get('elasticsearch_helper.scheme')) {
+    if ($scheme = variable_get('elasticsearch_helper.scheme')) {
       $host = implode('://', [
         $scheme,
         $host,

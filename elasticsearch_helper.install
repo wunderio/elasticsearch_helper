@@ -5,79 +5,14 @@
  * Installation functions for the Elasticsearch Helper module.
  */
 
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
-
-/**
- * Implements hook_requirements.
- */
-function elasticsearch_helper_requirements($phase) {
-  $requirements = [];
-
-  if ($phase == 'install') {
-    // Check that the Elasticsearch PHP library is available.
-    if (!class_exists('\Elasticsearch\Client')) {
-      $requirements['elasticsearch_library'] = [
-        'description' => t("Elasticsearch Helper requires the Elasticsearch PHP library."),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-    }
-  }
-
-  if ($phase == 'runtime') {
-    /** @var \Elasticsearch\Client $client */
-    $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
-
-    try {
-      $health = $client->cluster()->health();
-
-      $color_states = [
-        'green' => REQUIREMENT_OK,
-        'yellow' => REQUIREMENT_WARNING,
-        'red' => REQUIREMENT_ERROR,
-      ];
-
-      $requirements['elasticsearch_health'] = [
-        'title' => t('Elasticsearch status'),
-        'description' => t('Elasticsearch cluster status is @status.', ['@status' => $health['status']]),
-        'severity' => $color_states[$health['status']],
-      ];
-    }
-    catch (NoNodesAvailableException $e) {
-      $requirements['elasticsearch_health'] = [
-        'title' => t('Elasticsearch status'),
-        'description' => t('Could not connect to Elasticsearch'),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-    }
-  }
-
-  return $requirements;
-}
-
 /**
  * Implements hook_install().
  */
 function elasticsearch_helper_install() {
-  // Assign a low weight to ensure our implementation of
-  // hook_module_implements_alter() is run among the last ones.
-  module_set_weight('elasticsearch_helper', 10);
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'elasticsearch_helper', '=')
+    ->execute();
 }
 
-/**
- * Set a low module weight to ensure elasticsearch_helper runs last.
- */
-function elasticsearch_helper_update_8001() {
-  // Doing this in an update hook for installations that didn't have the weight
-  // set on installation.
-  module_set_weight('elasticsearch_helper', 10);
-}
 
-/**
- * Explicitly set the default scheme to HTTP if it wasn't set before.
- */
-function elasticsearch_helper_update_8002() {
-  $config = \Drupal::service('config.factory')->getEditable('elasticsearch_helper.settings');
-  if ($config->get('elasticsearch_helper.scheme')) {
-    $config->set('elasticsearch_helper.scheme', 'http');
-  }
-}
