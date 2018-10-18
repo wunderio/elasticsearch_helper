@@ -101,7 +101,7 @@ function elasticsearch_helper_settings_form($form, &$form_state) {
     '#description' => t('Defer indexing to a queue worker instead of indexing immediately. This can be useful when importing very large amounts of Drupal entities.'),
     '#default_value' => (int) variable_get('elasticsearch_helper_defer_indexing', 0),
   ];
-
+ 
   return system_settings_form($form);
 
 }
