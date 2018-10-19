@@ -22,7 +22,7 @@ function hook_elasticsearch_helper_client_builder_alter($clientBuilder) {
 }
 
 /**
- * Allow altering a plugins after loading
+ * Allow altering a plugins after loading.
  *
  * @param array plugin definition
  * @param array plugin type info

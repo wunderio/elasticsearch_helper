@@ -91,7 +91,7 @@ function elasticsearch_helper_entity_update($entity, $type) {
 /**
  * Implements hook_entity_delete().
  */
-function elasticsearch_helper_entity_delete($entity) {
+function elasticsearch_helper_entity_delete($entity, $type) {
   elasticsearch_helper_get_index_processor()->deleteEntity($entity, $type);
 }
 
@@ -120,9 +120,12 @@ function elasticsearch_helper_elasticsearch_helper_index_plugin_alter(&$plugin, 
 
 
 function _elasticsearch_helper_get_id($data) {
-  if (isset($data['id']) && (is_string($data['id']) || is_numeric($data['id']))) {
+  // We'll need proper "what's the id key of this entity" magic here
+  $id_key = 'nid';
+
+  if (isset($data[$id_key]) && (is_string($data[$id_key]) || is_numeric($data[$id_key]))) {
     // If there is an attribute with the key 'id', use it.
-    return $data['id'];
+    return $data[$id_key];
   }
   else {
     // Elasticsearch will generate its own id.

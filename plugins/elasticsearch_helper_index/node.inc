@@ -1,25 +1,27 @@
 <?php
 
+use Elasticsearch\Common\Exceptions\Missing404Exception;
+
 $plugin = [
   "id" => "content_index_node",
   "label" => t("Node Index (Multilingual)"),
-  "indexName" => "content-node-{langcode}",
+  //"indexName" => "content-node-{langcode}",
+  "indexName" => "content-node",
   "typeName" => "node",
   "entityType" => "node",
-  "index_callback" => 'elasticsearch_helper_index_node',
-  "delete_callback" => 'elasticsearch_helper_delete_node',
-  "serialize_callback" => 'elasticsearch_helper_serialize_node'
+  "index_callback" => 'elasticsearch_helper_node_index',
+  "delete_callback" => 'elasticsearch_helper_node_delete',
+  "serialize_callback" => 'elasticsearch_helper_node_serialize'
 ];
 
-function elasticsearch_helper_index_node($node, $plugin) {
+function elasticsearch_helper_node_index($node, $plugin) {
   // Beware: $plugin may have been altered!
   if (isset($plugin['serialize_callback']) && is_callable($plugin['serialize_callback'])) {
     $serialized_data = $plugin['serialize_callback']($node);
   }
   else {
-    throw new Exception("Elasticsearch Helper: I don't know how to serizalize this node.");
+    throw new Exception("Elasticsearch Helper: I don't know how to serialize this node.");
   }
-  $client = elasticsearch_helper_get_client();
 
   $params = [
     'index' => $plugin['indexName'],
@@ -31,10 +33,36 @@ function elasticsearch_helper_index_node($node, $plugin) {
     $params['id'] = $id;
   }
 
-  $client->index($params);
+  elasticsearch_helper_get_client()->index($params);
 }
 
-function elasticsearch_helper_serialize_node($node) {
-  // That's trivial serialization right here.
-  return json_encode($node);
+function elasticsearch_helper_node_delete($node, $plugin) {
+  // Beware: $plugin may have been altered!
+  if (isset($plugin['serialize_callback']) && is_callable($plugin['serialize_callback'])) {
+    $serialized_data = $plugin['serialize_callback']($node);
+  }
+  else {
+    throw new Exception("Elasticsearch Helper: I don't know how to serialize this node.");
+  }
+
+  $id = _elasticsearch_helper_get_id($serialized_data);
+
+  $params = [
+    'index' => $plugin['indexName'],
+    'type' => $plugin['typeName'],
+    'id' => $id,
+  ];
+
+  try {
+    elasticsearch_helper_get_client()->delete($params);
+  }
+  catch (Missing404Exception $e) {
+    watchdog('Could not delete entry with id @id from elasticsearch index', ['@id' => $params['id'],]);
+  }
+}
+
+
+function elasticsearch_helper_node_serialize($node) {
+  // That's trivial serialization right there.
+  return json_decode(json_encode($node), true);
 }

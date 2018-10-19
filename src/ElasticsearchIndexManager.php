@@ -38,23 +38,26 @@ class ElasticsearchIndexManager {
    * Delete an entity from any matching indices.
    */
   public function deleteEntity($entity, $type) {
-    foreach ($this->getDefinitions() as $plugin) {
-      if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
+    ctools_include('plugins');
+    $plugins = ctools_get_plugins('elasticsearch_helper', 'elasticsearch_helper_index');
+
+    foreach ($plugins as $plugin) {
+      if (isset($plugin['entityType']) && $type == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
-          // Do not delete if defined plugin bundle differs from entity bundle.
+          // Do not index if defined plugin bundle differs from entity bundle.
           continue;
         }
 
         try {
-          // Delete the entity from elasticsearch.
-          $this->createInstance($plugin['id'])->delete($entity);
-        }
-        catch (ElasticsearchException $e) {
-          $this->logger->error('Elasticsearch deletion failed: @message', [
-            '@message' => $e->getMessage(),
-          ]);
+          if ($function = ctools_plugin_get_function($plugin, 'delete_callback')) {
+            $function($entity, $plugin);
+          }
 
-          // TODO: queue for later indexing.
+        }
+        catch (Exception $e) {
+        watchdog('Elasticsearch deleting failed: @message', [
+            '@message' => $e->getMessage(),
+          ], WATCHDOG_ERROR);
         }
       }
     }
