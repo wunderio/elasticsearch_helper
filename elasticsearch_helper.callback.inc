@@ -67,7 +67,6 @@ function elasticsearch_helper_node_serialize($node) {
  * Serialize callback for use with an elasticsearch_helper_index plugin.
  */
 function elasticsearch_helper_node_setup() {
-  print __FUNCTION__ . "\n";
-  // TODO: create index templates.
-  // elasticsearch_helper_get_client()->indices()->putTemplate().
+  // Probably something like this:
+  // elasticsearch_helper_get_client()->indices()->putMapping($mapping);
 }
