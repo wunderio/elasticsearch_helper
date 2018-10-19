@@ -23,15 +23,6 @@ function elasticsearch_helper_menu() {
   return $items;
 }
 
-/**
- * Implements hook_ctools_plugin_directory().
- */
-function elasticsearch_helper_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'elasticsearch_helper' && $plugin == 'elasticsearch_helper_index') {
-    return 'plugins/elasticsearch_helper_index';
-  }
-}
-
 
 /**
  * Return a configured and usable elasticsearch client.

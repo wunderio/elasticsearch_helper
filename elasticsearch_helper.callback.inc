@@ -2,18 +2,9 @@
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 
-$plugin = [
-  "id" => "content_index_node",
-  "label" => t("Node Index (Multilingual)"),
-  //"indexName" => "content-node-{langcode}",
-  "indexName" => "content-node",
-  "typeName" => "node",
-  "entityType" => "node",
-  "index_callback" => 'elasticsearch_helper_node_index',
-  "delete_callback" => 'elasticsearch_helper_node_delete',
-  "serialize_callback" => 'elasticsearch_helper_node_serialize'
-];
-
+/**
+ * Index callback for use with an elasticsearch_helper_index plugin.
+ */
 function elasticsearch_helper_node_index($node, $plugin) {
   // Beware: $plugin may have been altered!
   if (isset($plugin['serialize_callback']) && is_callable($plugin['serialize_callback'])) {
@@ -36,6 +27,9 @@ function elasticsearch_helper_node_index($node, $plugin) {
   elasticsearch_helper_get_client()->index($params);
 }
 
+/**
+ * Delete callback for use with an elasticsearch_helper_index plugin.
+ */
 function elasticsearch_helper_node_delete($node, $plugin) {
   // Beware: $plugin may have been altered!
   if (isset($plugin['serialize_callback']) && is_callable($plugin['serialize_callback'])) {
@@ -61,8 +55,19 @@ function elasticsearch_helper_node_delete($node, $plugin) {
   }
 }
 
-
+/**
+ * Index serialize for use with an elasticsearch_helper_index plugin.
+ */
 function elasticsearch_helper_node_serialize($node) {
   // That's trivial serialization right there.
   return json_decode(json_encode($node), true);
+}
+
+/**
+ * Serialize callback for use with an elasticsearch_helper_index plugin.
+ */
+function elasticsearch_helper_node_setup() {
+  print __FUNCTION__ . "\n";
+  // TODO: create index templates.
+  // elasticsearch_helper_get_client()->indices()->putTemplate().
 }

@@ -5,14 +5,21 @@
  */
 class ElasticsearchIndexManager {
 
-  /**
+    /**
    * Index an entity into any matching indices.
    */
-  public function indexEntity($entity, $type) {
+  public function getDefinitions() {
     ctools_include('plugins');
     $plugins = ctools_get_plugins('elasticsearch_helper', 'elasticsearch_helper_index');
 
-    foreach ($plugins as $plugin) {
+    return $plugins;
+  }
+
+  /**
+   * Index an entity into any matching indices.
+   */
+  public function indexEntity($entity, $ty) {
+    foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $type == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
           // Do not index if defined plugin bundle differs from entity bundle.
@@ -38,10 +45,7 @@ class ElasticsearchIndexManager {
    * Delete an entity from any matching indices.
    */
   public function deleteEntity($entity, $type) {
-    ctools_include('plugins');
-    $plugins = ctools_get_plugins('elasticsearch_helper', 'elasticsearch_helper_index');
-
-    foreach ($plugins as $plugin) {
+    foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $type == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
           // Do not index if defined plugin bundle differs from entity bundle.

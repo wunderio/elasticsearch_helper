@@ -1,0 +1,7 @@
+name = ElasticSearch Helper Node Index
+description = Provides a plugin indexing nodes
+core = 7.x
+package = ElasticSearch Helper
+
+dependencies[] = elasticsearch_helper
+
