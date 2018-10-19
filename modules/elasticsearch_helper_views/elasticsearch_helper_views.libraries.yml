@@ -1,6 +1,0 @@
-debug:
-  version: VERSION
-  js:
-    js/debug.js : {}
-  dependencies:
-    - core/drupal

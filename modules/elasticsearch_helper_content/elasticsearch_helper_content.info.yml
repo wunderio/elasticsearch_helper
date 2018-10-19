@@ -1,7 +1,0 @@
-name: Elasticsearch Helper Content
-type: module
-description: Versatile generic elasticsearch indexing for typical content entities.
-core: 8.x
-package: ElasticSearch Helper
-dependencies:
-  - elasticsearch_helper

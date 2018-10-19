@@ -1,9 +1,0 @@
-services:
-  elasticsearch_query_builder.manager:
-    class: Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderManager
-    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler']
-  elasticsearch_helper_views.ajax_subscriber:
-    class: Drupal\elasticsearch_helper_views\EventSubscriber\AjaxResponseSubscriber
-    arguments: ['@current_user', '@config.factory']
-    tags:
-      - { name: event_subscriber }

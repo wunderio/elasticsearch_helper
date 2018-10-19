@@ -1,5 +1,0 @@
-
-configured elasticsearch helper:
-  title: 'Configure Elasticsearch Helper'
-  description: 'Allow users to configure Elasticsearch helper module'
-  restrict access: true
