@@ -6,7 +6,8 @@ It's not feature complete: Most notably it lacks support for deferred indexing,
 and hence reindexing.
 
 Index plugins can be implemented as ctools plugins. Find a working and usable
-example implementation in the submodule elasticsearch_helper_node_index.
+example implementation for nodes in module elasticsearch_helper_node_index.
+
 Please take a look a elasticsearch_helper.api.php how to override/alter the
 behaviour of this (an possibly any other) elastisearch_helper_index plugin.
 

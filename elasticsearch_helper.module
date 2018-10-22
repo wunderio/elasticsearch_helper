@@ -100,16 +100,17 @@ function elasticsearch_helper_ctools_plugin_type() {
   );
 }
 
+/**
+ * Process callback of the ctools plugin type.
+ */
 function elasticsearch_helper_index_plugin(&$plugin, $info) {
   drupal_alter('elasticsearch_helper_index_plugin', $plugin, $info);
 }
 
-function elasticsearch_helper_elasticsearch_helper_index_plugin_alter(&$plugin, $info) {
-  dpm([$plugin, $info], 'alter');
-}
-
-
-
+/**
+ * Helper to extract the (entity) id from serialized data. It's currently hard
+ * coded to return a node id.
+ */
 function _elasticsearch_helper_get_id($data) {
   // We'll need proper "what's the id key of this entity" magic here
   $id_key = 'nid';
