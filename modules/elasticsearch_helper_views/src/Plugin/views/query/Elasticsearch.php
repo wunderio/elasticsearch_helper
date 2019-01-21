@@ -226,6 +226,12 @@ class Elasticsearch extends QueryPluginBase {
   }
 
   /**
+   * Placeholder method.
+   */
+  public function placeholder() {
+  }
+
+  /**
    * Returns instance of a query builder plugin.
    *
    * @return \Drupal\elasticsearch_helper_views\ElasticsearchQueryBuilderInterface|null
