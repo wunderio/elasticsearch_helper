@@ -2,27 +2,25 @@
 
 /**
  * @file
- * Administration functions for language.module.
+ * Administration functions for elasticsearch_helper_content.module.
  */
 
 use Drupal\Core\Render\Element;
-use Drupal\Core\Template\Attribute;
 
 /**
- * Prepares variables for elasticsearch helper content settings table templates.
- *
- * Default template: elasticsearch-helper-content-settings-table.html.twig.
+ * Prepares variables for Elasticsearch helper content settings form table.
  *
  * @param array $variables
- *   An associative array containing:
- *   - element: An associative array containing the properties of the element.
- *     Properties used: #bundle_label, #title.
  */
-function template_preprocess_elasticsearch_helper_content_settings_table(&$variables) {
-  // Add a render element representing the bundle elasticsearch settings table.
+function template_preprocess_elasticsearch_helper_content_settings_form_table(&$variables) {
+  // Add a render element representing the bundle Elasticsearch settings form table.
   $element = $variables['element'];
 
   $header = [
+    [
+      'data' => t('Index'),
+      'class' => ['bundle'],
+    ],
     [
       'data' => $element['#bundle_label'],
       'class' => ['bundle'],
@@ -34,24 +32,43 @@ function template_preprocess_elasticsearch_helper_content_settings_table(&$varia
   ];
 
   $rows = [];
+
+  // Loop over bundles.
   foreach (Element::children($element) as $bundle) {
     $rows[$bundle] = [
       'data' => [
         [
-          'data' => [
-            '#prefix' => '<label>',
-            '#suffix' => '</label>',
-            '#plain_text' => $element[$bundle]['settings']['#label'],
-          ],
-          'class' => ['bundle'],
+          'data' => ['#title' => NULL] + $element[$bundle]['index'],
         ],
         [
-          'data' => $element[$bundle]['settings'],
+          'data' => $element[$bundle]['index']['#title'],
+        ],
+        [
+          'data' => $element[$bundle]['normalizer'],
           'class' => ['operations'],
         ],
       ],
       'class' => ['bundle-settings'],
     ];
+
+    // Loop over bundle fields.
+    foreach (Element::children($element[$bundle]['fields']) as $field_name) {
+      $rows[] = [
+        'data' => [
+          [
+            'data' => ['#title' => NULL] + $element[$bundle]['fields'][$field_name]['index'],
+          ],
+          [
+            'data' => $element[$bundle]['fields'][$field_name]['index']['#title'],
+          ],
+          [
+            'data' => $element[$bundle]['fields'][$field_name]['normalizer'],
+            'class' => ['operations'],
+          ],
+        ],
+        'class' => ['field-settings'],
+      ];
+    }
   }
 
   $variables['title'] = $element['#title'];

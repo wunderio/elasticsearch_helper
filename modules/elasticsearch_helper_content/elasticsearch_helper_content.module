@@ -78,7 +78,7 @@ function elasticsearch_helper_content_get_excerpt_placeholder() {
  */
 function elasticsearch_helper_content_theme() {
   return [
-    'elasticsearch_helper_content_settings_table' => [
+    'elasticsearch_helper_content_settings_form_table' => [
       'render element' => 'element',
       'file' => 'elasticsearch_helper_content.admin.inc',
     ],

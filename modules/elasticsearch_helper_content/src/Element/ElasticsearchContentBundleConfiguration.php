@@ -6,11 +6,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\FormElement;
 
 /**
- * Defines an element for elasticsearch content configuration for a single field.
+ * Defines an element for Elasticsearch content configuration for a single field.
  *
- * @FormElement("elasticsearch_configuration")
+ * @FormElement("elasticsearch_content_bundle_configuration")
  */
-class ElasticsearchContentConfiguration extends FormElement {
+class ElasticsearchContentBundleConfiguration extends FormElement {
 
   /**
    * {@inheritdoc}
@@ -21,7 +21,7 @@ class ElasticsearchContentConfiguration extends FormElement {
       '#input' => TRUE,
       '#tree' => TRUE,
       '#process' => [
-        [$class, 'processElasticsearchConfiguration'],
+        [$class, 'processElasticsearchBundleConfiguration'],
       ],
     ];
   }
@@ -29,7 +29,7 @@ class ElasticsearchContentConfiguration extends FormElement {
   /**
    * Process handler for the language_configuration form element.
    */
-  public static function processElasticsearchConfiguration(&$element, FormStateInterface $form_state, &$form) {
+  public static function processElasticsearchBundleConfiguration(&$element, FormStateInterface $form_state, &$form) {
     $options = isset($element['#options']) ? $element['#options'] : [];
     // Avoid validation failure since we are moving the '#options' key in the
     // nested 'language' select element.
@@ -67,30 +67,30 @@ class ElasticsearchContentConfiguration extends FormElement {
     // They will be used, in the submit handler, to generate the names of the
     // configuration entities that will store the settings and are a way to uniquely
     // identify the entity.
-    $elasticsearch = $form_state->get('elasticsearch') ?: [];
-    $elasticsearch += [
-      $element['#name'] => [
-        'entity_type' => $element['#entity_information']['entity_type'],
-        'bundle' => $element['#entity_information']['bundle'],
-      ],
-    ];
-    $form_state->set('elasticsearch', $elasticsearch);
+//    $elasticsearch = $form_state->get('elasticsearch') ?: [];
+//    $elasticsearch += [
+//      $element['#name'] => [
+//        'entity_type' => $element['#entity_information']['entity_type'],
+//        'bundle' => $element['#entity_information']['bundle'],
+//      ],
+//    ];
+//    $form_state->set('elasticsearch', $elasticsearch);
 
     // Do not add the submit callback for the elasticsearch content settings page,
     // which is handled separately.
-    if ($form['#form_id'] != 'elasticsearch_helper_content_settings_form') {
-      // Determine where to attach the elasticsearch_configuration element submit
-      // handler.
-      // @todo Form API: Allow form widgets/sections to declare #submit
-      //   handlers.
-      $submit_name = isset($form['actions']['save_continue']) ? 'save_continue' : 'submit';
-      if (isset($form['actions'][$submit_name]['#submit']) && array_search('elasticsearch_configuration_element_submit', $form['actions'][$submit_name]['#submit']) === FALSE) {
-        $form['actions'][$submit_name]['#submit'][] = 'elasticsearch_configuration_element_submit';
-      }
-      elseif (array_search('elasticsearch_configuration_element_submit', $form['#submit']) === FALSE) {
-        $form['#submit'][] = 'elasticsearch_configuration_element_submit';
-      }
-    }
+//    if ($form['#form_id'] != 'elasticsearch_helper_content_settings_form') {
+//      // Determine where to attach the elasticsearch_configuration element submit
+//      // handler.
+//      // @todo Form API: Allow form widgets/sections to declare #submit
+//      //   handlers.
+//      $submit_name = isset($form['actions']['save_continue']) ? 'save_continue' : 'submit';
+//      if (isset($form['actions'][$submit_name]['#submit']) && array_search('elasticsearch_configuration_element_submit', $form['actions'][$submit_name]['#submit']) === FALSE) {
+//        $form['actions'][$submit_name]['#submit'][] = 'elasticsearch_configuration_element_submit';
+//      }
+//      elseif (array_search('elasticsearch_configuration_element_submit', $form['#submit']) === FALSE) {
+//        $form['#submit'][] = 'elasticsearch_configuration_element_submit';
+//      }
+//    }
     return $element;
   }
 

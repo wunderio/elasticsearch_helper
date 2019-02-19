@@ -1,4 +1,4 @@
-elasticsearch_helper_content.admin:
+admin:
   version: VERSION
   js:
     elasticsearch_helper_content.admin.js: {}

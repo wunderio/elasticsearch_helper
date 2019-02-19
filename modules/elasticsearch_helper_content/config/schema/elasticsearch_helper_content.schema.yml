@@ -13,3 +13,7 @@ elasticsearch_helper_content.index:
         fields:
           type: sequence
           label: 'Fields to be displayed'
+          mapping:
+            normalizer:
+              type: text
+              label: 'Field normalizer'

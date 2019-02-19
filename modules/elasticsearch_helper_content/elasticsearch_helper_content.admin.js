@@ -1,23 +1,23 @@
-
 (function ($, Drupal) {
-  Drupal.behaviors.elasticsearchIndex= {
-    attach: function attach() {
-      var $configForm = $('#elasticsearch-helper-content-settings-form');
-      var inputSelector = 'input[name$="[configurable]"]';
+  Drupal.behaviors.elasticsearchHelperContentSettingsForm = {
+    attach: function attach(context) {
+      var form = $('.elasticsearch-helper-content-settings-form', context);
 
-      function toggleTable(checkbox) {
-        var $checkbox = $(checkbox);
+      var triggerFields = function (e) {
+        var $target = typeof e.target !== 'undefined' ? $(e.target) : $(this);
+        var $bundleSettings = $target.closest('.bundle-settings');
+        var $settings = $bundleSettings.nextUntil('.bundle-settings');
+        var $fieldSettings = $settings.filter('.field-settings');
 
-        $checkbox.closest('.table-language-group').find('table, .tabledrag-toggle-weight').toggle($checkbox.prop('checked'));
-      }
+        if ($target.is(':checked')) {
+          $settings.show();
+        } else {
+          $fieldSettings.find('.index:input').prop('checked', false);
+          $settings.hide();
+        }
+      };
 
-      $configForm.once('negotiation-language-admin-bind').on('change', inputSelector, function (event) {
-        toggleTable(event.target);
-      });
-
-      $configForm.find(inputSelector + ':not(:checked)').each(function (index, element) {
-        toggleTable(element);
-      });
+      $(form).find('.bundle-settings .index:input').once('bundle-settings').each(triggerFields).on('click', triggerFields);
     }
   };
 })(jQuery, Drupal);
