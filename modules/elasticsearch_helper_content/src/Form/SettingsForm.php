@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\elasticsearch_helper_content\IndexServiceInterface;
 use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -35,22 +34,16 @@ class SettingsForm extends FormBase {
   protected $entityFieldManager;
 
   /**
-   * @var \Drupal\elasticsearch_helper_content\IndexServiceInterface
-   */
-  protected $elasticsearchHelperContentIndex;
-
-  /**
    * SettingsForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   * @param \Drupal\elasticsearch_helper_content\IndexServiceInterface $index_service
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityFieldManagerInterface $entity_field_manager, IndexServiceInterface $index_service) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityFieldManagerInterface $entity_field_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->entityFieldManager = $entity_field_manager;
-    $this->elasticsearchHelperContentIndex = $index_service;
   }
 
   /**
@@ -60,8 +53,7 @@ class SettingsForm extends FormBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('entity_type.bundle.info'),
-      $container->get('entity_field.manager'),
-      $container->get('elasticsearch_helper_content.index')
+      $container->get('entity_field.manager')
     );
   }
 
