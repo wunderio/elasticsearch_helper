@@ -9,7 +9,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 /**
  * Provides the Elasticsearch entity normalizer plugin manager.
  */
-class ElasticsearchEntityNormalizerManager extends DefaultPluginManager {
+class ElasticsearchEntityNormalizerManager extends DefaultPluginManager implements ElasticsearchEntityNormalizerManagerInterface {
 
   /**
    * Constructs a new ElasticsearchEntityNormalizerManager object.

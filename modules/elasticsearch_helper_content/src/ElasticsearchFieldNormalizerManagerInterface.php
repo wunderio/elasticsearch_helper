@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper_content;
 
 /**
- * Elasticsearch normalizer plugin manager interface.
+ * Elasticsearch field normalizer plugin manager interface.
  */
 interface ElasticsearchFieldNormalizerManagerInterface {
 
