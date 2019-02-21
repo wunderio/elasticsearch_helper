@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_string",
- *   label = "String",
+ *   label = @Translation("String"),
  *   field_types = {
  *     "string"
  *   },

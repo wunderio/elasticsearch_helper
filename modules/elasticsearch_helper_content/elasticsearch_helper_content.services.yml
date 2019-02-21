@@ -19,7 +19,3 @@ services:
 
   elasticsearch_helper_content.elasticsearch_data_type_provider:
     class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeProvider
-
-  elasticsearch_helper_content.index:
-    class: Drupal\elasticsearch_helper_content\IndexService
-    arguments: ['@config.factory']

@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_address_plain",
- *   label = "Address (plain text)",
+ *   label = @Translation("Address (plain text)"),
  *   field_types = {
  *     "address"
  *   }

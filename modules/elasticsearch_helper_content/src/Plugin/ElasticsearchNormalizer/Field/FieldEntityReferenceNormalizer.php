@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_entity_reference",
- *   label = "Entity reference (ID, label)",
+ *   label = @Translation("Entity reference (ID, label)"),
  *   field_types = {
  *     "entity_reference"
  *   }

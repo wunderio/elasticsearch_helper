@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_boolean",
- *   label = "Boolean",
+ *   label = @Translation("Boolean"),
  *   field_types = {
  *     "boolean"
  *   }

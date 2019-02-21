@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_float",
- *   label = "Float, decimal",
+ *   label = @Translation("Float, decimal"),
  *   field_types = {
  *     "float",
  *     "decimal"
