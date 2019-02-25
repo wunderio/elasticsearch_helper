@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityFieldNormalizerInterface;
+use Drupal\elasticsearch_helper_content\ContentIndexInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface;
@@ -49,6 +50,11 @@ class SettingsForm extends FormBase {
   protected $elasticsearchFieldNormalizerManager;
 
   /**
+   * @var \Drupal\elasticsearch_helper_content\ContentIndexInterface
+   */
+  protected $contentIndex;
+
+  /**
    * SettingsForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -56,13 +62,15 @@ class SettingsForm extends FormBase {
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager
+   * @param \Drupal\elasticsearch_helper_content\ContentIndexInterface $content_index
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityFieldManagerInterface $entity_field_manager, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager, ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityFieldManagerInterface $entity_field_manager, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager, ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager, ContentIndexInterface $content_index) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->entityFieldManager = $entity_field_manager;
     $this->elasticsearchEntityNormalizerManager = $elasticsearch_entity_normalizer_manager;
     $this->elasticsearchFieldNormalizerManager = $elasticsearch_field_normalizer_manager;
+    $this->contentIndex = $content_index;
   }
 
   /**
@@ -74,7 +82,8 @@ class SettingsForm extends FormBase {
       $container->get('entity_type.bundle.info'),
       $container->get('entity_field.manager'),
       $container->get('plugin.manager.elasticsearch_entity_normalizer'),
-      $container->get('plugin.manager.elasticsearch_field_normalizer')
+      $container->get('plugin.manager.elasticsearch_field_normalizer'),
+      $container->get('elasticsearch_helper_content.content_index')
     );
   }
 
@@ -89,7 +98,7 @@ class SettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $index_configuration = $this->config('elasticsearch_helper_content.index')->get();
+    $index_configuration = $this->contentIndex->getConfiguration();
     $bundles_info = $this->entityTypeBundleInfo->getAllBundleInfo();
     $triggering_element = $form_state->getTriggeringElement();
 
@@ -331,7 +340,7 @@ class SettingsForm extends FormBase {
       }
     }
 
-    $this->configFactory->getEditable('elasticsearch_helper_content.index')->setData($index_settings)->save();
+    $this->configFactory()->getEditable($this->contentIndex->getConfigName())->setData($index_settings)->save();
     drupal_set_message($this->t('Settings successfully updated.'));
   }
 
