@@ -1,5 +1,5 @@
 elasticsearch_helper_content.settings_form:
-  path: '/admin/config/search/elasticsearch_helper_content'
+  path: '/admin/config/search/elasticsearch_helper/content'
   defaults:
     _title: 'Elasticsearch Helper Content Settings'
     _form: '\Drupal\elasticsearch_helper_content\Form\SettingsForm'

@@ -19,7 +19,7 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
   $header = [
     [
       'data' => t('Index'),
-      'class' => ['bundle'],
+      'class' => ['index'],
     ],
     [
       'data' => $element['#bundle_label'],
@@ -39,9 +39,11 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
       'data' => [
         [
           'data' => ['#title' => NULL] + $element[$bundle]['index'],
+          'class' => ['index'],
         ],
         [
           'data' => $element[$bundle]['index']['#title'],
+          'class' => ['bundle'],
         ],
         [
           'data' => $element[$bundle]['normalizer'],
@@ -52,22 +54,26 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
     ];
 
     // Loop over bundle fields.
-    foreach (Element::children($element[$bundle]['fields']) as $field_name) {
-      $rows[] = [
-        'data' => [
-          [
-            'data' => ['#title' => NULL] + $element[$bundle]['fields'][$field_name]['index'],
+    if (!empty($element[$bundle]['fields'])) {
+      foreach (Element::children($element[$bundle]['fields']) as $field_name) {
+        $rows[] = [
+          'data' => [
+            [
+              'data' => ['#title' => NULL] + $element[$bundle]['fields'][$field_name]['index'],
+              'class' => ['index'],
+            ],
+            [
+              'data' => $element[$bundle]['fields'][$field_name]['index']['#title'],
+              'class' => ['field'],
+            ],
+            [
+              'data' => $element[$bundle]['fields'][$field_name]['normalizer'],
+              'class' => ['operations'],
+            ],
           ],
-          [
-            'data' => $element[$bundle]['fields'][$field_name]['index']['#title'],
-          ],
-          [
-            'data' => $element[$bundle]['fields'][$field_name]['normalizer'],
-            'class' => ['operations'],
-          ],
-        ],
-        'class' => ['field-settings'],
-      ];
+          'class' => ['field-settings'],
+        ];
+      }
     }
   }
 
