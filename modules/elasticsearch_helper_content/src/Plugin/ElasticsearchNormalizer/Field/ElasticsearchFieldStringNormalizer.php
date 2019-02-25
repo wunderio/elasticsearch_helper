@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
 use Drupal\Core\Field\FieldItemInterface;
-use Drupal\Core\TypedData\DataDefinition;
+use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
@@ -27,8 +27,8 @@ class ElasticsearchFieldStringNormalizer extends ElasticsearchFieldNormalizerBas
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions() {
-    return DataDefinition::create('text');
+  public function getPropertyDefinitions(array $context = []) {
+    return ElasticsearchDataTypeDefinition::create('text');
   }
 
 }

@@ -27,7 +27,7 @@ class ElasticsearchFieldBooleanNormalizer extends ElasticsearchFieldNormalizerBa
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions() {
+  public function getPropertyDefinitions(array $context = []) {
     return ElasticsearchDataTypeDefinition::create('boolean');
   }
 

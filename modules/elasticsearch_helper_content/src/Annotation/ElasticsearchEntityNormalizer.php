@@ -12,8 +12,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * @Annotation
  */
-class ElasticsearchContentNormalizer extends Plugin {
-
+class ElasticsearchEntityNormalizer extends Plugin {
 
   /**
    * The plugin ID.

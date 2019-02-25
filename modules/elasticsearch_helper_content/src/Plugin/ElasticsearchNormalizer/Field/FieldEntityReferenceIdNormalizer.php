@@ -30,7 +30,7 @@ class FieldEntityReferenceIdNormalizer extends FieldEntityReferenceNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions() {
+  public function getPropertyDefinitions(array $context = []) {
     return ElasticsearchDataTypeDefinition::create('integer');
   }
 

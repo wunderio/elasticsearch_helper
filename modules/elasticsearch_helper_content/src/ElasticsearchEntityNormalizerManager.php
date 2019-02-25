@@ -29,4 +29,11 @@ class ElasticsearchEntityNormalizerManager extends DefaultPluginManager implemen
     $this->setCacheBackend($cache_backend, 'elasticsearch_normalizer_entity_plugins');
   }
 
+  public function getDefinitions() {
+    $definitions = parent::getDefinitions();
+    uasort($definitions, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
+
+    return $definitions;
+  }
+
 }

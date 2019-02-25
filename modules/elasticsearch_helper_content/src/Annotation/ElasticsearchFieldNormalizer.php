@@ -7,13 +7,12 @@ use Drupal\Component\Annotation\Plugin;
 /**
  * Defines a Elasticsearch field normalizer item annotation object.
  *
- * @see \Drupal\elasticsearch_helper_content\Plugin\ElasticsearchContentNormalizerManager
+ * @see \Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManager
  * @see plugin_api
  *
  * @Annotation
  */
 class ElasticsearchFieldNormalizer extends Plugin {
-
 
   /**
    * The plugin ID.

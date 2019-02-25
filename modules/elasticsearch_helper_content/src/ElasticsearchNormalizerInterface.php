@@ -2,10 +2,12 @@
 
 namespace Drupal\elasticsearch_helper_content;
 
+use Drupal\Component\Plugin\PluginInspectionInterface;
+
 /**
- * Interface ElasticsearchNormalizerInterface
+ * Defines interface for Elasticsearch normalizer plugins.
  */
-interface ElasticsearchNormalizerInterface {
+interface ElasticsearchNormalizerInterface extends PluginInspectionInterface {
 
   /**
    * Normalizes an object into a set of arrays/scalars.
@@ -15,7 +17,7 @@ interface ElasticsearchNormalizerInterface {
    *
    * @return array|string|int|float|bool
    */
-  public function normalize($object, array $context = array());
+  public function normalize($object, array $context = []);
 
   /**
    * Returns property definitions.
@@ -48,8 +50,10 @@ interface ElasticsearchNormalizerInterface {
    *      ],
    *    ]
    *
-   * @return \Drupal\Core\TypedData\DataDefinition|\Drupal\Core\TypedData\DataDefinition[]
+   * @param array $context
+   *
+   * @return \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition[]
    */
-  public function getPropertyDefinitions();
+  public function getPropertyDefinitions(array $context = []);
 
 }

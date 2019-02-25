@@ -30,7 +30,7 @@ class ElasticsearchFieldFloatNormalizer extends ElasticsearchFieldNormalizerBase
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions() {
+  public function getPropertyDefinitions(array $context = []) {
     return ElasticsearchDataTypeDefinition::create('float');
   }
 

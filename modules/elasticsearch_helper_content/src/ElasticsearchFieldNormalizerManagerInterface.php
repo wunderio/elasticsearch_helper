@@ -2,10 +2,12 @@
 
 namespace Drupal\elasticsearch_helper_content;
 
+use Drupal\Component\Plugin\PluginManagerInterface;
+
 /**
  * Elasticsearch field normalizer plugin manager interface.
  */
-interface ElasticsearchFieldNormalizerManagerInterface {
+interface ElasticsearchFieldNormalizerManagerInterface extends PluginManagerInterface {
 
   /**
    * Gets the definition of all plugins that support given field type.
