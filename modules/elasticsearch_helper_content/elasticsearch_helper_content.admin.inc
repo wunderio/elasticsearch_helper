@@ -27,7 +27,7 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
     ],
     [
       'data' => t('Configuration'),
-      'class' => ['operations'],
+      'class' => ['configuration'],
     ],
   ];
 
@@ -47,7 +47,7 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
         ],
         [
           'data' => $element[$bundle]['normalizer'],
-          'class' => ['operations'],
+          'class' => ['configuration'],
         ],
       ],
       'class' => ['bundle-settings'],
@@ -68,7 +68,7 @@ function template_preprocess_elasticsearch_helper_content_settings_form_table(&$
             ],
             [
               'data' => $element[$bundle]['fields'][$field_name]['normalizer'],
-              'class' => ['operations'],
+              'class' => ['configuration'],
             ],
           ],
           'class' => ['field-settings'],

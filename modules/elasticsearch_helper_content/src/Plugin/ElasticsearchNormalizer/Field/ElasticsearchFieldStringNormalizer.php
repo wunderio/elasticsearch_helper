@@ -11,7 +11,8 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *   id = "field_string",
  *   label = @Translation("String"),
  *   field_types = {
- *     "string"
+ *     "string",
+ *     "uuid"
  *   },
  * )
  */

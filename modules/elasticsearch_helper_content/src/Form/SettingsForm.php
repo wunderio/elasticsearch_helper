@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Form;
 
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -12,7 +13,6 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityFieldNormalizerInterface;
 use Drupal\elasticsearch_helper_content\ContentIndexInterface;
-use Drupal\field\Entity\FieldConfig;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -231,10 +231,6 @@ class SettingsForm extends FormBase {
 
           // Get bundle fields.
           $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
-          // Filter out base fields.
-          $fields_definitions = array_filter($fields_definitions, function($field) {
-            return $field instanceof FieldConfig;
-          });
 
           // Loop over fields.
           foreach ($fields_definitions as $field_name => $field) {
@@ -262,7 +258,10 @@ class SettingsForm extends FormBase {
             $form['settings'][$entity_type_id][$bundle]['fields'][$field_name] = [
               'index' => [
                 '#type' => 'checkbox',
-                '#title' => $field->getLabel(),
+                '#title' => new FormattableMarkup('@field_label <small>(<code>@field_name</code>)</small>', [
+                  '@field_label' => $field->getLabel(),
+                  '@field_name' => $field->getName(),
+                ]),
                 '#default_value' => $field_index,
                 '#access' => !empty($field_normalizer_definitions),
                 '#entity_type' => $entity_type_id,
