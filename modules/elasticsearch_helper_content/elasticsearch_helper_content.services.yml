@@ -5,6 +5,17 @@ services:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity.manager', '@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager', '@entity_type.bundle.info']
 
+  plugin.manager.elasticsearch_entity_normalizer:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManager
+    parent: default_plugin_manager
+
+  plugin.manager.elasticsearch_field_normalizer:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManager
+    parent: default_plugin_manager
+
   logger.channel.elasticsearch_helper_content:
     parent: logger.channel_base
     arguments: ['elasticsearch_helper_content']
+
+  elasticsearch_helper_content.elasticsearch_data_type_provider:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeProvider
