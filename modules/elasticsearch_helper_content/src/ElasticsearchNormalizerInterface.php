@@ -12,7 +12,7 @@ interface ElasticsearchNormalizerInterface extends PluginInspectionInterface {
   /**
    * Normalizes an object into a set of arrays/scalars.
    *
-   * @param object $object Object to normalize
+   * @param \Drupal\Core\Entity\ContentEntityInterface $object
    * @param array $context Context options for the normalizer
    *
    * @return array|string|int|float|bool

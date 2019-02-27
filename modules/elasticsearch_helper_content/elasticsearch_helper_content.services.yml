@@ -9,6 +9,10 @@ services:
     class: Drupal\elasticsearch_helper_content\ContentIndex
     arguments: ['@config.factory']
 
+  elasticsearch_helper_content.entity_renderer:
+    class: Drupal\elasticsearch_helper_content\EntityRenderer
+    arguments: ['@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager']
+
   plugin.manager.elasticsearch_entity_normalizer:
     class: Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManager
     parent: default_plugin_manager

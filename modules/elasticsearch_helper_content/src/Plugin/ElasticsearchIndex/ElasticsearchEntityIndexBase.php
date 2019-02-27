@@ -52,6 +52,13 @@ abstract class ElasticsearchEntityIndexBase extends ElasticsearchIndexBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function serialize($source, $context = []) {
+    return [];
+  }
+
+  /**
    * Return mapping.
    *
    * @param array $mapping_context

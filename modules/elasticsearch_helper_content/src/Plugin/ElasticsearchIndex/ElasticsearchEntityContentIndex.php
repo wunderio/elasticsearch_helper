@@ -53,6 +53,26 @@ class ElasticsearchEntityContentIndex extends ElasticsearchEntityIndexBase {
   /**
    * {@inheritdoc}
    */
+  public function serialize($source, $context = []) {
+    $data = parent::serialize($source, $context);
+
+    $index_configuration = $this->getIndexConfiguration();
+    $normalizer = $index_configuration['normalizer'];
+
+    try {
+      /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
+      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($normalizer);
+      $data = array_merge($data, $normalizer_instance->normalize($source, $context));
+    } catch (\Exception $e) {
+      watchdog_exception('elasticsearch_helper_content', $e);
+    }
+
+    return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function provideMapping(array $mapping_context) {
     $mapping = [
       'index' => $this->pluginDefinition['indexName'],
@@ -66,22 +86,21 @@ class ElasticsearchEntityContentIndex extends ElasticsearchEntityIndexBase {
     $normalizer = $index_configuration['normalizer'];
 
     /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
-    if ($normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($normalizer)) {
-      $property_definition_context = [
-        'entity_type' => $this->pluginDefinition['entityType'],
-        'bundle' => $this->pluginDefinition['bundle'],
-      ];
+    $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($normalizer);
+    $property_definition_context = [
+      'entity_type' => $this->pluginDefinition['entityType'],
+      'bundle' => $this->pluginDefinition['bundle'],
+    ];
 
-      // Loop over property definitions.
-      foreach ($normalizer_instance->getPropertyDefinitions($property_definition_context) as $field_name => $property) {
-        // Add analyzer option to the data definition.
-        if (!empty($mapping_context['analyzer']) && $property->getDataType() == 'text') {
-          $property->addOptions(['analyzer' => $mapping_context['analyzer']]);
-        }
-
-        // Add field and field definition.
-        $mapping['body']['properties'][$field_name] = $property->getDefinition();
+    // Loop over property definitions.
+    foreach ($normalizer_instance->getPropertyDefinitions($property_definition_context) as $field_name => $property) {
+      // Add analyzer option to the data definition.
+      if (!empty($mapping_context['analyzer']) && $property->getDataType() == 'text') {
+        $property->addOptions(['analyzer' => $mapping_context['analyzer']]);
       }
+
+      // Add field and field definition.
+      $mapping['body']['properties'][$field_name] = $property->getDefinition();
     }
 
     return $mapping;
