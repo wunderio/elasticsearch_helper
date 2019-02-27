@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_link",
- *   label = @Translation("Link"),
+ *   label = @Translation("Link (URI, title)"),
  *   field_types = {
  *     "link"
  *   },
@@ -22,15 +22,15 @@ class ElasticsearchFieldLinkNormalizer extends ElasticsearchFieldNormalizerBase 
    */
   public function getValue(FieldItemInterface $item, array $context = []) {
     return [
-      'uri' => $item->get('value')->getValue(),
-      'title' => $item->get('value')->getValue(),
+      'uri' => $item->get('uri')->getValue(),
+      'title' => $item->get('title')->getValue(),
     ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(array $context = []) {
+  public function getPropertyDefinitions() {
     return [
       'uri' => ElasticsearchDataTypeDefinition::create('keyword'),
       'title' => ElasticsearchDataTypeDefinition::create('text')

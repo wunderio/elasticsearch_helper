@@ -35,7 +35,7 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(array $context = []) {
+  public function getPropertyDefinitions() {
     return [
       'id' => ElasticsearchDataTypeDefinition::create('integer'),
       'label' => ElasticsearchDataTypeDefinition::create('text'),

@@ -23,7 +23,7 @@ interface EntityRendererInterface {
    * Renders a content to a string using given view mode.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   * @param \Drupal\elasticsearch_helper_content\string $view_mode
+   * @param $view_mode
    *
    * @return string
    */

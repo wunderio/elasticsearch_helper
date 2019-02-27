@@ -69,9 +69,9 @@ class ElasticsearchEntityContentNormalizer extends ElasticsearchEntityNormalizer
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(array $context = []) {
+  public function getPropertyDefinitions() {
     // Get core property definitions.
-    $core_property_definitions = $this->getCorePropertyDefinitions($context);
+    $core_property_definitions = $this->getCorePropertyDefinitions();
 
     return array_merge($core_property_definitions, [
       'created' => ElasticsearchDataTypeDefinition::create('date', [

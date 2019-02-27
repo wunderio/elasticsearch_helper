@@ -50,10 +50,8 @@ interface ElasticsearchNormalizerInterface extends PluginInspectionInterface {
    *      ],
    *    ]
    *
-   * @param array $context
-   *
    * @return \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition[]
    */
-  public function getPropertyDefinitions(array $context = []);
+  public function getPropertyDefinitions();
 
 }

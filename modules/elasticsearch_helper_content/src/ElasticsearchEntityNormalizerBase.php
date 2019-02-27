@@ -71,11 +71,9 @@ abstract class ElasticsearchEntityNormalizerBase extends ElasticsearchNormalizer
    * Returns core property definitions that are shared between entity and
    * entity field normalizers.
    *
-   * @param array $context
-   *
    * @return \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition[]|\Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition
    */
-  public function getCorePropertyDefinitions(array $context = []) {
+  public function getCorePropertyDefinitions() {
     return [
       'id' => ElasticsearchDataTypeDefinition::create('integer'),
       'uuid' => ElasticsearchDataTypeDefinition::create('keyword'),

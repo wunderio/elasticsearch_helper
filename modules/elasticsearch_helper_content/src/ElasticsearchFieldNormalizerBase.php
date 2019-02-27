@@ -18,7 +18,13 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
     $attributes = [];
 
     foreach ($object as $item) {
-      $attributes[] = $this->getValue($item, $context);
+      $value = $this->getValue($item, $context);
+
+      // Do not pass empty strings.
+      if ($value !== '') {
+        $attributes[] = $value;
+      }
+
     }
 
     return $attributes;

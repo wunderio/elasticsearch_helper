@@ -76,8 +76,6 @@ class ContentIndexDeriver implements ContainerDeriverInterface {
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     if (!isset($this->derivatives)) {
-      // Get supported entity index classes.
-      $supported_classes = $base_plugin_definition['supported_entity_index_classes'];
       // Get index configuration.
       $index_configuration = $this->contentIndex->getConfiguration();
 
@@ -91,28 +89,25 @@ class ContentIndexDeriver implements ContainerDeriverInterface {
             // Get bundle normalizer definition.
             $normalizer = $bundle_configuration['normalizer'];
 
-            // Check if this plugin supports selected entity normalizer.
-            if (isset($supported_classes[$normalizer])) {
-              // Prepare derivative ID.
-              $derivative_id = sprintf('%s_%s', $entity_type_id, $bundle);
+            // Prepare derivative ID.
+            $derivative_id = sprintf('%s_%s', $entity_type_id, $bundle);
 
-              $this->derivatives[$derivative_id] = [
-                // When derivative creates a definition, the base plugin
-                // definition ID is followed by a colon (:) and derivative ID.
-                'id' => sprintf('%s:%s', $base_plugin_definition['id'], $derivative_id),
-                'label' => t('@entity_type_label - @bundle_label @normalizer index', [
-                  '@entity_type_label' => $this->entityTypeManager->getDefinition($entity_type_id)->getLabel(),
-                  '@bundle_label' => $bundle_info[$bundle]['label'],
-                  '@normalizer' => $normalizer,
-                ]),
-                'class' => $supported_classes[$normalizer],
-                'indexName' => str_replace('_', '-', "{$entity_type_id}-{$bundle}"),
-                'typeName' => $bundle,
-                'entityType' => $entity_type_id,
-                'bundle' => $bundle,
-                'configuration' => $bundle_configuration,
-              ];
-            }
+            $this->derivatives[$derivative_id] = [
+              // When derivative creates a definition, the base plugin
+              // definition ID is followed by a colon (:) and derivative ID.
+              'id' => sprintf('%s:%s', $base_plugin_definition['id'], $derivative_id),
+              'label' => t('@entity_type_label - @bundle_label @normalizer index', [
+                '@entity_type_label' => $this->entityTypeManager->getDefinition($entity_type_id)->getLabel(),
+                '@bundle_label' => $bundle_info[$bundle]['label'],
+                '@normalizer' => $normalizer,
+              ]),
+              'class' => $base_plugin_definition['class'],
+              'indexName' => str_replace('_', '-', "{$entity_type_id}-{$bundle}"),
+              'typeName' => $bundle,
+              'entityType' => $entity_type_id,
+              'bundle' => $bundle,
+              'configuration' => $bundle_configuration,
+            ];
           } catch (\Exception $e) {
           }
         }

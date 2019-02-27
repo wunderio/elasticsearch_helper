@@ -40,7 +40,7 @@ class FieldAddressPlainNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(array $context = []) {
+  public function getPropertyDefinitions() {
     return ElasticsearchDataTypeDefinition::create('text');
   }
 
