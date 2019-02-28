@@ -8,28 +8,27 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_string",
- *   label = @Translation("String"),
+ *   id = "field_integer",
+ *   label = @Translation("Integer"),
  *   field_types = {
- *     "string",
- *     "uuid"
- *   },
+ *     "integer"
+ *   }
  * )
  */
-class ElasticsearchFieldStringNormalizer extends ElasticsearchFieldNormalizerBase {
+class ElasticsearchFieldIntegerNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}
    */
   public function getValue(FieldItemInterface $item, array $context = []) {
-    return $item->get('value')->getValue();
+    return (int) $item->get('value')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return ElasticsearchDataTypeDefinition::create('text');
+    return ElasticsearchDataTypeDefinition::create('integer');
   }
 
 }

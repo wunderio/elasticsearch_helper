@@ -11,6 +11,9 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *   id = "field_text",
  *   label = @Translation("Text"),
  *   field_types = {
+ *     "string",
+ *     "uuid",
+ *     "language",
  *     "text",
  *     "text_long",
  *     "text_with_summary"
