@@ -110,13 +110,23 @@ function elasticsearch_helper_content_views_data() {
     foreach ($field_name_instance as $data_type => $field_instance) {
       $label = implode(', ', array_unique($field_instance['label']));
 
+      $field = [
+        'title' => $label,
+        // @todo Change the field plugin to type-specific.
+        'id' => 'elasticsearch_source',
+        'source_field_override' => $field_name,
+      ];
+
+      $filter = [
+        'title' => $label,
+        // @todo Change the filter plugin to type-specific.
+        'id' => 'string',
+      ];
+
       $data['elasticsearch_result'][$field_name . '_' . $data_type] = [
         'title' => $label,
-        'field' => [
-          'title' => $label,
-          'id' => 'elasticsearch_source',
-          'source_field_override' => $field_name,
-        ],
+        'field' => $field,
+        'filter' => $filter,
         'help' => t('Appears in: @indices with type <small><code>@data_type</code></small>.', ['@indices' => implode(', ', $field_instance['index_name']), '@data_type' => $data_type]),
       ];
     }
