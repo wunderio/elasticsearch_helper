@@ -31,12 +31,17 @@ function elasticsearch_helper_content_views_data() {
 
   // Track field appearance in various indices.
   $field_instances = [];
+  // Track index names.
+  $index_names = [];
 
   foreach ($elasticsearch_content_indices as $index_plugin_id => $content_index_definition) {
     try {
       $entity_type_id = $content_index_definition['entityType'];
       $bundle = $content_index_definition['bundle'];
+
       $index_name = $content_index_definition['indexName'];
+      $index_names[$index_name] = $content_index_definition['label'];
+
       $bundle_configuration = $content_index_definition['configuration'];
       $normalizer = $bundle_configuration['normalizer'];
 
@@ -116,6 +121,16 @@ function elasticsearch_helper_content_views_data() {
       ];
     }
   }
+
+  $data['elasticsearch_result']['elasticsearch_index'] = [
+    'title' => t('Elasticsearch index'),
+    'filter' => [
+      'title' => t('Elasticsearch index'),
+      'id' => 'elasticsearch_index',
+      'indices' => $index_names,
+    ],
+    'help' => t('Elasticsearch content index filter.'),
+  ];
 
   return $data;
 }

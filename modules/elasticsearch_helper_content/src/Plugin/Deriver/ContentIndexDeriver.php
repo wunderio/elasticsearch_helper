@@ -106,6 +106,7 @@ class ContentIndexDeriver implements ContainerDeriverInterface {
               'typeName' => $bundle,
               'entityType' => $entity_type_id,
               'bundle' => $bundle,
+              // Store bundle configuration.
               'configuration' => $bundle_configuration,
             ];
           } catch (\Exception $e) {

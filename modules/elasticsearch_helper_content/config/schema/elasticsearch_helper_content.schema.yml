@@ -29,3 +29,6 @@ elasticsearch_helper_content.bundle_normalizer.field:
         normalizer:
           type: string
           label: 'Field normalizer'
+
+views.filter.elasticsearch_index:
+  type: views.filter.in_operator
