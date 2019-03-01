@@ -16,7 +16,8 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *     "language",
  *     "text",
  *     "text_long",
- *     "text_with_summary"
+ *     "text_with_summary",
+ *     "list_string"
  *   },
  * )
  */

@@ -60,7 +60,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    */
   public function setup() {
     try {
-      $index_name = $this->pluginDefinition['indexName'];
+      $index_name = $this->getIndexName([]);
 
       // Only setup index if it's not already existing.
       if (!$this->client->indices()->exists(['index' => $index_name])) {
@@ -100,7 +100,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   public function serialize($source, $context = []) {
     $data = [];
 
-    $index_configuration = $this->getIndexConfiguration();
+    $index_configuration = $this->getConfiguration();
 
     $normalizer_configuration = array_merge([
       'entity_type' => $this->pluginDefinition['entityType'],
@@ -134,7 +134,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
       ],
     ];
 
-    $index_configuration = $this->getIndexConfiguration();
+    $index_configuration = $this->getConfiguration();
 
     $normalizer_configuration = array_merge([
       'entity_type' => $this->pluginDefinition['entityType'],
@@ -211,7 +211,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    *
    * @return array
    */
-  protected function getIndexConfiguration() {
+  protected function getConfiguration() {
     return $this->pluginDefinition['configuration'];
   }
 

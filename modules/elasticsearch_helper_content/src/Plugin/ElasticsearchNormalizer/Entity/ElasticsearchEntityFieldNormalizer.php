@@ -51,6 +51,15 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'fields' => [],
+    ];
+  }
+
+  /**
    * Returns a list of field normalizer instances.
    *
    * @return \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[]
@@ -58,13 +67,11 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
   protected function getFieldNormalizerInstances() {
     $instances = [];
 
-    if (isset($this->configuration['fields'])) {
-      foreach ($this->configuration['fields'] as $field_name => $field_configuration) {
-        try {
-          $instances[$field_name] = $this->elasticsearchFieldNormalizerManager->createInstance($field_configuration['normalizer']);
-        } catch (\Exception $e) {
-          watchdog_exception('elasticsearch_helper_content', $e);
-        }
+    foreach ($this->configuration['fields'] as $field_name => $field_configuration) {
+      try {
+        $instances[$field_name] = $this->elasticsearchFieldNormalizerManager->createInstance($field_configuration['normalizer']);
+      } catch (\Exception $e) {
+        watchdog_exception('elasticsearch_helper_content', $e);
       }
     }
 

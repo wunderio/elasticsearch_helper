@@ -14,15 +14,12 @@ elasticsearch_helper_content.bundle_normalizer.content:
     normalizer:
       type: string
       label: 'Entity normalizer'
-    view_mode:
-      type: string
-      label: 'View mode'
 
 elasticsearch_helper_content.bundle_normalizer.field:
   type: mapping
   label: 'Bundle configuration'
   mapping:
-    normalizerz:
+    normalizer:
       type: string
       label: 'Entity normalizer'
     fields:

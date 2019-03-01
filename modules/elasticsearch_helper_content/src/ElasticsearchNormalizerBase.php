@@ -25,4 +25,31 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
     return [];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfiguration() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConfiguration(array $configuration) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    return [];
+  }
+
 }

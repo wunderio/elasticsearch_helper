@@ -143,6 +143,7 @@ class SettingsForm extends FormBase {
     // Loop through sorted entity types.
     foreach ($entity_type_labels as $entity_type_id => $entity_type_label) {
       $entity_type = $entity_types[$entity_type_id];
+      $flipped_entity_keys = array_flip($entity_type->getKeys());
 
       $form['settings'][$entity_type_id] = [
         '#title' => $entity_type_label,
@@ -163,7 +164,7 @@ class SettingsForm extends FormBase {
 
       // Loop over entity type bundles.
       foreach ($bundles_info[$entity_type_id] as $bundle => $bundle_info) {
-        $bundle_configuration = &$index_configuration[$entity_type_id][$bundle];
+        $bundle_configuration =isset($index_configuration[$entity_type_id][$bundle]) ? $index_configuration[$entity_type_id][$bundle] : [];
 
         $ajax_attribute = [
           'callback' => '::submitAjax',
@@ -176,9 +177,9 @@ class SettingsForm extends FormBase {
 
         // Create entity normalizer instances.
         /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[] $entity_normalizer_instances */
-        $entity_normalizer_instances = array_filter(array_map(function ($definition) {
+        $entity_normalizer_instances = array_filter(array_map(function ($definition) use ($bundle_configuration) {
           try {
-           return $this->elasticsearchEntityNormalizerManager->createInstance($definition['id']);
+           return $this->elasticsearchEntityNormalizerManager->createInstance($definition['id'], $bundle_configuration);
           } catch (PluginNotFoundException $e) {
             return NULL;
           }
@@ -214,11 +215,6 @@ class SettingsForm extends FormBase {
               return $plugin->getPluginDefinition()['label'];
             }, $entity_normalizer_instances),
             '#default_value' => $bundle_normalizer,
-            '#attributes' => [
-              'data-entity-field-normalizers' => array_keys(array_filter($entity_normalizer_instances, function($plugin) {
-                return $plugin instanceof ElasticsearchEntityFieldNormalizerInterface;
-              })),
-            ],
             '#access' => $bundle_index && !empty($entity_normalizer_instances),
             '#entity_type' => $entity_type_id,
             '#ajax' => $ajax_attribute,
@@ -233,9 +229,12 @@ class SettingsForm extends FormBase {
           $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
 
           // Loop over fields.
-          foreach ($fields_definitions as $field_name => $field) {
+          foreach ($fields_definitions as $entity_field_name => $field) {
             // Get field type.
-            $field_type = $fields_definitions[$field_name]->getType();
+            $field_type = $fields_definitions[$entity_field_name]->getType();
+
+            // If field name maps to an entity key, use entity key.
+            $field_name = isset($flipped_entity_keys[$entity_field_name]) ? $flipped_entity_keys[$entity_field_name] : $entity_field_name;
 
             // Get field normalizer definitions.
             /** @var array $field_normalizer_definitions */
