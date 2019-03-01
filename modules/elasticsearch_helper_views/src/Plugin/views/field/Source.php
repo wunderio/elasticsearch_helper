@@ -4,8 +4,10 @@ namespace Drupal\elasticsearch_helper_views\Plugin\views\field;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
+use Drupal\views\ViewExecutable;
 
 /**
  * Renders a plain value from the Elasticsearch result.
@@ -18,6 +20,17 @@ class Source extends FieldPluginBase {
 
   /** @var string $nestedValueSeparator */
   protected $nestedValueSeparator = '.';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    parent::init($view, $display, $options);
+
+    if (isset($this->definition['source_field_override'])) {
+      $this->options['source_field'] = $this->definition['source_field_override'];
+    }
+  }
 
   /**
    * {@inheritdoc}
@@ -36,14 +49,19 @@ class Source extends FieldPluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
-    $t_args_description = ['@separator' => $this->nestedValueSeparator, '@example' => implode($this->nestedValueSeparator, ['abc', 'xyz'])];
-    $form['source_field'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Source field'),
-      '#description' => $this->t('Enter the key in the "_source" field. For nested fields separate the fields with a separator ("@separator"). Example: @example', $t_args_description),
-      '#required' => TRUE,
-      '#default_value' => $this->options['source_field']
-    ];
+    if (isset($this->definition['source_field_override'])) {
+
+    }
+    else {
+      $t_args_description = ['@separator' => $this->nestedValueSeparator, '@example' => implode($this->nestedValueSeparator, ['abc', 'xyz'])];
+      $form['source_field'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Source field'),
+        '#description' => $this->t('Enter the key in the "_source" field. For nested fields separate the fields with a separator ("@separator"). Example: @example', $t_args_description),
+        '#required' => TRUE,
+        '#default_value' => $this->options['source_field']
+      ];
+    }
   }
 
   /**
