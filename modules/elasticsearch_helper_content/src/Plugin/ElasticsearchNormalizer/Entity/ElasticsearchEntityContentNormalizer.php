@@ -74,11 +74,11 @@ class ElasticsearchEntityContentNormalizer extends ElasticsearchEntityNormalizer
    */
   public function defaultConfiguration() {
     return [
-             'view_mode' => [
-               'content' => '',
-               'rendered_content' => '',
-             ],
-           ] + parent::defaultConfiguration();
+      'view_mode' => [
+        'content' => '',
+        'rendered_content' => '',
+      ],
+    ] + parent::defaultConfiguration();
   }
 
   /**

@@ -88,9 +88,23 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
   protected function getFieldNormalizerInstances() {
     $instances = [];
 
+    // Get entity keys.
+    $entity_type_instance = $this->entityTypeManager->getDefinition($this->configuration['entity_type']);
+    $entity_keys = $entity_type_instance->getKeys();
+
+    // Get field definitions.
+    $fields_definitions = $this->entityFieldManager->getFieldDefinitions($this->configuration['entity_type'], $this->configuration['bundle']);
+
     foreach ($this->configuration['fields'] as $field_name => $field_configuration) {
+      // If field name maps to an entity key, use entity key.
+      $entity_field_name = isset($entity_keys[$field_name]) ? $entity_keys[$field_name] : $field_name;
+
       try {
-        $instances[$field_name] = $this->elasticsearchFieldNormalizerManager->createInstance($field_configuration['normalizer']);
+        // Prepare configuration.
+        $normalizer_configuration = [
+          'field_type' => $fields_definitions[$entity_field_name]->getType(),
+        ];
+        $instances[$field_name] = $this->elasticsearchFieldNormalizerManager->createInstance($field_configuration['normalizer'], $normalizer_configuration);
       } catch (\Exception $e) {
         watchdog_exception('elasticsearch_helper_content', $e);
       }

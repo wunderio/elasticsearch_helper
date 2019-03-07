@@ -11,6 +11,15 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
 
   /**
    * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'field_type' => NULL,
+    ] + parent::defaultConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
    *
    * @param $object \Drupal\Core\Field\FieldItemListInterface
    */
