@@ -3,6 +3,8 @@ namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
+use Drupal\elasticsearch_helper_content\ContentIndexInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
 use Elasticsearch\Client;
@@ -24,7 +26,12 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   protected $elasticsearchEntityNormalizerManager;
 
   /**
-   * ElasticsearchEntityContentIndex constructor.
+   * @var \Drupal\elasticsearch_helper_content\ContentIndexInterface
+   */
+  protected $contentIndex;
+
+  /**
+   * ElasticsearchContentIndex constructor.
    *
    * @param array $configuration
    * @param $plugin_id
@@ -33,11 +40,13 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager
+   * @param \Drupal\elasticsearch_helper_content\ContentIndexInterface $content_index
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager, ContentIndexInterface $content_index) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
     $this->elasticsearchEntityNormalizerManager = $elasticsearch_entity_normalizer_manager;
+    $this->contentIndex = $content_index;
   }
 
   /**
@@ -51,7 +60,8 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
       $container->get('elasticsearch_helper.elasticsearch_client'),
       $container->get('serializer'),
       $container->get('logger.factory')->get('elasticsearch_helper'),
-      $container->get('plugin.manager.elasticsearch_entity_normalizer')
+      $container->get('plugin.manager.elasticsearch_entity_normalizer'),
+      $container->get('elasticsearch_helper_content.content_index')
     );
   }
 
@@ -100,17 +110,12 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   public function serialize($source, $context = []) {
     $data = [];
 
-    $index_configuration = $this->getConfiguration();
-
-    $normalizer_configuration = array_merge([
-      'entity_type' => $this->pluginDefinition['entityType'],
-      'bundle' => $this->pluginDefinition['bundle'],
-    ], $index_configuration);
+    $bundle_configuration = $this->getBundleConfiguration();
 
     try {
       /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
-      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($index_configuration['normalizer'], $normalizer_configuration);
-      $data = array_merge($data, $normalizer_instance->normalize($source, $context));
+      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($bundle_configuration['normalizer'], $bundle_configuration['configuration']);
+      $data = $normalizer_instance->normalize($source, $context);
     } catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
     }
@@ -134,16 +139,11 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
       ],
     ];
 
-    $index_configuration = $this->getConfiguration();
-
-    $normalizer_configuration = array_merge([
-      'entity_type' => $this->pluginDefinition['entityType'],
-      'bundle' => $this->pluginDefinition['bundle'],
-    ], $index_configuration);
+    $bundle_configuration = $this->getBundleConfiguration();
 
     try {
       /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
-      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($index_configuration['normalizer'], $normalizer_configuration);
+      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($bundle_configuration['normalizer'], $bundle_configuration['configuration']);
 
       // Loop over property definitions.
       foreach ($normalizer_instance->getPropertyDefinitions() as $field_name => $property) {
@@ -205,14 +205,14 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Returns stored index configuration.
+   * Returns bundle configuration.
    *
    * @see \Drupal\elasticsearch_helper_content\Plugin\Deriver\ContentIndexDeriver::getDerivativeDefinitions()
    *
    * @return array
    */
-  protected function getConfiguration() {
-    return $this->pluginDefinition['configuration'];
+  protected function getBundleConfiguration() {
+    return $this->contentIndex->getBundleConfiguration($this->pluginDefinition['entityType'], $this->pluginDefinition['bundle']);
   }
 
 }

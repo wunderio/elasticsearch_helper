@@ -3,19 +3,14 @@
  * Styles for the elasticsearch helper content administration page.
  */
 
-#elasticsearch-helper-content-settings-form table .index {
-  width: 1%;
-}
-
-#elasticsearch-helper-content-settings-form table .bundle {
+.elasticsearch-helper-content-settings-form table th.index {
   width: 25%;
 }
 
-#elasticsearch-helper-content-settings-form table .field {
-  padding-left: 3em;
-  width: 24%;
+.elasticsearch-helper-content-settings-form table th.normalizer {
+  width: 25%;
 }
 
-#elasticsearch-helper-content-settings-form table .configuration {
-  width: 75%;
+.elasticsearch-helper-content-settings-form table th.settings {
+  width: 50%;
 }

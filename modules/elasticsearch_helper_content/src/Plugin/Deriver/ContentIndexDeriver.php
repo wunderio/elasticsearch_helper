@@ -77,7 +77,7 @@ class ContentIndexDeriver implements ContainerDeriverInterface {
   public function getDerivativeDefinitions($base_plugin_definition) {
     if (!isset($this->derivatives)) {
       // Get index configuration.
-      $index_configuration = $this->contentIndex->getConfiguration();
+      $index_configuration = $this->contentIndex->getIndexConfiguration();
 
       // Loop over entity types.
       foreach ($index_configuration as $entity_type_id => $entity_type_configuration) {

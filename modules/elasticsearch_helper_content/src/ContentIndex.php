@@ -31,8 +31,22 @@ class ContentIndex implements ContentIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration() {
+  public function getIndexConfiguration() {
+    // @todo Store configuration statically for better performance.
     return $this->configFactory->get($this->configName)->get();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBundleConfiguration($entity_type_id, $bundle) {
+    $index_configuration = $this->getIndexConfiguration();
+
+    if (isset($index_configuration[$entity_type_id][$bundle])) {
+      return $index_configuration[$entity_type_id][$bundle];
+    }
+
+    return [];
   }
 
   /**

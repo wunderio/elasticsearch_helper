@@ -4,11 +4,12 @@ namespace Drupal\elasticsearch_helper_content;
 
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
  * Defines interface for Elasticsearch normalizer plugins.
  */
-interface ElasticsearchNormalizerInterface extends PluginInspectionInterface, ConfigurablePluginInterface {
+interface ElasticsearchNormalizerInterface extends PluginInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
 
   /**
    * Normalizes an object into a set of arrays/scalars.

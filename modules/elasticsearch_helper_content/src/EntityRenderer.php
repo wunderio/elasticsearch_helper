@@ -148,10 +148,17 @@ class EntityRenderer implements EntityRendererInterface {
   public function renderEntityHelper(ContentEntityInterface $entity, $view_mode, $langcode) {
     $build = [];
 
-    // @todo Check what happens if $view_mode has no explicit settings.
-    //       (I.e. when "default" should be used => is this working automatically?)
     /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display */
-    $display = $this->entityTypeManager->getStorage('entity_view_display')->load($entity->getEntityTypeId() . '.' . $entity->bundle() . '.' . $view_mode);
+    foreach ([$view_mode, 'default'] as $view_mode) {
+      if ($display = $this->entityTypeManager->getStorage('entity_view_display')->load($entity->getEntityTypeId() . '.' . $entity->bundle() . '.' . $view_mode)) {
+        break;
+      }
+    }
+
+    if (!$display) {
+      return [];
+    }
+
     $display_components = $display->getComponents();
     uasort($display_components, function($a, $b) { return $a['weight'] - $b['weight']; });
 

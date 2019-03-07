@@ -44,6 +44,16 @@ abstract class ElasticsearchEntityNormalizerBase extends ElasticsearchNormalizer
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'entity_type' => NULL,
+      'bundle' => NULL,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function normalize($object, array $context = []) {
     $data = parent::normalize($object, $context);
 

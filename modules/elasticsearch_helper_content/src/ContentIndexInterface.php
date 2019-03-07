@@ -12,7 +12,17 @@ interface ContentIndexInterface {
    *
    * @return array
    */
-  public function getConfiguration();
+  public function getIndexConfiguration();
+
+  /**
+   * Returns bundle configuration.
+   *
+   * @param $entity_type_id
+   * @param $bundle
+   *
+   * @return array
+   */
+  public function getBundleConfiguration($entity_type_id, $bundle);
 
   /**
    * Returns configuration name.

@@ -3,6 +3,9 @@
 namespace Drupal\elasticsearch_helper_content;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -10,6 +13,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Base class for Elasticsearch Content Normalizer plugins.
  */
 abstract class ElasticsearchNormalizerBase extends PluginBase implements ElasticsearchNormalizerInterface, ContainerFactoryPluginInterface {
+
+  use DependencySerializationTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->setConfiguration($configuration);
+  }
 
   /**
    * {@inheritdoc}
@@ -29,13 +42,17 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return [];
+    return $this->configuration;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
+    $this->configuration = NestedArray::mergeDeep(
+      $this->defaultConfiguration(),
+      $configuration
+    );
   }
 
   /**
@@ -51,5 +68,25 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
   public function calculateDependencies() {
     return [];
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  }
+
 
 }

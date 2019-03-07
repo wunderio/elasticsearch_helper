@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
@@ -35,6 +36,16 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    */
   public function getPropertyDefinitions() {
     return ElasticsearchDataTypeDefinition::create('text');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    return [
+      '#type' => 'select',
+      '#options' => range(0, 5),
+    ];
   }
 
 }
