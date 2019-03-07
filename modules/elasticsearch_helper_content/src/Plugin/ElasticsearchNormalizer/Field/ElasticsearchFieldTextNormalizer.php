@@ -27,7 +27,7 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     return $item->get('value')->getValue();
   }
 
@@ -36,16 +36,6 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    */
   public function getPropertyDefinitions() {
     return ElasticsearchDataTypeDefinition::create('text');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    return [
-      '#type' => 'select',
-      '#options' => range(0, 5),
-    ];
   }
 
 }

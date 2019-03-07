@@ -25,7 +25,7 @@ class FieldAddressPlainNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     // Render using the formatter.
     $build = $item->view(['type' => $this->formatter]);
     $result = \Drupal::service('renderer')->renderRoot($build);

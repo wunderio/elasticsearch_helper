@@ -11,7 +11,10 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *   id = "field_date",
  *   label = @Translation("Date"),
  *   field_types = {
- *     "datetime"
+ *     "datetime",
+ *     "timestamp",
+ *     "created",
+ *     "changed"
  *   }
  * )
  */
@@ -20,7 +23,7 @@ class ElasticsearchFieldDateNormalizer extends ElasticsearchFieldNormalizerBase 
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     // @todo Allow date format to be overridden with $context['format'].
     $date_value = $item->get('value')->getValue();
 

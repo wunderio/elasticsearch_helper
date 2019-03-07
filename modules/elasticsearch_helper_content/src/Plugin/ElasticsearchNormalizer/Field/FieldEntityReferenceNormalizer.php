@@ -18,6 +18,26 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
+   * {@inheritdoc}
+   *
+   * @param $object \Drupal\Core\Field\EntityReferenceFieldItemListInterface
+   */
+  public function normalize($object, array $context = []) {
+    $attributes = [];
+
+    foreach ($object->referencedEntities() as $entity) {
+      $value = $this->getEntityValues($entity);
+
+      // Do not pass empty strings.
+      if ($value !== '') {
+        $attributes[] = $value;
+      }
+    }
+
+    return $attributes;
+  }
+
+  /**
    * Returns values of the entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity

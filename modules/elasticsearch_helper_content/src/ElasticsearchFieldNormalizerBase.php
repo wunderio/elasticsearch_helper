@@ -18,13 +18,12 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
     $attributes = [];
 
     foreach ($object as $item) {
-      $value = $this->getValue($item, $context);
+      $value = $this->getFieldItemValue($item, $context);
 
       // Do not pass empty strings.
       if ($value !== '') {
         $attributes[] = $value;
       }
-
     }
 
     return $attributes;
@@ -38,7 +37,7 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
    *
    * @return mixed
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     return '';
   }
 

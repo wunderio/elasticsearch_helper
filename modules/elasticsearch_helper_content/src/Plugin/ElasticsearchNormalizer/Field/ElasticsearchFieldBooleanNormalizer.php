@@ -20,7 +20,7 @@ class ElasticsearchFieldBooleanNormalizer extends ElasticsearchFieldNormalizerBa
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     return (boolean) $item->get('value')->getValue();
   }
 

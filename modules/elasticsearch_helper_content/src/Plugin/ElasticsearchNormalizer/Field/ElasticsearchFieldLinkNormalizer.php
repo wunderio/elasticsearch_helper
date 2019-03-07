@@ -20,7 +20,7 @@ class ElasticsearchFieldLinkNormalizer extends ElasticsearchFieldNormalizerBase 
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     return [
       'uri' => $item->get('uri')->getValue(),
       'title' => $item->get('title')->getValue(),

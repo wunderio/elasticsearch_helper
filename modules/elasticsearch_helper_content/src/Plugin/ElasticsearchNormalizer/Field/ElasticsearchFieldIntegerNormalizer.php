@@ -20,7 +20,7 @@ class ElasticsearchFieldIntegerNormalizer extends ElasticsearchFieldNormalizerBa
   /**
    * {@inheritdoc}
    */
-  public function getValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
     return (int) $item->get('value')->getValue();
   }
 
