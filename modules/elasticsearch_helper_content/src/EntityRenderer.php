@@ -160,7 +160,9 @@ class EntityRenderer implements EntityRendererInterface {
     }
 
     $display_components = $display->getComponents();
-    uasort($display_components, function($a, $b) { return $a['weight'] - $b['weight']; });
+    uasort($display_components, function ($a, $b) {
+      return $a['weight'] - $b['weight'];
+    });
 
     // Prepare decision criteria.
     $entity_translatable = ($entity instanceof TranslatableInterface) && $entity->isTranslatable();

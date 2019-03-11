@@ -7,41 +7,50 @@ use Drupal\Core\Field\FieldItemInterface;
 /**
  * Class FieldNormalizerBase
  */
-abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerBase {
+abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerBase implements ElasticsearchFieldNormalizerInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
-    return [
-      'field_type' => NULL,
-    ] + parent::defaultConfiguration();
+  public function normalize($object, array $context = []) {
+    $result = [];
+
+    try {
+      $cardinality = $this->getCardinality($object);
+
+      foreach ($object as $item) {
+        $value = $this->getFieldItemValue($item, $context);
+
+        if ($cardinality === 1) {
+          return $value;
+        }
+
+        // Do not pass empty strings.
+        if ($value !== '') {
+          $result[] = $value;
+        }
+      }
+    }
+    catch (\Exception $e) {
+      watchdog_exception('elasticsearch_helper_content', $e);
+    }
+
+    return $result;
   }
 
   /**
-   * {@inheritdoc}
+   * @param \Drupal\Core\Field\FieldItemListInterface $item_list
    *
-   * @param $object \Drupal\Core\Field\FieldItemListInterface
+   * @return int
    */
-  public function normalize($object, array $context = []) {
-    $attributes = [];
-
-    foreach ($object as $item) {
-      $value = $this->getFieldItemValue($item, $context);
-
-      // Do not pass empty strings.
-      if ($value !== '') {
-        $attributes[] = $value;
-      }
-    }
-
-    return $attributes;
+  protected function getCardinality($item_list) {
+    return $item_list->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
   }
 
   /**
    * Returns value of the field item.
    *
-   * @param $item \Drupal\Core\Field\FieldItemInterface
+   * @param \Drupal\Core\Field\FieldItemInterface $item
    * @param array $context Context options for the normalizer
    *
    * @return mixed

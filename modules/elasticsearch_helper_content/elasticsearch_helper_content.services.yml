@@ -5,10 +5,6 @@ services:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity.manager', '@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager', '@entity_type.bundle.info']
 
-  elasticsearch_helper_content.content_index:
-    class: Drupal\elasticsearch_helper_content\ContentIndex
-    arguments: ['@config.factory']
-
   elasticsearch_helper_content.entity_renderer:
     class: Drupal\elasticsearch_helper_content\EntityRenderer
     arguments: ['@entity_type.manager', '@config.factory', '@renderer', '@theme.manager', '@theme.initialization', '@language_manager']
@@ -25,5 +21,5 @@ services:
     parent: logger.channel_base
     arguments: ['elasticsearch_helper_content']
 
-  elasticsearch_helper_content.elasticsearch_data_type_provider:
-    class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeProvider
+  elasticsearch_helper_content.elasticsearch_data_type_repository:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeRepository

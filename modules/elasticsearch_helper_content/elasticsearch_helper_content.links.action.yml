@@ -1,0 +1,5 @@
+entity.elasticsearch_content_index.add_form:
+  route_name: 'entity.elasticsearch_content_index.add_form'
+  title: 'Add Elasticsearch content index'
+  appears_on:
+    - entity.elasticsearch_content_index.collection

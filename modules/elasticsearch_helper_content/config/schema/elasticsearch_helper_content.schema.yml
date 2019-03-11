@@ -1,34 +1,25 @@
-elasticsearch_helper_content.index:
-  type: sequence
-  label: 'Entity type list'
-  sequence:
-    type: sequence
-    label: 'Bundle list'
-    sequence:
-      type: elasticsearch_helper_content.bundle_normalizer.[%key]
-
-elasticsearch_helper_content.bundle_normalizer.content:
-  type: mapping
-  label: 'Bundle configuration'
+elasticsearch_helper_content.index.*:
+  type: config_entity
+  label: 'Elasticsearch content index config'
   mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    entity_type:
+      type: string
+      label: 'Entity type'
+    bundle:
+      type: string
+      label: 'Bundle'
     normalizer:
       type: string
       label: 'Entity normalizer'
-
-elasticsearch_helper_content.bundle_normalizer.field:
-  type: mapping
-  label: 'Bundle configuration'
-  mapping:
-    normalizer:
-      type: string
-      label: 'Entity normalizer'
-    fields:
+    normalizer_configuration:
       type: sequence
-      label: 'Fields to be displayed'
-      mapping:
-        normalizer:
-          type: string
-          label: 'Field normalizer'
+      label: 'Entity normalizer configuration'
 
 views.filter.elasticsearch_index:
   type: views.filter.in_operator

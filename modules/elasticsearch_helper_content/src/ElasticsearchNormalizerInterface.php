@@ -44,12 +44,11 @@ interface ElasticsearchNormalizerInterface extends PluginInspectionInterface, Co
    *    ]
    *   - getPropertyDefinitions() should return the following:
    *    [
-   *      'string_value' => DataDefinition::create('string'),
-   *      'number_value' => DataDefinition::create('integer'),
-   *      'elements' => [
-   *        'one' => DataDefinition::create('string'),
-   *        'two' => DataDefinition::create('string'),
-   *      ],
+   *      'string_value' => ElasticsearchDataTypeDefinition::create('string'),
+   *      'number_value' => ElasticsearchDataTypeDefinition::create('integer'),
+   *      'elements' => ElasticsearchDataTypeDefinition::create('object')
+   *        ->addProperty('one' => ElasticsearchDataTypeDefinition::create('string')),
+   *        ->addProperty('two' => ElasticsearchDataTypeDefinition::create('string')),
    *    ]
    *
    * @return \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition[]

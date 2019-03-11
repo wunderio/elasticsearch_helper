@@ -1,0 +1,5 @@
+entity.elasticsearch_content_index.collection:
+  title: 'Elasticsearch content indices'
+  parent: system.admin_config_system
+  description: 'Configure Elasticsearch content indices'
+  route_name: entity.elasticsearch_content_index.collection

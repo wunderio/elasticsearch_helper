@@ -31,10 +31,11 @@ class ElasticsearchFieldLinkNormalizer extends ElasticsearchFieldNormalizerBase 
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return [
-      'uri' => ElasticsearchDataTypeDefinition::create('keyword'),
-      'title' => ElasticsearchDataTypeDefinition::create('text')
-    ];
+    $definition = ElasticsearchDataTypeDefinition::create('object')
+      ->addProperty('uri', ElasticsearchDataTypeDefinition::create('keyword'))
+      ->addProperty('title', ElasticsearchDataTypeDefinition::create('text'));
+
+    return $definition;
   }
 
 }

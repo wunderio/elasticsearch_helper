@@ -7,9 +7,9 @@ use Drupal\views\Plugin\views\filter\InOperator;
 /**
  * Filter handler which allows searching in selected indices.
  *
- * @ingroup views_field_handlers
+ * @ingroup views_filter_handlers
  *
- * @ViewsFilter("elasticsearch_index")
+ * @ViewsFilter("elasticsearch_content_index")
  */
 class ElasticsearchIndex extends InOperator {
 

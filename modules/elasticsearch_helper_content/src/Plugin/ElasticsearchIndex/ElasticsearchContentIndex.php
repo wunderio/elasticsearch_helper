@@ -1,12 +1,12 @@
 <?php
+
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
-use Drupal\elasticsearch_helper_content\ContentIndexInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
-use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -15,20 +15,30 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @ElasticsearchIndex(
  *   id = "content_index",
- *   deriver = "Drupal\elasticsearch_helper_content\Plugin\Deriver\ContentIndexDeriver"
+ *   deriver = "Drupal\elasticsearch_helper_content\Plugin\Deriver\ElasticsearchContentIndexDeriver"
  * )
  */
 class ElasticsearchContentIndex extends ElasticsearchIndexBase {
 
   /**
-   * @var \Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $elasticsearchEntityNormalizerManager;
+  protected $entityTypeManager;
 
   /**
-   * @var \Drupal\elasticsearch_helper_content\ContentIndexInterface
+   * @var \Drupal\Core\Language\LanguageManagerInterface
    */
-  protected $contentIndex;
+  protected $languageManager;
+
+  /**
+   * @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[] $normalizerInstances
+   */
+  protected $normalizerInstances;
+
+  /**
+   * @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface|null
+   */
+  protected $indexEntity;
 
   /**
    * ElasticsearchContentIndex constructor.
@@ -39,14 +49,22 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
-   * @param \Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager
-   * @param \Drupal\elasticsearch_helper_content\ContentIndexInterface $content_index
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager, ContentIndexInterface $content_index) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
-    $this->elasticsearchEntityNormalizerManager = $elasticsearch_entity_normalizer_manager;
-    $this->contentIndex = $content_index;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->languageManager = $language_manager;
+
+    $this->indexEntity = $this->getContentIndexEntity();
+
+    // Add language placeholder to index name if index supports multiple
+    // languages.
+    if ($this->indexEntity->isMultilingual()) {
+      $this->pluginDefinition['indexName'] .= '_{langcode}';
+    }
   }
 
   /**
@@ -60,9 +78,50 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
       $container->get('elasticsearch_helper.elasticsearch_client'),
       $container->get('serializer'),
       $container->get('logger.factory')->get('elasticsearch_helper'),
-      $container->get('plugin.manager.elasticsearch_entity_normalizer'),
-      $container->get('elasticsearch_helper_content.content_index')
+      $container->get('entity_type.manager'),
+      $container->get('language_manager')
     );
+  }
+
+  /**
+   * Returns Elasticsearch content index entity.
+   *
+   * @return \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface|null
+   */
+  public function getContentIndexEntity() {
+    try {
+      /** @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface $entity */
+      $entity = $this->entityTypeManager->getStorage('elasticsearch_content_index')->load($this->pluginDefinition['index_entity_id']);
+    }
+    catch (\Exception $e) {
+      watchdog_exception('elasticsearch_helper_content', $e);
+      $entity = NULL;
+    }
+
+    return $entity;
+  }
+
+  /**
+   * Returns a list of index names this plugin produces.
+   *
+   * List is keyed by language code.
+   *
+   * @return array
+   */
+  public function getIndexNames() {
+    if ($this->indexEntity->isMultilingual()) {
+      $index_names = [];
+
+      foreach (\Drupal::service('language_manager')->getLanguages() as $language) {
+        $langcode = $language->getId();
+        $index_names[$langcode] = $this->getIndexName(['langcode' => $langcode]);
+      }
+    }
+    else {
+      $index_names = [NULL => $this->getIndexName([])];
+    }
+
+    return $index_names;
   }
 
   /**
@@ -70,37 +129,74 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    */
   public function setup() {
     try {
-      $index_name = $this->getIndexName([]);
+      foreach ($this->getIndexNames() as $langcode => $index_name) {
+        // Only setup index if it's not already existing.
+        if (!$this->client->indices()->exists(['index' => $index_name])) {
+          $this->client->indices()->create([
+            'index' => $index_name,
+            'body' => [
+              // Use a single shard to improve relevance on a small dataset.
+              // TODO Make this configurable via settings.
+              'number_of_shards' => 1,
+              // No need for replicas, we only have one ES node.
+              // TODO Make this configurable via settings.
+              'number_of_replicas' => 0,
+            ],
+          ]);
 
-      // Only setup index if it's not already existing.
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
-        $this->client->indices()->create([
-          'index' => $index_name,
-          'body' => [
-            // Use a single shard to improve relevance on a small dataset.
-            // TODO Make this configurable via settings.
-            'number_of_shards' => 1,
-            // No need for replicas, we only have one ES node.
-            // TODO Make this configurable via settings.
-            'number_of_replicas' => 0,
-          ],
-        ]);
+          // Get default set of elasticsearch analyzers for the language.
+          $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
 
-        // Get default set of elasticsearch analyzers for the language.
-        $analyzer = ElasticsearchLanguageAnalyzer::get(NULL);
+          // Assemble field mapping for index.
+          $mapping_context = [
+            'langcode' => $langcode,
+            'analyzer' => $analyzer,
+          ];
+          $mapping = $this->provideMapping($mapping_context);
 
-        // Assemble field mapping for index.
-        $mapping_context = [
-          'language' => NULL,
-          'analyzer' => $analyzer,
-        ];
-        $mapping = $this->provideMapping($mapping_context);
-
-        // Save index mapping.
-        $this->client->indices()->putMapping($mapping);
+          // Save index mapping.
+          $this->client->indices()->putMapping($mapping);
+        }
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $source
+   */
+  public function index($source) {
+    if ($this->indexEntity->isMultilingual()) {
+      foreach ($source->getTranslationLanguages() as $langcode => $language) {
+        if ($source->hasTranslation($langcode)) {
+          parent::index($source->getTranslation($langcode));
+        }
+      }
+    }
+    else {
+      parent::index($source);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $source
+   */
+  public function delete($source) {
+    if ($this->indexEntity->isMultilingual()) {
+      foreach ($source->getTranslationLanguages() as $langcode => $language) {
+        if ($source->hasTranslation($langcode)) {
+          parent::delete($source->getTranslation($langcode));
+        }
+      }
+    }
+    else {
+      parent::delete($source);
     }
   }
 
@@ -110,15 +206,18 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   public function serialize($source, $context = []) {
     $data = [];
 
-    $bundle_configuration = $this->getBundleConfiguration();
-
     try {
-      /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
-      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($bundle_configuration['normalizer'], $bundle_configuration['configuration']);
-      $data = $normalizer_instance->normalize($source, $context);
-    } catch (\Exception $e) {
+      if ($this->indexEntity) {
+        $normalizer_instance = $this->indexEntity->getNormalizerInstance();
+        $data = $normalizer_instance->normalize($source, $context);
+      }
+    }
+    catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
     }
+
+    // Add the language code to be used as a token.
+    $data['langcode'] = $source->language()->getId();
 
     return $data;
   }
@@ -132,25 +231,23 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
    */
   protected function provideMapping(array $mapping_context) {
     $mapping = [
-      'index' => $this->pluginDefinition['indexName'],
-      'type' => $this->pluginDefinition['typeName'],
+      'index' => $this->getIndexName($mapping_context),
+      'type' => $this->getTypeName($mapping_context),
       'body' => [
         'properties' => [],
       ],
     ];
 
-    $bundle_configuration = $this->getBundleConfiguration();
-
     try {
-      /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
-      $normalizer_instance = $this->elasticsearchEntityNormalizerManager->createInstance($bundle_configuration['normalizer'], $bundle_configuration['configuration']);
+      $normalizer_instance = $this->indexEntity->getNormalizerInstance();
 
       // Loop over property definitions.
       foreach ($normalizer_instance->getPropertyDefinitions() as $field_name => $property) {
         // Add field and field definition.
-        $mapping['body']['properties'][$field_name] = $this->preparePropertyItem($property, $mapping_context);
+        $mapping['body']['properties'][$field_name] = $this->propertyDefinitionIterator($property, $mapping_context);
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
     }
 
@@ -158,61 +255,28 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Property item iterator.
+   * Property definition iterator.
    *
-   * @param \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition $property_item
+   * @param \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition $property
    * @param array $mapping_context
-   *
-   * @see \Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex\ElasticsearchContentIndex::preparePropertyItem()
    *
    * @return array
    */
-  protected function propertyItemIterator(ElasticsearchDataTypeDefinition $property_item, array $mapping_context) {
+  protected function propertyDefinitionIterator(ElasticsearchDataTypeDefinition $property, array $mapping_context) {
     // Add analyzer option to the data definition.
-    if (!empty($mapping_context['analyzer']) && $property_item->getDataType() == 'text') {
-      $property_item->addOptions(['analyzer' => $mapping_context['analyzer']]);
+    if (!empty($mapping_context['analyzer']) && $property->getDataType() == 'text') {
+      $property->addOptions(['analyzer' => $mapping_context['analyzer']]);
     }
 
-    return $property_item->getDefinition();
-  }
-
-  /**
-   * Prepares field properties.
-   *
-   * Property definitions provided by Elasticsearch entity normalizers can
-   * can contain a single definition or an array of definitions.
-   *
-   * @param \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition|array $property
-   * @param array $mapping_context
-   *
-   * @return array
-   */
-  protected function preparePropertyItem($property, array $mapping_context) {
-    $result = [];
-
-    if ($property instanceof ElasticsearchDataTypeDefinition) {
-      $result = $this->propertyItemIterator($property, $mapping_context);
-    }
-    // Handle situation when property is multi-value property.
-    elseif (is_array($property)) {
-      /** @var \Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition $property_item */
-      foreach ($property as $property_name => $property_item) {
-        $result['properties'][$property_name] = $this->propertyItemIterator($property_item, $mapping_context);
-      }
+    foreach ($property->getProperties() as $property_item) {
+      $this->propertyDefinitionIterator($property_item, $mapping_context);
     }
 
-    return $result;
-  }
+    foreach ($property->getFields() as $property_item) {
+      $this->propertyDefinitionIterator($property_item, $mapping_context);
+    }
 
-  /**
-   * Returns bundle configuration.
-   *
-   * @see \Drupal\elasticsearch_helper_content\Plugin\Deriver\ContentIndexDeriver::getDerivativeDefinitions()
-   *
-   * @return array
-   */
-  protected function getBundleConfiguration() {
-    return $this->contentIndex->getBundleConfiguration($this->pluginDefinition['entityType'], $this->pluginDefinition['bundle']);
+    return $property->getDefinition();
   }
 
 }

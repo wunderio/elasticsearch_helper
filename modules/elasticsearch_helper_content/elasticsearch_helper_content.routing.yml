@@ -1,9 +1,31 @@
-elasticsearch_helper_content.settings_form:
+entity.elasticsearch_content_index.collection:
   path: '/admin/config/search/elasticsearch_helper/content'
   defaults:
-    _title: 'Elasticsearch Helper Content Settings'
-    _form: '\Drupal\elasticsearch_helper_content\Form\SettingsForm'
+    _entity_list: 'elasticsearch_content_index'
+    _title: 'Elasticsearch content indices'
   requirements:
-    _permission: 'configured elasticsearch helper'
-  options:
-    _admin_route: TRUE
+    _permission: 'administer site configuration'
+
+entity.elasticsearch_content_index.add_form:
+  path: '/admin/config/search/elasticsearch_helper/content/add'
+  defaults:
+    _entity_form: 'elasticsearch_content_index.add'
+    _title: 'Add Elasticsearch content index'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.elasticsearch_content_index.edit_form:
+  path: '/admin/config/search/elasticsearch_helper/content/{elasticsearch_content_index}/edit'
+  defaults:
+    _entity_form: 'elasticsearch_content_index.edit'
+    _title: 'Edit Elasticsearch content index'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.elasticsearch_content_index.delete_form:
+  path: '/admin/config/search/elasticsearch_helper/content/{elasticsearch_content_index}/delete'
+  defaults:
+    _entity_form: 'elasticsearch_content_index.delete'
+    _title: 'Delete Elasticsearch content index'
+  requirements:
+    _permission: 'administer site configuration'

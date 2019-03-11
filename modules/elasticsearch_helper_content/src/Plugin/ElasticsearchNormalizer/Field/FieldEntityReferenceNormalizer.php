@@ -23,18 +23,29 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
    * @param $object \Drupal\Core\Field\EntityReferenceFieldItemListInterface
    */
   public function normalize($object, array $context = []) {
-    $attributes = [];
+    $result = [];
 
-    foreach ($object->referencedEntities() as $entity) {
-      $value = $this->getEntityValues($entity);
+    try {
+      $cardinality = $this->getCardinality($object);
 
-      // Do not pass empty strings.
-      if ($value !== '') {
-        $attributes[] = $value;
+      foreach ($object->referencedEntities() as $entity) {
+        $value = $this->getEntityValues($entity);
+
+        if ($cardinality === 1) {
+          return $value;
+        }
+
+        // Do not pass empty strings.
+        if ($value !== '') {
+          $result[] = $value;
+        }
       }
     }
+    catch (\Exception $e) {
+      watchdog_exception('elasticsearch_helper_content', $e);
+    }
 
-    return $attributes;
+    return $result;
   }
 
   /**
@@ -48,7 +59,6 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
     return [
       'id' => $entity->id(),
       'label' => $entity->label(),
-      'label_keyword' => $entity->label(),
     ];
   }
 
@@ -56,11 +66,12 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return [
-      'id' => ElasticsearchDataTypeDefinition::create('integer'),
-      'label' => ElasticsearchDataTypeDefinition::create('text'),
-      'label_keyword' => ElasticsearchDataTypeDefinition::create('keyword'),
-    ];
+    $label_definition = ElasticsearchDataTypeDefinition::create('text')
+      ->addField('keyword', ElasticsearchDataTypeDefinition::create('keyword'));
+
+    return ElasticsearchDataTypeDefinition::create('object')
+      ->addProperty('id', ElasticsearchDataTypeDefinition::create('integer'))
+      ->addProperty('label', $label_definition);
   }
 
 }

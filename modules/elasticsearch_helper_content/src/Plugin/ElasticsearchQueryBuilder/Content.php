@@ -19,8 +19,7 @@ class Content extends ElasticsearchQueryBuilderPluginBase {
   public function buildQuery() {
     $query = [
       'index' => $this->getIndices(),
-      'body' => [
-      ],
+      'body' => [],
     ];
 
     return $query;
