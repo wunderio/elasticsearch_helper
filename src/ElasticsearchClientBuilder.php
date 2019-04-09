@@ -29,14 +29,14 @@ class ElasticsearchClientBuilder {
    */
   protected function getHosts() {
     $host = implode(':', [
-      variable_get('elasticsearch_helper_host'),
-      variable_get('elasticsearch_helper_port'),
+      variable_get('elasticsearch_helper_host', 'localhost'),
+      variable_get('elasticsearch_helper_port', 9200),
     ]);
 
     if (variable_get('elasticsearch_helper_user')) {
       $credentials = implode(':', [
-        variable_get('elasticsearch_helper_user'),
-        variable_get('elasticsearch_helper_password'),
+        variable_get('elasticsearch_helper_user', ''),
+        variable_get('elasticsearch_helper_password', ''),
       ]);
 
       if (!empty($credentials)) {
@@ -44,7 +44,7 @@ class ElasticsearchClientBuilder {
       }
     }
 
-    if ($scheme = variable_get('elasticsearch_helper.scheme')) {
+    if ($scheme = variable_get('elasticsearch_helper_scheme', 'http')) {
       $host = implode('://', [
         $scheme,
         $host,

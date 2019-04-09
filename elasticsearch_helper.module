@@ -46,7 +46,7 @@ function elasticsearch_helper_get_index_processor() {
   static $elasticsearch_helper__index_processor;
 
   if (! isset($elasticsearch_helper__processor)) {
-    require drupal_get_path('module', 'elasticsearch_helper') . "/src/ElasticsearchIndexManager.php";
+    require_once drupal_get_path('module', 'elasticsearch_helper') . "/src/ElasticsearchIndexManager.php";
     $elasticsearch_helper__index_processor = new ElasticsearchIndexManager();
   }
 
