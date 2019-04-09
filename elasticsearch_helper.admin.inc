@@ -17,7 +17,6 @@ function elasticsearch_helper_forms() {
 function elasticsearch_helper_settings_form($form, &$form_state) {
   $client = elasticsearch_helper_get_client();
 
-
   try {
     $health = $client->cluster()->health();
 
@@ -36,7 +35,7 @@ function elasticsearch_helper_settings_form($form, &$form_state) {
   catch (NoNodesAvailableException $e) {
     drupal_set_message(t('Could not connect to Elasticsearch'), 'error');
   }
-  catch (\Exception $e) {
+  catch (Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
   }
 
