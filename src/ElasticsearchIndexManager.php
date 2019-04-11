@@ -18,7 +18,7 @@ class ElasticsearchIndexManager {
   /**
    * Index an entity into any matching indices.
    */
-  public function indexEntity($entity, $ty) {
+  public function indexEntity($entity, $type) {
     foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $type == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
