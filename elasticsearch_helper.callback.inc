@@ -70,3 +70,30 @@ function elasticsearch_helper_node_setup() {
   // Probably something like this:
   // elasticsearch_helper_get_client()->indices()->putMapping($mapping);
 }
+
+/**
+ * Drop index callback for use with an elasticsearch_helper_index plugin.
+ */
+function elasticsearch_helper_index_drop($plugin) {
+  $es_client = elasticsearch_helper_get_client();
+
+  $params = [
+    'index' => $plugin['indexNamePattern'],
+  ];
+
+  try {
+    if ($indices = $es_client->indices()->get($params)) {
+      // Notify user that indices have been deleted.
+      foreach ($indices as $indexName => $index) {
+        drupal_set_message(t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
+      }
+      // Delete matching indices.
+      $es_client->indices()->delete($params);
+    }
+  }
+  catch (Missing404Exception $e) {
+    drupal_set_message(t('No Elasticsearch index matching @pattern could be dropped.', [
+      '@pattern' => $this->indexNamePattern(),
+    ]));
+  }
+}
