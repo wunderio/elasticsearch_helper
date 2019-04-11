@@ -20,7 +20,8 @@ deployment hassle.
 
 ```
 drush elasticsearch-helper-list
-drush elasticsearch-helper-setup   [index1[,index2,...]]
+drush elasticsearch-helper-setup [index1[,index2,...]]
+drush elasticsearch-helper-drop [index1[,index2,...]]
 ```
 
 IMPORTANT:
