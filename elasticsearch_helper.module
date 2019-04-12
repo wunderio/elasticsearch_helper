@@ -57,15 +57,13 @@ function elasticsearch_helper_get_index_processor() {
  * Implements hook_entity_insert().
  */
 function elasticsearch_helper_entity_insert($entity, $type) {
-  if (variable_get('elasticsearch_helper_defer_indexing')) {
-    throw new Exception('Elasticsearch Helper: Deferred indexing is not supported yet.');
-    /*
+  if (variable_get('elasticsearch_helper_defer_indexing', FALSE)) {
+    $entity_ids = entity_extract_ids($type, $entity);
     DrupalQueue::get('elasticsearch_helper_indexing')
       ->createItem([
         'entity_type' => $type,
-        'entity_id' => $entity->id() // <-- nid? tid? -> entity_get_info()
+        'entity_id' => $entity_ids[0],
       ]);
-    */
   }
   else {
     elasticsearch_helper_get_index_processor()->indexEntity($entity, $type);
@@ -123,4 +121,26 @@ function _elasticsearch_helper_get_id($data) {
     // Elasticsearch will generate its own id.
     return NULL;
   }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function elasticsearch_helper_cron_queue_info() {
+  return [
+    'elasticsearch_helper_indexing' => [
+      'worker callback' => 'elasticsearch_helper_queue_worker',
+      'time' => 60,
+    ],
+  ];
+}
+
+/**
+ * Indexing queue worker callback.
+ *
+ * @param $data
+ */
+function elasticsearch_helper_queue_worker($data) {
+  $entity = entity_load_single($data['entity_type'], $data['entity_id']);
+  elasticsearch_helper_get_index_processor()->indexEntity($entity, $data['entity_type']);
 }
