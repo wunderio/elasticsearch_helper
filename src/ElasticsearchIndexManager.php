@@ -21,7 +21,8 @@ class ElasticsearchIndexManager {
   public function indexEntity($entity, $type) {
     foreach ($this->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $type == $plugin['entityType']) {
-        if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
+        $entity_info = entity_get_info($plugin['entityType']);
+        if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->{$entity_info['entity keys']['bundle']}) {
           // Do not index if defined plugin bundle differs from entity bundle.
           continue;
         }
