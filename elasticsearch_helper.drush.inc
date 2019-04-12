@@ -33,6 +33,14 @@ function elasticsearch_helper_drush_command() {
     'aliases' => ['eshd'],
   ];
 
+  $items['elasticsearch-helper-reindex'] = [
+    'description' => 'Reindex entities associated with an elasticsearch index',
+    'arguments' => [
+      'indices' => 'Comma separated list of indices for which entities should be reindexed',
+    ],
+    'aliases' => ['eshr'],
+  ];
+
   return $items;
 }
 
@@ -99,4 +107,40 @@ function drush_elasticsearch_helper_drop($indices = FALSE) {
       }
     }
   }
+}
+
+/**
+ * Reindex entities associated with an elasticsearch index.
+ */
+function drush_elasticsearch_helper_reindex($indices = FALSE) {
+  // Indices can be specified with a comma-separate value.
+  if ($indices && is_string($indices)) {
+    $indices = explode(',', $indices);
+  }
+
+  foreach (elasticsearch_helper_get_index_processor()->getDefinitions() as $plugin) {
+    if (!$indices || in_array($plugin['id'], $indices)) {
+      if ($plugin['entityType']) {
+        $query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', $plugin['entityType']);
+
+        if ($plugin['bundle']) {
+          $query->entityCondition('bundle', $plugin['bundle']);
+        }
+        $result = $query->execute();
+
+        $entity_info = entity_get_info($plugin['entityType']);
+        foreach ($result[$plugin['entityType']] as $entity) {
+          DrupalQueue::get('elasticsearch_helper_indexing')
+            ->createItem([
+              'entity_type' => $plugin['entityType'],
+              'entity_id' => $entity->{$entity_info['entity keys']['id']},
+            ]);
+        }
+
+        drupal_set_message('Marked indices to be reindex on next cronrun');
+      }
+    }
+  }
+
 }
