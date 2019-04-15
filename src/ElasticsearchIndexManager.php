@@ -34,9 +34,9 @@ class ElasticsearchIndexManager {
 
         }
         catch (Exception $e) {
-        watchdog('Elasticsearch indexing failed: @message', [
-            '@message' => $e->getMessage(),
-          ], WATCHDOG_ERROR);
+          watchdog('elasticsearch_helper', 'Elasticsearch indexing failed: @message', [
+              '@message' => $e->getMessage(),
+            ], WATCHDOG_ERROR);
         }
       }
     }
