@@ -109,9 +109,8 @@ function elasticsearch_helper_index_plugin(&$plugin, $info) {
  * Helper to extract the (entity) id from serialized data. It's currently hard
  * coded to return a node id.
  */
-function _elasticsearch_helper_get_id($data) {
+function _elasticsearch_helper_get_id($data, $id_key = 'nid') {
   // We'll need proper "what's the id key of this entity" magic here
-  $id_key = 'nid';
 
   if (isset($data[$id_key]) && (is_string($data[$id_key]) || is_numeric($data[$id_key]))) {
     // If there is an attribute with the key 'id', use it.
