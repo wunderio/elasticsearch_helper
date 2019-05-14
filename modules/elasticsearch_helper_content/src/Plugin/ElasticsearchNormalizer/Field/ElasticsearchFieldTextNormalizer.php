@@ -10,7 +10,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 /**
  * @ElasticsearchFieldNormalizer(
  *   id = "field_text",
- *   label = @Translation("Text, Keyword"),
+ *   label = @Translation("Text/Keyword"),
  *   field_types = {
  *     "string",
  *     "uuid",

@@ -221,126 +221,132 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
       ],
     ];
 
+    $core_property_definition_keys = array_keys($this->getCorePropertyDefinitions());
+
     // Loop over fields.
     foreach ($fields_definitions as $entity_field_name => $field) {
       // If field name maps to an entity key, use entity key.
       $field_name = isset($flipped_entity_keys[$entity_field_name]) ? $flipped_entity_keys[$entity_field_name] : $entity_field_name;
 
-      // Get field type.
-      $field_type = $fields_definitions[$entity_field_name]->getType();
+      // Do not list fields that are already defined in core property
+      // definitions.
+      if (!in_array($field_name, $core_property_definition_keys)) {
+        // Get field type.
+        $field_type = $fields_definitions[$entity_field_name]->getType();
 
-      // Get field normalizer definitions.
-      $field_normalizer_definitions = $this->elasticsearchFieldNormalizerManager->getDefinitionsByFieldType($field_type);
+        // Get field normalizer definitions.
+        $field_normalizer_definitions = $this->elasticsearchFieldNormalizerManager->getDefinitionsByFieldType($field_type);
 
-      // Get field configuration.
-      $field_configuration = isset($field_configurations[$field_name]) ? $field_configurations[$field_name] : [];
-      $field_configuration += [
-        'index' => 0,
-        'normalizer' => key($field_normalizer_definitions),
-        'normalizer_configuration' => [],
-      ];
-
-      $row_id = [$field_name];
-      $form_field_row = &$form['fields'][$field_name];
-
-      $field_index = !empty($field_configuration['index']);
-
-      $form_field_row['index'] = [
-        '#type' => 'checkbox',
-        '#title' => new FormattableMarkup('@field_label <small>(<code>@field_name</code>)</small>', [
-          '@field_label' => $field->getLabel(),
-          '@field_name' => $field->getName(),
-        ]),
-        '#default_value' => $field_index,
-        '#disabled' => empty($field_normalizer_definitions),
-        '#row_id' => $row_id,
-        '#ajax' => $ajax_attribute,
-      ];
-
-      $form_field_row['normalizer'] = [];
-      $form_field_row['settings'] = [];
-
-      if ($field_index) {
-        $field_normalizer = $field_configuration['normalizer'];
-
-        $form_field_row['normalizer'] = [
-          '#type' => 'select',
-          '#options' => array_map(function ($plugin) {
-            return $plugin['label'];
-          }, $field_normalizer_definitions),
-          '#default_value' => $field_normalizer,
-          '#access' => !empty($field_normalizer_definitions),
-          '#row_id' => $row_id,
-          '#ajax' => $ajax_attribute,
-          '#submit' => [[$this, 'multistepSubmit']],
+        // Get field configuration.
+        $field_configuration = isset($field_configurations[$field_name]) ? $field_configurations[$field_name] : [];
+        $field_configuration += [
+          'index' => 0,
+          'normalizer' => key($field_normalizer_definitions),
+          'normalizer_configuration' => [],
         ];
 
-        try {
-          $field_normalizer_instance = $this->getStoredFieldNormalizerInstance($field_name, $form_state);
+        $row_id = [$field_name];
+        $form_field_row = &$form['fields'][$field_name];
 
-          // Check if normalizer instance is set and if it matches the selected
-          // normalizer.
-          if (!$this->instanceMatchesPluginId($field_normalizer, $field_normalizer_instance)) {
-            $field_normalizer_instance = $this->createFieldNormalizerInstance($field_normalizer, $field_configuration['normalizer_configuration'], $entity_field_name);
+        $field_index = !empty($field_configuration['index']);
 
-            // Store field normalizer instance in form state.
-            $form_state->set(['field_normalizer', $field_name], $field_normalizer_instance);
-          }
+        $form_field_row['index'] = [
+          '#type' => 'checkbox',
+          '#title' => new FormattableMarkup('@field_label <small>(<code>@field_name</code>)</small>', [
+            '@field_label' => $field->getLabel(),
+            '@field_name' => $field->getName(),
+          ]),
+          '#default_value' => $field_index,
+          '#disabled' => empty($field_normalizer_definitions),
+          '#row_id' => $row_id,
+          '#ajax' => $ajax_attribute,
+        ];
 
-          // Prepare the subform state.
-          $configuration_form = [];
-          $subform_state = SubformState::createForSubform($configuration_form, $form, $form_state);
-          $configuration_form = $field_normalizer_instance->buildConfigurationForm([], $subform_state);
+        $form_field_row['normalizer'] = [];
+        $form_field_row['settings'] = [];
 
-          if ($configuration_form) {
-            $row_id_edit = $form_state->get('row_id_edit') ? $form_state->get('row_id_edit') : [];
+        if ($field_index) {
+          $field_normalizer = $field_configuration['normalizer'];
 
-            if ($row_id_edit && strpos(implode('][', $row_id_edit), implode('][', $row_id)) === 0) {
-              $form_field_row['settings'] = [
-                '#type' => 'container',
-                'configuration' => $configuration_form,
-                'actions' => [
-                  '#type' => 'actions',
-                  'save_settings' => [
-                    '#type' => 'submit',
-                    '#value' => t('Update'),
-                    '#name' => implode(':', $row_id) . '_update',
-                    '#op' => 'update',
-                    '#submit' => [[$this, 'multistepSubmit']],
-                    '#row_id' => $row_id,
-                    '#ajax' => $ajax_attribute,
-                    '#parent_offset' => -4,
-                  ],
-                  'cancel_settings' => [
-                    '#type' => 'submit',
-                    '#value' => t('Cancel'),
-                    '#name' => implode(':', $row_id) . '_cancel',
-                    '#op' => 'cancel',
-                    '#submit' => [[$this, 'multistepSubmit']],
-                    '#row_id' => $row_id,
-                    '#ajax' => $ajax_attribute,
-                    '#parent_offset' => -4,
-                  ],
-                ],
-              ];
+          $form_field_row['normalizer'] = [
+            '#type' => 'select',
+            '#options' => array_map(function ($plugin) {
+              return $plugin['label'];
+            }, $field_normalizer_definitions),
+            '#default_value' => $field_normalizer,
+            '#access' => !empty($field_normalizer_definitions),
+            '#row_id' => $row_id,
+            '#ajax' => $ajax_attribute,
+            '#submit' => [[$this, 'multistepSubmit']],
+          ];
+
+          try {
+            $field_normalizer_instance = $this->getStoredFieldNormalizerInstance($field_name, $form_state);
+
+            // Check if normalizer instance is set and if it matches the selected
+            // normalizer.
+            if (!$this->instanceMatchesPluginId($field_normalizer, $field_normalizer_instance)) {
+              $field_normalizer_instance = $this->createFieldNormalizerInstance($field_normalizer, $field_configuration['normalizer_configuration'], $entity_field_name);
+
+              // Store field normalizer instance in form state.
+              $form_state->set(['field_normalizer', $field_name], $field_normalizer_instance);
             }
-            else {
-              $form_field_row['settings'] = [
-                '#type' => 'image_button',
-                '#src' => 'core/misc/icons/787878/cog.svg',
-                '#attributes' => ['alt' => t('Edit')],
-                '#name' => implode(':', $row_id) . '_edit',
-                '#return_value' => t('Configure'),
-                '#op' => 'edit',
-                '#submit' => [[$this, 'multistepSubmit']],
-                '#row_id' => $row_id,
-                '#ajax' => $ajax_attribute,
-              ];
+
+            // Prepare the subform state.
+            $configuration_form = [];
+            $subform_state = SubformState::createForSubform($configuration_form, $form, $form_state);
+            $configuration_form = $field_normalizer_instance->buildConfigurationForm([], $subform_state);
+
+            if ($configuration_form) {
+              $row_id_edit = $form_state->get('row_id_edit') ? $form_state->get('row_id_edit') : [];
+
+              if ($row_id_edit && strpos(implode('][', $row_id_edit), implode('][', $row_id)) === 0) {
+                $form_field_row['settings'] = [
+                  '#type' => 'container',
+                  'configuration' => $configuration_form,
+                  'actions' => [
+                    '#type' => 'actions',
+                    'save_settings' => [
+                      '#type' => 'submit',
+                      '#value' => t('Update'),
+                      '#name' => implode(':', $row_id) . '_update',
+                      '#op' => 'update',
+                      '#submit' => [[$this, 'multistepSubmit']],
+                      '#row_id' => $row_id,
+                      '#ajax' => $ajax_attribute,
+                      '#parent_offset' => -4,
+                    ],
+                    'cancel_settings' => [
+                      '#type' => 'submit',
+                      '#value' => t('Cancel'),
+                      '#name' => implode(':', $row_id) . '_cancel',
+                      '#op' => 'cancel',
+                      '#submit' => [[$this, 'multistepSubmit']],
+                      '#row_id' => $row_id,
+                      '#ajax' => $ajax_attribute,
+                      '#parent_offset' => -4,
+                    ],
+                  ],
+                ];
+              }
+              else {
+                $form_field_row['settings'] = [
+                  '#type' => 'image_button',
+                  '#src' => 'core/misc/icons/787878/cog.svg',
+                  '#attributes' => ['alt' => t('Edit')],
+                  '#name' => implode(':', $row_id) . '_edit',
+                  '#return_value' => t('Configure'),
+                  '#op' => 'edit',
+                  '#submit' => [[$this, 'multistepSubmit']],
+                  '#row_id' => $row_id,
+                  '#ajax' => $ajax_attribute,
+                ];
+              }
             }
           }
-        }
-        catch (\Exception $e) {
-          watchdog_exception('elasticsearch_helper_content', $e);
+          catch (\Exception $e) {
+            watchdog_exception('elasticsearch_helper_content', $e);
+          }
         }
       }
     }

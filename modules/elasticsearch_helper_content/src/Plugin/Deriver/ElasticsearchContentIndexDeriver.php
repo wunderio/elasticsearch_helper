@@ -55,6 +55,8 @@ class ElasticsearchContentIndexDeriver implements ContainerDeriverInterface {
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     if (!isset($this->derivatives)) {
+      $this->derivatives = [];
+
       try {
         /** @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface[] $index_entities */
         $index_entities = $this->entityTypeManager->getStorage('elasticsearch_content_index')->loadMultiple();

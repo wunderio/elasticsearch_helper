@@ -1,0 +1,4 @@
+entity.elasticsearch_content_index.collection:
+  title: 'Indices'
+  route_name: entity.elasticsearch_content_index.collection
+  base_route: elasticsearch_helper.elasticsearch_helper_settings_form

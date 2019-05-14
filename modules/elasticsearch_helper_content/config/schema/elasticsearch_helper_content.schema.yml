@@ -21,5 +21,5 @@ elasticsearch_helper_content.index.*:
       type: sequence
       label: 'Entity normalizer configuration'
 
-views.filter.elasticsearch_index:
+views.filter.elasticsearch_content_index:
   type: views.filter.in_operator

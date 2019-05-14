@@ -1,5 +1,5 @@
 entity.elasticsearch_content_index.collection:
-  path: '/admin/config/search/elasticsearch_helper/content'
+  path: '/admin/config/search/elasticsearch_helper/index'
   defaults:
     _entity_list: 'elasticsearch_content_index'
     _title: 'Elasticsearch content indices'
@@ -7,7 +7,7 @@ entity.elasticsearch_content_index.collection:
     _permission: 'administer site configuration'
 
 entity.elasticsearch_content_index.add_form:
-  path: '/admin/config/search/elasticsearch_helper/content/add'
+  path: '/admin/config/search/elasticsearch_helper/index/add'
   defaults:
     _entity_form: 'elasticsearch_content_index.add'
     _title: 'Add Elasticsearch content index'
@@ -15,7 +15,7 @@ entity.elasticsearch_content_index.add_form:
     _permission: 'administer site configuration'
 
 entity.elasticsearch_content_index.edit_form:
-  path: '/admin/config/search/elasticsearch_helper/content/{elasticsearch_content_index}/edit'
+  path: '/admin/config/search/elasticsearch_helper/index/{elasticsearch_content_index}/edit'
   defaults:
     _entity_form: 'elasticsearch_content_index.edit'
     _title: 'Edit Elasticsearch content index'
@@ -23,7 +23,7 @@ entity.elasticsearch_content_index.edit_form:
     _permission: 'administer site configuration'
 
 entity.elasticsearch_content_index.delete_form:
-  path: '/admin/config/search/elasticsearch_helper/content/{elasticsearch_content_index}/delete'
+  path: '/admin/config/search/elasticsearch_helper/index/{elasticsearch_content_index}/delete'
   defaults:
     _entity_form: 'elasticsearch_content_index.delete'
     _title: 'Delete Elasticsearch content index'

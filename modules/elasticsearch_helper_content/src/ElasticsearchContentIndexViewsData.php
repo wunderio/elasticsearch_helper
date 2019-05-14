@@ -118,14 +118,17 @@ class ElasticsearchContentIndexViewsData implements EntityViewsDataInterface, Co
         // Keep track of all index names.
         foreach ($index_instance_index_names as $langcode => $existing_name) {
           // Get index name label.
-          $label = $content_index_entity_label;
+          $index_label = $content_index_entity_label;
 
           // Add language name if content index is multilingual.
           if ($langcode && $language = $this->languageManager->getLanguage($langcode)) {
-            $label = new FormattableMarkup('@label (@language)', ['@label' => $label, '@language' => $language->getName()]);
+            $index_label = new FormattableMarkup('@label (@language)', ['@label' => $index_label, '@language' => $language->getName()]);
           }
 
-          $index_names_all[$existing_name] = $label;
+          $index_names_all[$existing_name] = [
+            'label' => $index_label,
+            'multilingual' => $content_index_entity->isMultilingual(),
+          ];
         }
 
         /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $normalizer_instance */
@@ -226,13 +229,13 @@ class ElasticsearchContentIndexViewsData implements EntityViewsDataInterface, Co
       $field_name_parts = explode($this->fieldSeparator, $field_name);
 
       foreach ($field_name_instance as $data_type => $field_instance) {
-        $label = implode(', ', array_unique($field_instance['label']));
+        $index_label = implode(', ', array_unique($field_instance['label']));
         $field = [];
 
         // Multi-fields are only useful in filter contexts (only filtering).
         if (empty($field_instance['multi_field'])) {
           $field = [
-            'title' => $label,
+            'title' => $index_label,
             // @todo Change the field plugin to type-specific.
             'id' => $field_instance['views_options']['handlers']['field']['id'],
             // Inner field names in Elasticsearch are referenced with dots.
@@ -241,13 +244,13 @@ class ElasticsearchContentIndexViewsData implements EntityViewsDataInterface, Co
         }
 
         $filter = [
-          'title' => $label,
+          'title' => $index_label,
           // @todo Change the filter plugin to type-specific.
           'id' => $field_instance['views_options']['handlers']['filter']['id'],
         ] + $field_instance['views_options']['handlers']['filter'];
 
         $data['elasticsearch_result'][implode('_', $field_name_parts) . '_' . $data_type] = [
-          'title' => $label,
+          'title' => $index_label,
           'field' => $field,
           'filter' => $filter,
           'help' => t('Appears in: <small><code>@indices</code></small> with type <small><code>@data_type</code></small>.', [
