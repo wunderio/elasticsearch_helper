@@ -44,20 +44,20 @@ class EntityRelationship extends Standard {
     // Disable required relationships.
     $form['required']['#access'] = FALSE;
 
-    $form['entity_type_key'] = array(
+    $form['entity_type_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Entity type field'),
       '#description' => $this->t('A field in Elasticsearch results which contains entity type name. To set a fixed value, prefix the string with @ (e.g., @node).'),
       '#default_value' => $this->options['entity_type_key'],
-    );
+    ];
 
-    $form['entity_id_key'] = array(
+    $form['entity_id_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Entity ID field'),
       '#description' => $this->t('A field in Elasticsearch results which contains entity ID value.'),
       '#default_value' => $this->options['entity_id_key'],
       '#group' => 'entity_type_key',
-    );
+    ];
   }
 
 }
