@@ -7,9 +7,12 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerBase;
+use Drupal\elasticsearch_helper_content\ElasticsearchExtraFieldManager;
+use Drupal\elasticsearch_helper_content\ElasticsearchField;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,6 +35,11 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
+
+  /**
+   * @var \Drupal\elasticsearch_helper_content\ElasticsearchExtraFieldManager
+   */
+  protected $elasticsearchExtraFieldManager;
 
   /**
    * @var \Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface
@@ -58,7 +66,7 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ElasticsearchExtraFieldManager $elasticsearch_extra_field_manager, ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager) {
     if (!isset($configuration['entity_type'], $configuration['bundle'])) {
       throw new \InvalidArgumentException(t('Entity type or bundle key is not provided in plugin configuration.'));
     }
@@ -71,6 +79,7 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
 
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->elasticsearchExtraFieldManager = $elasticsearch_extra_field_manager;
     $this->elasticsearchFieldNormalizerManager = $elasticsearch_field_normalizer_manager;
   }
 
@@ -84,6 +93,7 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
+      $container->get('plugin.manager.elasticsearch_extra_field'),
       $container->get('plugin.manager.elasticsearch_field_normalizer')
     );
   }
@@ -199,6 +209,16 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
     // Get bundle fields.
     $fields_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
 
+    /** @var \Drupal\elasticsearch_helper_content\ElasticsearchField[] $fields */
+    $fields = array_map(function (FieldDefinitionInterface $field_definition) {
+      return ElasticsearchField::createFromFieldDefinition($field_definition);
+    }, $fields_definitions);
+
+    // Gather extra fields from Elasticsearch extra field plugins.
+    $extra_fields = $this->elasticsearchExtraFieldManager->getExtraFields();
+    // Merge extra fields with base fields.
+    $fields = array_merge($fields, $extra_fields);
+
     $table_id = Html::getId('elasticsearch-entity-field-normalizer-form');
 
     $form = $form + [
@@ -224,18 +244,15 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
     $core_property_definition_keys = array_keys($this->getCorePropertyDefinitions());
 
     // Loop over fields.
-    foreach ($fields_definitions as $entity_field_name => $field) {
+    foreach ($fields as $entity_field_name => $field) {
       // If field name maps to an entity key, use entity key.
       $field_name = isset($flipped_entity_keys[$entity_field_name]) ? $flipped_entity_keys[$entity_field_name] : $entity_field_name;
 
       // Do not list fields that are already defined in core property
       // definitions.
       if (!in_array($field_name, $core_property_definition_keys)) {
-        // Get field type.
-        $field_type = $fields_definitions[$entity_field_name]->getType();
-
         // Get field normalizer definitions.
-        $field_normalizer_definitions = $this->elasticsearchFieldNormalizerManager->getDefinitionsByFieldType($field_type);
+        $field_normalizer_definitions = $this->elasticsearchFieldNormalizerManager->getDefinitionsByFieldType($field->getType());
 
         // Get field configuration.
         $field_configuration = isset($field_configurations[$field_name]) ? $field_configurations[$field_name] : [];

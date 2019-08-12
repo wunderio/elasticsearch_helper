@@ -23,3 +23,7 @@ services:
 
   elasticsearch_helper_content.elasticsearch_data_type_repository:
     class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeRepository
+
+  plugin.manager.elasticsearch_extra_field:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchExtraFieldManager
+    parent: default_plugin_manager
