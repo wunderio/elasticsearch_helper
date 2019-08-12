@@ -24,6 +24,10 @@ services:
   elasticsearch_helper_content.elasticsearch_data_type_repository:
     class: Drupal\elasticsearch_helper_content\ElasticsearchDataTypeRepository
 
+  elasticsearch_helper_content.normalizer_helper:
+    class: Drupal\elasticsearch_helper_content\ElasticsearchNormalizerHelper
+    arguments: ['@entity_type.manager', '@entity_display.repository']
+
   plugin.manager.elasticsearch_extra_field:
     class: Drupal\elasticsearch_helper_content\ElasticsearchExtraFieldManager
     parent: default_plugin_manager
