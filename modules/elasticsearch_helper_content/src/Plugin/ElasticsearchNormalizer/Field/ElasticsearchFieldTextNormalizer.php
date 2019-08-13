@@ -19,7 +19,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *     "text_long",
  *     "text_with_summary",
  *     "list_string"
- *   },
+ *   }
  * )
  */
 class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase {
