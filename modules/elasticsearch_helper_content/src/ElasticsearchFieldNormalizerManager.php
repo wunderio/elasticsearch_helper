@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_content;
 
+use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -35,12 +36,19 @@ class ElasticsearchFieldNormalizerManager extends DefaultPluginManager implement
   public function getDefinitionsByFieldType($type) {
     $definitions = $this->getDefinitions();
 
-    return array_filter($definitions, function ($definition) use ($type) {
+    $result = array_filter($definitions, function ($definition) use ($type) {
       if (isset($definition['field_types'])) {
-        return in_array($type, $definition['field_types']);
+        // Qualify the definition if it supports the given type or all types.
+        return array_intersect(['all', $type], $definition['field_types']);
       }
+
       return FALSE;
     });
+
+    // Sort the plugins.
+    uasort($result, [SortArray::class, 'sortByWeightElement']);
+
+    return $result;
   }
 
 }

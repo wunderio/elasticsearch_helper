@@ -19,7 +19,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *     "text_long",
  *     "text_with_summary",
  *     "list_string"
- *   },
+ *   }
  * )
  */
 class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase {
@@ -35,27 +35,12 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    $field_type = 'text';
-
-    // Determine data type.
-    switch ($this->configuration['storage_method']) {
-      case 'keyword':
-        $field_type = 'keyword';
-        break;
-
-      case 'text_keyword_field':
-        $field_name = 'keyword';
-        $field_definition = ElasticsearchDataTypeDefinition::create('keyword');
-        break;
-
-    }
-
-    // Prepare definition.
+    $field_type = $this->configuration['storage_type'];
     $definition = ElasticsearchDataTypeDefinition::create($field_type);
 
-    // Add fields (if available).
-    if (isset($field_name, $field_definition)) {
-      $definition->addField($field_name, $field_definition);
+    // Store raw value as keyword field.
+    if ($this->configuration['store_raw']) {
+      $definition->addField('raw', ElasticsearchDataTypeDefinition::create('keyword'));
     }
 
     return $definition;
@@ -66,7 +51,8 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    */
   public function defaultConfiguration() {
     return [
-      'storage_method' => 'text',
+      'storage_type' => 'text',
+      'store_raw' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -75,15 +61,28 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     return [
-      'storage_method' => [
+      'storage_type' => [
         '#type' => 'select',
-        '#title' => t('Storage method'),
+        '#title' => t('Storage type'),
         '#options' => [
           'text' => t('Text'),
           'keyword' => t('Keyword'),
-          'text_keyword_field' => t('Text with keyword field'),
         ],
-        '#default_value' => $this->configuration['storage_method'],
+        '#default_value' => $this->configuration['storage_type'],
+      ],
+      'store_raw' => [
+        '#type' => 'checkbox',
+        '#title' => t('Store raw value as keyword'),
+        '#weight' => 50,
+        '#default_value' => $this->configuration['store_raw'],
+        '#states' => [
+          'invisible' => [
+            ':input[name*="storage_type"]' => [
+              'value' => 'keyword',
+            ]
+          ],
+        ],
+
       ],
     ];
   }
@@ -92,7 +91,13 @@ class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase 
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['storage_method'] = $form_state->getValue('storage_method');
+    $this->configuration['storage_type'] = $form_state->getValue('storage_type');
+    $this->configuration['store_raw'] = $form_state->getValue('store_raw');
+
+    // Do not store raw value if storage type is keyword.
+    if ($this->configuration['storage_type'] == 'keyword') {
+      $this->configuration['store_raw'] = FALSE;
+    }
   }
 
 }

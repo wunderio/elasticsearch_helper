@@ -37,4 +37,11 @@ class ElasticsearchFieldNormalizer extends Plugin {
    */
   public $field_types;
 
+  /**
+   * Weight of the plugin.
+   *
+   * @var int
+   */
+  public $weight;
+
 }
