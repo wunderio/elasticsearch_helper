@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @ElasticsearchEntityNormalizer(
  *   id = "field",
  *   label = @Translation("Content entity field"),
- *   weight = 5
+ *   weight = 0
  * )
  */
 class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBase {
@@ -144,17 +144,15 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
       $entity_type = $this->entityTypeManager->getDefinition($object->getEntityTypeId());
 
       foreach ($this->getFieldNormalizerInstances() as $field_name => $field_normalizer_instance) {
-        // Allow field normalizer to normalize the whole entity.
-        if (method_exists($field_normalizer_instance, 'normalizeEntity')) {
-          $data[$field_name] = call_user_func([$field_normalizer_instance, 'normalizeEntity'], $object, $context);
-        }
-        else {
-          // Convert field name if it's it's an entity key.
-          $entity_field_name = $entity_type->getKey($field_name) ?: $field_name;
+        // Convert field name if it's it's an entity key.
+        $entity_field_name = $entity_type->getKey($field_name) ?: $field_name;
 
-          if ($object->hasField($entity_field_name)) {
-            $data[$field_name] = $field_normalizer_instance->normalize($object->get($entity_field_name), $context);
-          }
+        if ($object->hasField($entity_field_name)) {
+          $data[$field_name] = $field_normalizer_instance->normalize($object->get($entity_field_name), $context);
+        }
+        // Allow field normalizer to normalize the whole entity.
+        elseif (method_exists($field_normalizer_instance, 'normalizeEntity')) {
+          $data[$field_name] = call_user_func([$field_normalizer_instance, 'normalizeEntity'], $object, $context);
         }
       }
     }
