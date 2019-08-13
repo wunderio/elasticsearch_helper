@@ -37,8 +37,10 @@ class ElasticsearchFieldNormalizerManager extends DefaultPluginManager implement
 
     return array_filter($definitions, function ($definition) use ($type) {
       if (isset($definition['field_types'])) {
-        return in_array($type, $definition['field_types']);
+        // Qualify the definition if it supports the given type or all types.
+        return array_intersect(['all', $type], $definition['field_types']);
       }
+
       return FALSE;
     });
   }
