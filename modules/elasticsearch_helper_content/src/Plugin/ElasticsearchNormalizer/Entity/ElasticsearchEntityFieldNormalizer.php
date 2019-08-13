@@ -469,6 +469,11 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   protected function createFieldNormalizerInstance($normalizer, array $normalizer_configuration, $entity_field_name) {
+    // Explicitly set entity type and bundle. They are unset in field
+    // normalizer plugins and are not stored in configuration.
+    $normalizer_configuration['entity_type'] = $this->targetEntityType;
+    $normalizer_configuration['bundle'] = $this->targetBundle;
+
     /** @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface $result */
     $result = $this->elasticsearchFieldNormalizerManager->createInstance($normalizer, $normalizer_configuration);
 
