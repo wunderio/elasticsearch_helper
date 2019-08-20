@@ -6,6 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
+use Drupal\elasticsearch_helper_index_management\ElasticsearchBatchManager;
 use Drupal\elasticsearch_helper_index_management\ElasticsearchQueueManagerInterface;
 
 /**
@@ -116,12 +117,12 @@ class ReindexController extends ControllerBase {
       'init_message' => $this->t('Starting'),
       'progress_message' => $this->t('Processed @current out of @total.'),
       'error_message' => $this->t('An error occurred during processing'),
-      'finished' => '\Drupal\elasticsearch_helper_index_management\ElasticsearchBatchManager::processFinished',
+      'finished' => ElasticsearchBatchManager::class . '::processFinished',
     ];
 
     foreach ($items as $item) {
       if (!$item->status) {
-        $batch['operations'][] = ['\Drupal\elasticsearch_helper_index_management\ElasticsearchBatchManager::processOne', [$item->id]];
+        $batch['operations'][] = [ElasticsearchBatchManager::class . '::processOne', [$item->id]];
       }
     }
 
