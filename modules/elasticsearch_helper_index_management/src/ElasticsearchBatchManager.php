@@ -24,16 +24,18 @@ class ElasticsearchBatchManager {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
 
-    if ($item = $queue_manager->getItem($id)) {
-      if ($entity = $entity_type_manager->getStorage($item->entity_type)->load($item->entity_id)) {
-        if (self::indexEntity($entity)) {
-          $queue_manager->setStatus($id, 1);
-          $queue_manager->setError($id, 0);
-          $context['results'][] = $id;
-        }
-        else {
-          $queue_manager->setError($id, 1);
-        }
+    // Get one item from queue.
+    $item = $queue_manager->getItem($id);
+
+    // Attempt to index the entity to ES.
+    if ($item && $entity = $entity_type_manager->getStorage($item->entity_type)->load($item->entity_id)) {
+      if (self::indexEntity($entity)) {
+        $queue_manager->setStatus($id, 1);
+        $queue_manager->setError($id, 0);
+        $context['results'][] = $id;
+      }
+      else {
+        $queue_manager->setError($id, 1);
       }
     }
   }
