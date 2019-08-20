@@ -106,7 +106,6 @@ class ElasticsearchQueueManager implements ElasticsearchQueueManagerInterface {
    */
   public function addAll($index_id) {
     $definition = $this->pluginManagerElasticsearchIndexProcessor->getDefinition($index_id);
-    // @TODO; validate definition.
 
     $storage = $this->entityTypeManager->getStorage($definition['entityType']);
 
@@ -130,7 +129,6 @@ class ElasticsearchQueueManager implements ElasticsearchQueueManagerInterface {
       }
       catch (IntegrityConstraintViolationException $e) {
         // Skip duplicates.
-        // @TODO; log this
       }
     }
   }
