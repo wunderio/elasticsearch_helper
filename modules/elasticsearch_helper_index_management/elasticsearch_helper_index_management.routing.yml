@@ -1,17 +1,16 @@
-
 elasticsearch_helper_index_management.index_list_controller_display:
   path: '/elasticsearch_helper_index_management/indices'
   defaults:
     _controller: '\Drupal\elasticsearch_helper_index_management\Controller\ListController::display'
-    _title: 'Indices'
+    _title: 'Index Management'
   requirements:
     _permission: 'configured elasticsearch helper'
 
 elasticsearch_helper_index_management.reindex_controller_status:
-  path: '/elasticsearch_helper_index_management/status/{index_id}'
+  path: '/elasticsearch_helper_index_management/indices/status/{index_id}'
   defaults:
     _controller: '\Drupal\elasticsearch_helper_index_management\Controller\ReindexController::status'
-    _title: 'Re-index status'
+    _title: 'Index status'
   requirements:
     _permission: 'configured elasticsearch helper'
 
