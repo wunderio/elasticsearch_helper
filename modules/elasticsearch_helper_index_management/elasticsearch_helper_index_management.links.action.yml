@@ -1,0 +1,17 @@
+elasticsearch_helper_index_management.reindex.queue:
+  route_name: elasticsearch_helper_index_management.reindex_controller_queue_all
+  title: 'Queue all for re-indexing'
+  appears_on:
+    - elasticsearch_helper_index_management.reindex_controller_status
+
+elasticsearch_helper_index_management.reindex.clear:
+  route_name: elasticsearch_helper_index_management.reindex_controller_clear
+  title: 'Remove all items from queue'
+  appears_on:
+    - elasticsearch_helper_index_management.reindex_controller_status
+
+elasticsearch_helper_index_management.reindex.process:
+  route_name: elasticsearch_helper_index_management.reindex_controller_process_all
+  title: 'Batch process all Queue items'
+  appears_on:
+    - elasticsearch_helper_index_management.reindex_controller_status
