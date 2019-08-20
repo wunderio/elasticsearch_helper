@@ -47,6 +47,9 @@ class ReindexController extends ControllerBase {
   /**
    * Display current re-index status.
    *
+   * @param string $index_id
+   *   The index plugin id.
+   *
    * @return string
    *   Status markup.
    */
@@ -80,6 +83,12 @@ class ReindexController extends ControllerBase {
 
   /**
    * Add items to re-index queue.
+   *
+   * @param string $index_id
+   *   The index plugin id.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Redirect response.
    */
   public function queueAll($index_id) {
     $this->elasticsearchQueueManager->addAll($index_id);
@@ -89,6 +98,12 @@ class ReindexController extends ControllerBase {
 
   /**
    * Process queue items.
+   *
+   * @param string $index_id
+   *   The index plugin id.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Redirect response.
    */
   public function processAll($index_id) {
     // Get items from processing.
@@ -117,6 +132,12 @@ class ReindexController extends ControllerBase {
 
   /**
    * Delete all items from re-index queue.
+   *
+   * @param string $index_id
+   *   The index plugin id.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Redirect response.
    */
   public function clear($index_id) {
     $this->elasticsearchQueueManager->clear($index_id);
