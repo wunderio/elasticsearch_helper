@@ -59,6 +59,7 @@ class ElasticsearchBatchManager {
     /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $index_manager */
     $index_manager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
 
+    $has_error = FALSE;
     foreach ($index_manager->getDefinitions() as $plugin) {
       if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
@@ -68,13 +69,14 @@ class ElasticsearchBatchManager {
 
         try {
           $index_manager->createInstance($plugin['id'])->index($entity);
-          return TRUE;
         }
         catch (ElasticsearchException $e) {
-          return FALSE;
+          $has_error = TRUE;
         }
       }
     }
+
+    return !$has_error;
   }
 
 }
