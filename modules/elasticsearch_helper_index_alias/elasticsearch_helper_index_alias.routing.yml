@@ -21,3 +21,11 @@ elasticsearch_helper_index_alias.delete_index_confirm_form:
     _title: 'Confirm Index Deletion'
   requirements:
     _permission: 'configured elasticsearch helper'
+
+elasticsearch_helper_index_alias.update_alias_confirm_form:
+  path: '/elasticsearch_helper_index_alias/update_all'
+  defaults:
+    _form: '\Drupal\elasticsearch_helper_index_alias\Form\UpdateAliasConfirmForm'
+    _title: 'Confirm Index Deletion'
+  requirements:
+    _permission: 'configured elasticsearch helper'
