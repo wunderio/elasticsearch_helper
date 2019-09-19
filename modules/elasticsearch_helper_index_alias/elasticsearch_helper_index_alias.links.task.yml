@@ -1,0 +1,14 @@
+elasticsearch_helper_index_alias.controller.configure:
+  route_name: elasticsearch_helper_index_management.index_list_controller_display
+  base_route: elasticsearch_helper_index_management.index_list_controller_display
+  title: 'Reindex'
+
+elasticsearch_helper_index_alias.controller.aliases:
+  route_name: elasticsearch_helper_index_alias.manage_alias_controller.aliases
+  base_route: elasticsearch_helper_index_management.index_list_controller_display
+  title: 'Aliases'
+
+elasticsearch_helper_index_alias.controller.indices_status:
+  route_name: elasticsearch_helper_index_alias.manage_alias_controller.indices_status
+  base_route: elasticsearch_helper_index_management.index_list_controller_display
+  title: 'Indices status'

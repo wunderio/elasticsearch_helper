@@ -1,0 +1,14 @@
+elasticsearch_helper_index_alias.manage_alias_controller.indices_status:
+  path: '/elasticsearch_helper/manager/indices'
+  defaults:
+    _controller: '\Drupal\elasticsearch_helper_index_alias\Controller\ManageAliasController::indicesStatus'
+    _title: 'All indices status'
+  requirements:
+    _permission: 'configured elasticsearch helper'
+elasticsearch_helper_index_alias.manage_alias_controller.aliases:
+  path: '/elasticsearch_helper/manager/aliases'
+  defaults:
+    _controller: '\Drupal\elasticsearch_helper_index_alias\Controller\ManageAliasController::aliases'
+    _title: 'Aliases status'
+  requirements:
+    _permission: 'configured elasticsearch helper'
