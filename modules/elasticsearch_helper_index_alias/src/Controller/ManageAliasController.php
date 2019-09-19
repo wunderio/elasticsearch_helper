@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_index_alias\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Elasticsearch\Client;
 use Drupal\Core\State\StateInterface;
@@ -62,7 +63,7 @@ class ManageAliasController extends ControllerBase {
    * @return array
    *   Renderable array
    */
-  public function indicesStatus() {
+  public function indicesStatus(): array {
     $response = $this->client->cat()->indices();
 
     $header = [
@@ -88,7 +89,12 @@ class ManageAliasController extends ControllerBase {
         $count['count'],
         $item['store.size'],
         $item['health'],
-        '',
+        Link::createFromRoute(
+          $this->t('Delete Index'),
+          'elasticsearch_helper_index_alias.delete_index_confirm_form',
+          ['index' => $item['index']],
+          ['attributes' => ['class' => 'button']]
+        ),
       ];
     }
 
