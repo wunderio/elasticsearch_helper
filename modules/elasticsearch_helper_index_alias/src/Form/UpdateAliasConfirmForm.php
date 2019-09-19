@@ -49,7 +49,7 @@ class UpdateAliasConfirmForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->aliasService->updateAll();
 
-    $form_state->setRedirect('elasticsearch_helper_index_alias.elasticsearch_management_controller_aliases');
+    $form_state->setRedirect('elasticsearch_helper_index_alias.manage_alias_controller.aliases');
   }
 
   /**
@@ -63,7 +63,7 @@ class UpdateAliasConfirmForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('elasticsearch_helper_index_alias.elasticsearch_management_controller_aliases');
+    return new Url('elasticsearch_helper_index_alias.manage_alias_controller.aliases');
   }
 
   /**

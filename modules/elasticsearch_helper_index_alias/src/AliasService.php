@@ -99,7 +99,7 @@ class AliasService implements AliasServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getVersionedIndexDefinitions() {
+  public function getVersionedIndexDefinitions(): array {
     $definitions = $this->pluginManagerElasticsearchIndexProcessor->getDefinitions();
 
     // Remove non-versioned indices from definitions.
@@ -119,7 +119,7 @@ class AliasService implements AliasServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getVersionedIndexes() {
+  public function getVersionedIndexes(): array {
     $items = [];
 
     $indexes = $this->getVersionedIndexDefinitions();
@@ -142,7 +142,7 @@ class AliasService implements AliasServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateIndexAlias(Client $client = NULL, $index_name, $version) {
+  public function updateIndexAlias(Client $client = NULL, $index_name, $version): bool {
     try {
       // Verify that destination exists before deleting current alias.
       if (!$client->indices()->exists(['index' => $index_name . $version])) {
