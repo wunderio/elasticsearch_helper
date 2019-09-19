@@ -111,7 +111,7 @@ class AliasService implements AliasServiceInterface {
 
     $version = (int) $config->get(self::CONFIG_KEY);
 
-    $config->set(self::CONFIG_KEY, $version + 1);
+    $config->set(self::CONFIG_KEY, $version + 1)->save();
   }
 
   /**
