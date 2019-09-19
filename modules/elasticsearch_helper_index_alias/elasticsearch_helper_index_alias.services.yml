@@ -1,0 +1,7 @@
+services:
+  logger.channel.elasticsearch_helper_index_alias:
+    parent: logger.channel_base
+    arguments: ['elasticsearch_helper_index_alias']
+  elasticsearch_helper_index_alias.service:
+    class: Drupal\elasticsearch_helper_index_alias\AliasService
+    arguments: ['@elasticsearch_helper.elasticsearch_client', '@config.manager']
