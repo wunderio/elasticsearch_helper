@@ -4,6 +4,8 @@ namespace Drupal\elasticsearch_helper_index_alias;
 
 use Elasticsearch\Client;
 use Drupal\Core\Config\ConfigManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
 
 /**
  * Class AliasService.
@@ -25,6 +27,20 @@ class AliasService implements AliasServiceInterface {
   protected const CONFIG_KEY = 'current_version';
 
   /**
+   * Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager definition.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
+   */
+  protected $pluginManagerElasticsearchIndexProcessor;
+
+  /**
+   * Drupal\Core\Language\LanguageManagerInterface definition.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Elasticsearch\Client definition.
    *
    * @var \Elasticsearch\Client
@@ -41,7 +57,9 @@ class AliasService implements AliasServiceInterface {
   /**
    * Constructs a new AliasService object.
    */
-  public function __construct(Client $elasticsearch_helper_elasticsearch_client, ConfigManagerInterface $config_manager) {
+  public function __construct(ElasticsearchIndexManager $plugin_manager_elasticsearch_index_processor, LanguageManagerInterface $language_manager, Client $elasticsearch_helper_elasticsearch_client, ConfigManagerInterface $config_manager) {
+    $this->pluginManagerElasticsearchIndexProcessor = $plugin_manager_elasticsearch_index_processor;
+    $this->languageManager = $language_manager;
     $this->client = $elasticsearch_helper_elasticsearch_client;
     $this->configManager = $config_manager;
   }

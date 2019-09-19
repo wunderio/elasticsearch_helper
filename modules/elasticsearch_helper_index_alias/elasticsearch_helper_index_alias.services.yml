@@ -4,4 +4,4 @@ services:
     arguments: ['elasticsearch_helper_index_alias']
   elasticsearch_helper_index_alias.service:
     class: Drupal\elasticsearch_helper_index_alias\AliasService
-    arguments: ['@elasticsearch_helper.elasticsearch_client', '@config.manager']
+    arguments: ['@plugin.manager.elasticsearch_index.processor', '@language_manager', '@elasticsearch_helper.elasticsearch_client', '@config.manager']
