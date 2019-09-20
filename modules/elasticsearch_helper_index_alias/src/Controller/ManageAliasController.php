@@ -7,7 +7,6 @@ use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Elasticsearch\Client;
 use Drupal\Core\State\StateInterface;
-use Drupal\Core\Site\Settings;
 
 /**
  * Class ManageAliasController.
@@ -31,20 +30,11 @@ class ManageAliasController extends ControllerBase {
   protected $state;
 
   /**
-   * Current alias version.
-   *
-   * @var string
-   */
-  protected $currentVersion;
-
-  /**
    * Constructs a new ManagementController object.
    */
   public function __construct(Client $client, StateInterface $state) {
     $this->client = $client;
     $this->state = $state;
-
-    $this->currentVersion = Settings::get('elasticsearch_index_version', '');
   }
 
   /**
