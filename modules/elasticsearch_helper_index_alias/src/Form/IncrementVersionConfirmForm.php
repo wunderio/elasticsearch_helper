@@ -49,6 +49,13 @@ class IncrementVersionConfirmForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->aliasService->incrementVersion();
 
+    $this->messenger()->addStatus(
+      $this->t(
+        'Index version is now: @version',
+        ['@version' => $this->aliasService->getCurrentVersion()]
+      )
+    );
+
     $form_state->setRedirect('elasticsearch_helper_index_alias.manage_alias_controller.aliases');
   }
 
