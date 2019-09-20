@@ -5,6 +5,8 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
+ * Example versioned index.
+ *
  * @ElasticsearchIndex(
  *   id = "versioned_example_index",
  *   label = @Translation("Example Versioned Index"),
@@ -21,7 +23,7 @@ class VersionedIndex extends ElasticsearchIndexBase {
    */
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function serialize($source, $context = []) {
     /** @var \Drupal\node\Entity\Node $source */
@@ -35,7 +37,7 @@ class VersionedIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function setup() {
     $version = \Drupal::service('elasticsearch_helper_index_alias.service')->getCurrentVersion();
