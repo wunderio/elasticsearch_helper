@@ -1,5 +1,5 @@
 elasticsearch_helper_index_alias.manage_alias_controller.indices_status:
-  path: '/elasticsearch_helper/manager/indices'
+  path: '/elasticsearch_helper/index_alias/indices'
   defaults:
     _controller: '\Drupal\elasticsearch_helper_index_alias\Controller\ManageAliasController::indicesStatus'
     _title: 'All indices status'
@@ -7,7 +7,7 @@ elasticsearch_helper_index_alias.manage_alias_controller.indices_status:
     _permission: 'configured elasticsearch helper'
 
 elasticsearch_helper_index_alias.manage_alias_controller.aliases:
-  path: '/elasticsearch_helper/manager/aliases'
+  path: '/elasticsearch_helper/index_alias/aliases'
   defaults:
     _controller: '\Drupal\elasticsearch_helper_index_alias\Controller\ManageAliasController::aliases'
     _title: 'Aliases status'
@@ -15,7 +15,7 @@ elasticsearch_helper_index_alias.manage_alias_controller.aliases:
     _permission: 'configured elasticsearch helper'
 
 elasticsearch_helper_index_alias.delete_index_confirm_form:
-  path: '/elasticsearch_helper_index_alias/delete/{index}/index'
+  path: '/elasticsearch_helper/index_alias/delete/{index}/index'
   defaults:
     _form: '\Drupal\elasticsearch_helper_index_alias\Form\DeleteIndexConfirmForm'
     _title: 'Confirm Index Deletion'
@@ -23,7 +23,7 @@ elasticsearch_helper_index_alias.delete_index_confirm_form:
     _permission: 'configured elasticsearch helper'
 
 elasticsearch_helper_index_alias.update_alias_confirm_form:
-  path: '/elasticsearch_helper_index_alias/update_all'
+  path: '/elasticsearch_helper/index_alias/update_all'
   defaults:
     _form: '\Drupal\elasticsearch_helper_index_alias\Form\UpdateAliasConfirmForm'
     _title: 'Confirm Index Alias Update'
@@ -31,7 +31,7 @@ elasticsearch_helper_index_alias.update_alias_confirm_form:
     _permission: 'configured elasticsearch helper'
 
 elasticsearch_helper_index_alias.increment_version_confirm_form:
-  path: '/elasticsearch_helper_index_alias/increment_version'
+  path: '/elasticsearch_helper/index_alias/increment_version'
   defaults:
     _form: '\Drupal\elasticsearch_helper_index_alias\Form\IncrementVersionConfirmForm'
     _title: 'Confirm Version Increment'
