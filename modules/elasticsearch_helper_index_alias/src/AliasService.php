@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class AliasService.
@@ -55,13 +56,21 @@ class AliasService implements AliasServiceInterface {
   protected $configManager;
 
   /**
+   * Psr\Log\LoggerInterface definition.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * Constructs a new AliasService object.
    */
-  public function __construct(ElasticsearchIndexManager $plugin_manager_elasticsearch_index_processor, LanguageManagerInterface $language_manager, Client $elasticsearch_helper_elasticsearch_client, ConfigManagerInterface $config_manager) {
+  public function __construct(ElasticsearchIndexManager $plugin_manager_elasticsearch_index_processor, LanguageManagerInterface $language_manager, Client $elasticsearch_helper_elasticsearch_client, ConfigManagerInterface $config_manager, LoggerInterface $logger) {
     $this->pluginManagerElasticsearchIndexProcessor = $plugin_manager_elasticsearch_index_processor;
     $this->languageManager = $language_manager;
     $this->client = $elasticsearch_helper_elasticsearch_client;
     $this->configManager = $config_manager;
+    $this->logger = $logger;
   }
 
   /**
@@ -198,7 +207,7 @@ class AliasService implements AliasServiceInterface {
       return TRUE;
     }
     catch (\Exception $e) {
-      \Drupal::logger('elasticsearch_helper_index_alias.versionconfig')->debug($e->getMessage());
+      $this->logger->debug($e->getMessage());
     }
 
     return FALSE;
