@@ -4,9 +4,9 @@ namespace Drupal\elasticsearch_helper_index_alias\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
+use Drupal\elasticsearch_helper_index_alias\AliasServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Elasticsearch\Client;
-use Drupal\Core\State\StateInterface;
 
 /**
  * Class ManageAliasController.
@@ -23,18 +23,18 @@ class ManageAliasController extends ControllerBase {
   protected $client;
 
   /**
-   * Drupal\Core\State\StateInterface definition.
+   * Drupal\elasticsearch_helper_index_alias\AliasServiceInterface definition.
    *
-   * @var \Drupal\Core\State\StateInterface
+   * @var \Drupal\elasticsearch_helper_index_alias\AliasServiceInterface
    */
-  protected $state;
+  protected $aliasService;
 
   /**
    * Constructs a new ManagementController object.
    */
-  public function __construct(Client $client, StateInterface $state) {
+  public function __construct(Client $client, AliasServiceInterface $alias_service) {
     $this->client = $client;
-    $this->state = $state;
+    $this->aliasService = $alias_service;
   }
 
   /**
@@ -43,7 +43,7 @@ class ManageAliasController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('elasticsearch_helper.elasticsearch_client'),
-      $container->get('state')
+      $container->get('elasticsearch_helper_index_alias.service')
     );
   }
 
@@ -102,6 +102,7 @@ class ManageAliasController extends ControllerBase {
    *   Renderable array
    */
   public function aliases(): array {
+    $version = $this->aliasService->getCurrentVersion();
     $aliases = $this->client->cat()->aliases();
 
     $rows = [];
@@ -114,6 +115,7 @@ class ManageAliasController extends ControllerBase {
     }
 
     return [
+      '#caption' => $this->t('Current index version: @version', ['@version' => $version]),
       '#type' => 'table',
       '#header' => [$this->t('Name'), $this->t('Destination Index')],
       '#rows' => $rows,
