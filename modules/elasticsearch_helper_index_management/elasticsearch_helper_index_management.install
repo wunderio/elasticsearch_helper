@@ -43,7 +43,6 @@ function elasticsearch_helper_index_management_schema() {
       'status' => [
         'description' => 'Indicate if entity has been indexed successfully',
         'type' => 'int',
-        'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ],
