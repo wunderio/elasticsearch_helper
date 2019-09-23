@@ -16,14 +16,14 @@ function elasticsearch_helper_index_management_schema() {
       'plugin_id' => [
         'description' => 'The index plugin id',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 125,
         'not null' => TRUE,
         'default' => '',
       ],
       'entity_type' => [
         'description' => 'The entity type id',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 125,
         'not null' => TRUE,
         'default' => '',
       ],
