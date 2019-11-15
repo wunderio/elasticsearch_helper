@@ -81,7 +81,7 @@ class ElasticsearchContentIndex extends ConfigEntityBase implements Elasticsearc
   protected $index_name;
 
   /**
-   * @var boolean
+   * @var bool
    */
   protected $multilingual = FALSE;
 

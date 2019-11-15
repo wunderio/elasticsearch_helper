@@ -4,7 +4,6 @@ namespace Drupal\elasticsearch_helper_content\Form;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -119,12 +118,12 @@ class ElasticsearchContentIndexForm extends EntityForm {
 
     // Get all content type entity types with at least one bundle.
     $entity_types = $this->entityTypeManager->getDefinitions();
-    $entity_types = array_filter($entity_types, function($entity_type) use ($bundles_info) {
+    $entity_types = array_filter($entity_types, function ($entity_type) use ($bundles_info) {
       return $entity_type instanceof ContentEntityTypeInterface && isset($bundles_info[$entity_type->id()]);
     });
 
     // Prepare entity type labels.
-    $entity_type_options = array_map(function($entity_type) {
+    $entity_type_options = array_map(function ($entity_type) {
       /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
       return $entity_type->getLabel();
     }, $entity_types);

@@ -2,7 +2,6 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\Normalizer;
 
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\TypedData\TranslatableInterface;
@@ -214,7 +213,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
       // Get the object language.
       $langcode = $entity->language()->getId();
       // Build a render array and render it into markup.
-      $render_array= $this->renderEntityHelper($entity, $view_mode, $langcode);
+      $render_array = $this->renderEntityHelper($entity, $view_mode, $langcode);
       $render_markup = $this->renderer->renderPlain($render_array);
     }
     finally {
@@ -267,7 +266,9 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
     /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display */
     $display = entity_get_display($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
     $display_components = $display->getComponents();
-    uasort($display_components, function($a, $b) { return $a['weight'] - $b['weight']; });
+    uasort($display_components, function ($a, $b) {
+      return $a['weight'] - $b['weight'];
+    });
     $build = [];
 
     // Prepare decision criteria.

@@ -9,6 +9,8 @@ abstract class ElasticsearchEntityNormalizerBase extends ElasticsearchNormalizer
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $object
    */
   public function normalize($object, array $context = []) {
     $data = parent::normalize($object, $context);

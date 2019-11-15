@@ -2,7 +2,6 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\views\filter;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;

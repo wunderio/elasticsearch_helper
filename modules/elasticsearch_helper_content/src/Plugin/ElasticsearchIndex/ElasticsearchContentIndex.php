@@ -31,7 +31,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   protected $languageManager;
 
   /**
-   * @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[] $normalizerInstances
+   * @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[]
    */
   protected $normalizerInstances;
 

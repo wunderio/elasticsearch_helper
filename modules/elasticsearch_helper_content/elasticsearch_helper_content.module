@@ -2,13 +2,12 @@
 
 /**
  * @file
- * Versatile generic elasticsearch indexing for typical content entities.
+ * Versatile generic Elasticsearch indexing for typical content entities.
  */
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\core\Entity\ContentEntityType;
-use Drupal\core\Entity\EntityTypeInterface;
 
 /**
  * Implements hook_entity_extra_field_info().
@@ -19,16 +18,18 @@ function elasticsearch_helper_content_entity_extra_field_info() {
   // Declare search_result_excerpt extra field for all entities and bundles.
   $bundle_infos = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
   $entity_type_definitions = \Drupal::service('entity_type.manager')->getDefinitions();
-  /* @var $entity_type_definitions EntityTypeInterface */
+
+  /* @var Drupal\core\Entity\EntityTypeInterface $entity_type_definitions */
   foreach ($entity_type_definitions as $entity_type_id => $entity_type_definition) {
     if ($entity_type_definition instanceof ContentEntityType) {
       if (empty($bundle_infos[$entity_type_id])) {
         $bundle_infos[$entity_type_id] = [$entity_type_id];
       }
+
       foreach ($bundle_infos[$entity_type_id] as $bundle_id => $bundle_info) {
         $extra[$entity_type_id][$bundle_id]['display']['search_result_excerpt'] = [
           'label' => t('Search result excerpt'),
-          'description' => t('A placeholder for excerpt display on search_result viewmode.'),
+          'description' => t('A placeholder for excerpt display on search_result view mode.'),
           'weight' => 100,
           'visible' => FALSE,
         ];
@@ -70,7 +71,7 @@ function elasticsearch_helper_content_get_excerpt_markup($excerpt) {
  *   The excerpt placeholder string.
  */
 function elasticsearch_helper_content_get_excerpt_placeholder() {
-  return elasticsearch_helper_content_get_excerpt_markup('This is a <em>placeholder</em> for elasticsearch <em>result</em> highlights.');
+  return elasticsearch_helper_content_get_excerpt_markup('This is a <em>placeholder</em> for Elasticsearch <em>result</em> highlights.');
 }
 
 /**

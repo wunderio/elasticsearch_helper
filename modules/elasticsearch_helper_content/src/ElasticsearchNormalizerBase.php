@@ -96,5 +96,4 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
   }
 
-
 }

@@ -139,21 +139,24 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
    */
   public function normalize($object, array $context = []) {
     $data = parent::normalize($object, $context);
+    // Pass entity object down to field normalizers.
+    $context['entity'] = $object;
 
     try {
+      // Get entity type instance.
       $entity_type = $this->entityTypeManager->getDefinition($object->getEntityTypeId());
 
       foreach ($this->getFieldNormalizerInstances() as $field_name => $field_normalizer_instance) {
         // Convert field name if it's it's an entity key.
         $entity_field_name = $entity_type->getKey($field_name) ?: $field_name;
+        // Set default field item list instance.
+        $field = NULL;
 
         if ($object->hasField($entity_field_name)) {
-          $data[$field_name] = $field_normalizer_instance->normalize($object->get($entity_field_name), $context);
+          $field = $object->get($entity_field_name);
         }
-        // Allow field normalizer to normalize the whole entity.
-        elseif (method_exists($field_normalizer_instance, 'normalizeEntity')) {
-          $data[$field_name] = call_user_func([$field_normalizer_instance, 'normalizeEntity'], $object, $context);
-        }
+
+        $data[$field_name] = $field_normalizer_instance->normalize($field, $context);
       }
     }
     catch (\Exception $e) {

@@ -47,4 +47,3 @@ $settings['elasticsearch_helper_content'] = [
   'skip_default_normalize' => TRUE, // or _any_ other value.
 ];
 ```
-
