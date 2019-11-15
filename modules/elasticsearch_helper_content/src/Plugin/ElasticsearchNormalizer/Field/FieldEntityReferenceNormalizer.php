@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
@@ -28,8 +29,12 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
     try {
       $cardinality = $this->getCardinality($object);
 
-      foreach ($object->referencedEntities() as $entity) {
-        $value = $this->getEntityValues($entity);
+      foreach ($object as $field_item) {
+        $value = NULL;
+
+        if ($entity = $field_item->entity) {
+          $value = $this->getEntityValues($entity, $field_item, $context);
+        }
 
         if ($cardinality === 1) {
           return $value;
@@ -52,10 +57,12 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
    * Returns values of the entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Field\FieldItemInterface $field_item
+   * @param array $context
    *
    * @return array
    */
-  protected function getEntityValues(EntityInterface $entity) {
+  protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
     return [
       'id' => $entity->id(),
       'label' => $entity->label(),

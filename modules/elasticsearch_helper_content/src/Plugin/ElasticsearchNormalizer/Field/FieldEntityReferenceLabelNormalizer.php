@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 
 /**
@@ -17,13 +18,11 @@ use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 class FieldEntityReferenceLabelNormalizer extends FieldEntityReferenceNormalizer {
 
   /**
-   * Returns values of the entity.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * {@inheritdoc}
    *
    * @return string
    */
-  protected function getEntityValues(EntityInterface $entity) {
+  protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
     return $entity->label();
   }
 

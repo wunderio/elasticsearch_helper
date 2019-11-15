@@ -45,6 +45,10 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
     $result = [];
 
     try {
+      if (!$object) {
+        throw new \InvalidArgumentException(sprintf('Cannot normalize empty object in %s.', __CLASS__));
+      }
+
       $cardinality = $this->getCardinality($object);
 
       foreach ($object as $item) {
