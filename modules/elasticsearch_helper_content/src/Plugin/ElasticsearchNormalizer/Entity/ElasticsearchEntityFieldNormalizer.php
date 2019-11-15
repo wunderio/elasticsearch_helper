@@ -47,16 +47,6 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
   protected $elasticsearchFieldNormalizerManager;
 
   /**
-   * @var string
-   */
-  protected $targetEntityType;
-
-  /**
-   * @var string
-   */
-  protected $targetBundle;
-
-  /**
    * ElasticsearchEntityFieldNormalizer constructor.
    *
    * @param array $configuration
@@ -67,14 +57,6 @@ class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBa
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ElasticsearchExtraFieldManager $elasticsearch_extra_field_manager, ElasticsearchFieldNormalizerManagerInterface $elasticsearch_field_normalizer_manager) {
-    if (!isset($configuration['entity_type'], $configuration['bundle'])) {
-      throw new \InvalidArgumentException(t('Entity type or bundle key is not provided in plugin configuration.'));
-    }
-
-    $this->targetEntityType = $configuration['entity_type'];
-    $this->targetBundle = $configuration['bundle'];
-    unset($configuration['entity_type'], $configuration['bundle']);
-
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $entity_type_manager;
