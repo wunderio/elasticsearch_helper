@@ -7,4 +7,11 @@ namespace Drupal\elasticsearch_helper_content;
  */
 interface ElasticsearchFieldNormalizerInterface extends ElasticsearchNormalizerInterface {
 
+  /**
+   * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface|null $object
+   */
+  public function normalize($object, array $context = []);
+
 }
