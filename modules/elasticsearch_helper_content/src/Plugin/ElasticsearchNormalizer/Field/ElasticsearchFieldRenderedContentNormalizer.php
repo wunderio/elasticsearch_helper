@@ -89,9 +89,14 @@ class ElasticsearchFieldRenderedContentNormalizer extends ElasticsearchFieldNorm
    * @param \Drupal\Core\Field\FieldItemInterface $object
    */
   public function normalize($object, array $context = []) {
-    $build = $object->view($this->configuration['view_mode']);
+    $result = [];
 
-    return $this->renderer->renderRoot($build);
+    if ($object) {
+      $build = $object->view($this->configuration['view_mode']);
+      $result = $this->renderer->renderRoot($build);
+    }
+
+    return $result;
   }
 
   /**

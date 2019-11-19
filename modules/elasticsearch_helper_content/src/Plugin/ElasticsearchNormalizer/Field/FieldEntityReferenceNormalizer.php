@@ -27,22 +27,24 @@ class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
     $result = [];
 
     try {
-      $cardinality = $this->getCardinality($object);
+      if ($object) {
+        $cardinality = $this->getCardinality($object);
 
-      foreach ($object as $field_item) {
-        $value = NULL;
+        foreach ($object as $field_item) {
+          $value = NULL;
 
-        if ($entity = $field_item->entity) {
-          $value = $this->getEntityValues($entity, $field_item, $context);
-        }
+          if ($entity = $field_item->entity) {
+            $value = $this->getEntityValues($entity, $field_item, $context);
+          }
 
-        if ($cardinality === 1) {
-          return $value;
-        }
+          if ($cardinality === 1) {
+            return $value;
+          }
 
-        // Do not pass empty strings.
-        if ($value !== '') {
-          $result[] = $value;
+          // Do not pass empty strings.
+          if ($value !== '') {
+            $result[] = $value;
+          }
         }
       }
     }

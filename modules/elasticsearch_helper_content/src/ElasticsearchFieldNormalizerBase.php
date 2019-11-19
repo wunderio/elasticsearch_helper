@@ -16,22 +16,20 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
     $result = [];
 
     try {
-      if (!$object) {
-        throw new \InvalidArgumentException(sprintf('Cannot normalize empty object in %s.', __CLASS__));
-      }
+      if ($object) {
+        $cardinality = $this->getCardinality($object);
 
-      $cardinality = $this->getCardinality($object);
+        foreach ($object as $item) {
+          $value = $this->getFieldItemValue($item, $context);
 
-      foreach ($object as $item) {
-        $value = $this->getFieldItemValue($item, $context);
+          if ($cardinality === 1) {
+            return $value;
+          }
 
-        if ($cardinality === 1) {
-          return $value;
-        }
-
-        // Do not pass empty strings.
-        if ($value !== '') {
-          $result[] = $value;
+          // Do not pass empty strings.
+          if ($value !== '') {
+            $result[] = $value;
+          }
         }
       }
     }
