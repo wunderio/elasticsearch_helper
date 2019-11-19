@@ -17,9 +17,27 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
   use DependencySerializationTrait;
 
   /**
+   * @var string
+   */
+  protected $targetEntityType;
+
+  /**
+   * @var string
+   */
+  protected $targetBundle;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+    if (!isset($configuration['entity_type'], $configuration['bundle'])) {
+      throw new \InvalidArgumentException(t('Entity type or bundle key is not provided in plugin configuration.'));
+    }
+
+    $this->targetEntityType = $configuration['entity_type'];
+    $this->targetBundle = $configuration['bundle'];
+    unset($configuration['entity_type'], $configuration['bundle']);
+
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->setConfiguration($configuration);
   }
