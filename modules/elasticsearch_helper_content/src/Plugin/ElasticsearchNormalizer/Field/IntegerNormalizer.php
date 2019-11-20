@@ -8,33 +8,27 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_date",
- *   label = @Translation("Date"),
+ *   id = "integer",
+ *   label = @Translation("Integer"),
  *   field_types = {
- *     "datetime",
- *     "timestamp",
- *     "created",
- *     "changed"
+ *     "integer"
  *   }
  * )
  */
-class ElasticsearchFieldDateNormalizer extends ElasticsearchFieldNormalizerBase {
+class IntegerNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
-    // @todo Allow date format to be overridden with $context['format'].
-    $date_value = $item->get('value')->getValue();
-
-    return $date_value;
+    return (int) $item->get('value')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return ElasticsearchDataTypeDefinition::create('date');
+    return ElasticsearchDataTypeDefinition::create('integer');
   }
 
 }

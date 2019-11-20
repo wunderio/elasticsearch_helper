@@ -8,34 +8,33 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_link",
- *   label = @Translation("Link (URI, title)"),
+ *   id = "date",
+ *   label = @Translation("Date"),
  *   field_types = {
- *     "link"
- *   },
+ *     "datetime",
+ *     "timestamp",
+ *     "created",
+ *     "changed"
+ *   }
  * )
  */
-class ElasticsearchFieldLinkNormalizer extends ElasticsearchFieldNormalizerBase {
+class DateNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
-    return [
-      'uri' => $item->get('uri')->getValue(),
-      'title' => $item->get('title')->getValue(),
-    ];
+    // @todo Allow date format to be overridden with $context['format'].
+    $date_value = $item->get('value')->getValue();
+
+    return $date_value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    $definition = ElasticsearchDataTypeDefinition::create('object')
-      ->addProperty('uri', ElasticsearchDataTypeDefinition::create('keyword'))
-      ->addProperty('title', ElasticsearchDataTypeDefinition::create('text'));
-
-    return $definition;
+    return ElasticsearchDataTypeDefinition::create('date');
   }
 
 }

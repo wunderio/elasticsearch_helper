@@ -8,29 +8,29 @@ use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_entity_reference_label",
- *   label = @Translation("Entity reference (label)"),
+ *   id = "entity_reference_id",
+ *   label = @Translation("Entity reference (ID)"),
  *   field_types = {
  *     "entity_reference"
  *   }
  * )
  */
-class FieldEntityReferenceLabelNormalizer extends FieldEntityReferenceNormalizer {
+class EntityReferenceIdNormalizer extends EntityReferenceNormalizer {
 
   /**
    * {@inheritdoc}
    *
-   * @return string
+   * @return int
    */
   protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
-    return $entity->label();
+    return $entity->id();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return ElasticsearchDataTypeDefinition::create('text');
+    return ElasticsearchDataTypeDefinition::create('integer');
   }
 
 }

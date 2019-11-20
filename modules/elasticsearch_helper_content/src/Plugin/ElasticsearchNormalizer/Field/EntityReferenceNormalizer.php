@@ -9,14 +9,14 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_entity_reference",
+ *   id = "entity_reference",
  *   label = @Translation("Entity reference (ID, label)"),
  *   field_types = {
  *     "entity_reference"
  *   }
  * )
  */
-class FieldEntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
+class EntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}

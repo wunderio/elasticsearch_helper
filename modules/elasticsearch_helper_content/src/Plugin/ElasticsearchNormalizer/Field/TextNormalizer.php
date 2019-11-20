@@ -9,7 +9,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_text",
+ *   id = "text",
  *   label = @Translation("Text/Keyword"),
  *   field_types = {
  *     "string",
@@ -22,7 +22,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
  *   }
  * )
  */
-class ElasticsearchFieldTextNormalizer extends ElasticsearchFieldNormalizerBase {
+class TextNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}

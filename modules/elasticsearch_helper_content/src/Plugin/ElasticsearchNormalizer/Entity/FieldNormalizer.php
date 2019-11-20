@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   weight = 0
  * )
  */
-class ElasticsearchEntityFieldNormalizer extends ElasticsearchEntityNormalizerBase {
+class FieldNormalizer extends ElasticsearchEntityNormalizerBase {
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface

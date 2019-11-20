@@ -8,27 +8,30 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_integer",
- *   label = @Translation("Integer"),
+ *   id = "float",
+ *   label = @Translation("Float, decimal"),
  *   field_types = {
- *     "integer"
+ *     "float",
+ *     "decimal"
  *   }
  * )
  */
-class ElasticsearchFieldIntegerNormalizer extends ElasticsearchFieldNormalizerBase {
+class FloatNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
-    return (int) $item->get('value')->getValue();
+    // Adding 0 to a string would produce integer or float.
+    $value = $item->get('value')->getValue();
+    return $value + 0;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions() {
-    return ElasticsearchDataTypeDefinition::create('integer');
+    return ElasticsearchDataTypeDefinition::create('float');
   }
 
 }

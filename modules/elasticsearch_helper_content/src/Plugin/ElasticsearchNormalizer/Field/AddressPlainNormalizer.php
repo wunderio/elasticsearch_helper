@@ -8,14 +8,14 @@ use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
 /**
  * @ElasticsearchFieldNormalizer(
- *   id = "field_address_plain",
+ *   id = "address_plain",
  *   label = @Translation("Address (plain text)"),
  *   field_types = {
  *     "address"
  *   }
  * )
  */
-class FieldAddressPlainNormalizer extends ElasticsearchFieldNormalizerBase {
+class AddressPlainNormalizer extends ElasticsearchFieldNormalizerBase {
 
   /**
    * @var string
