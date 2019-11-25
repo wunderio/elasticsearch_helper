@@ -80,7 +80,7 @@ class ElasticsearchContentIndexViewsData implements EntityViewsDataInterface, Co
   /**
    * Returns content index instances.
    *
-   * @return \Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex\ElasticsearchContentIndex[]
+   * @return \Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex\ContentIndex[]
    */
   protected function getContentIndexInstances() {
     // Filter out content indices.

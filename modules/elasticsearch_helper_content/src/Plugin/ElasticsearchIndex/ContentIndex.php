@@ -15,10 +15,10 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @ElasticsearchIndex(
  *   id = "content_index",
- *   deriver = "Drupal\elasticsearch_helper_content\Plugin\Deriver\ElasticsearchContentIndexDeriver"
+ *   deriver = "Drupal\elasticsearch_helper_content\Plugin\Deriver\ContentIndexDeriver"
  * )
  */
-class ElasticsearchContentIndex extends ElasticsearchIndexBase {
+class ContentIndex extends ElasticsearchIndexBase {
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -41,7 +41,7 @@ class ElasticsearchContentIndex extends ElasticsearchIndexBase {
   protected $indexEntity;
 
   /**
-   * ElasticsearchContentIndex constructor.
+   * ContentIndex constructor.
    *
    * @param array $configuration
    * @param $plugin_id

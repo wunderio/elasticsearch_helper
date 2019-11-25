@@ -7,9 +7,9 @@ use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ElasticsearchContentIndexDeriver
+ * Class ContentIndexDeriver
  */
-class ElasticsearchContentIndexDeriver implements ContainerDeriverInterface {
+class ContentIndexDeriver implements ContainerDeriverInterface {
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -24,7 +24,7 @@ class ElasticsearchContentIndexDeriver implements ContainerDeriverInterface {
   protected $derivatives;
 
   /**
-   * ElasticsearchContentIndexDeriver constructor.
+   * ContentIndexDeriver constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
