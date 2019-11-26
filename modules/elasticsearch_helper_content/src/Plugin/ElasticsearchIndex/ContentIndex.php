@@ -2,11 +2,13 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex;
 
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
+use Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -173,12 +175,95 @@ class ContentIndex extends ElasticsearchIndexBase {
     if ($this->indexEntity->isMultilingual()) {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
-          parent::index($source->getTranslation($langcode));
+          $translation = $source->getTranslation($langcode);
+          $this->indexOrDelete($translation);
         }
       }
     }
     else {
+      $this->indexOrDelete($source);
+    }
+  }
+
+  /**
+   * Returns TRUE if entity is publishing status aware.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $source
+   *
+   * @return bool
+   */
+  protected function isPublishAware($source) {
+    return $source instanceof EntityPublishedInterface;
+  }
+
+  /**
+   * Returns TRUE is entity should be added from the index.
+   *
+   * @param $source
+   *
+   * @return bool
+   */
+  protected function isStorable($source) {
+    $index_unpublished = $this->indexEntity->indexUnpublishedContent();
+
+    // Return TRUE if entity type does not support publishing status or
+    // unpublished content should be indexed.
+    if (in_array($index_unpublished, [ElasticsearchContentIndex::INDEX_UNPUBLISHED_NA, ElasticsearchContentIndex::INDEX_UNPUBLISHED], TRUE)) {
+      return TRUE;
+    }
+
+    if ($index_unpublished == ElasticsearchContentIndex::INDEX_UNPUBLISHED_IGNORE) {
+      if ($this->isPublishAware($source) && $source->isPublished()) {
+        return TRUE;
+      }
+    }
+
+    // Stay on the safe side and do not index by default.
+    return FALSE;
+  }
+
+  /**
+   * Returns TRUE is entity should be removed from the index.
+   *
+   * @param $source
+   *
+   * @return bool
+   */
+  protected function isDeletable($source) {
+    $index_unpublished = $this->indexEntity->indexUnpublishedContent();
+
+    // Return FALSE if entity type does not support publishing status or
+    // unpublished content should be indexed.
+    if (in_array($index_unpublished, [ElasticsearchContentIndex::INDEX_UNPUBLISHED_NA, ElasticsearchContentIndex::INDEX_UNPUBLISHED], TRUE)) {
+      return FALSE;
+    }
+
+    if ($index_unpublished == ElasticsearchContentIndex::INDEX_UNPUBLISHED_IGNORE) {
+      if ($this->isPublishAware($source) && $source->isPublished()) {
+        return FALSE;
+      }
+    }
+
+    // Stay on the safe side and remove by default.
+    return TRUE;
+  }
+
+  /**
+   * Indexes or removes the entity.
+   *
+   * The entity
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $source
+   */
+  protected function indexOrDelete($source) {
+    if ($this->isStorable($source)) {
+      // Parent is called as this method is invoked from index().
       parent::index($source);
+    }
+
+    if ($this->isDeletable($source)) {
+      // Parent is called as this method is invoked from index().
+      parent::delete($source);
     }
   }
 
@@ -191,7 +276,8 @@ class ContentIndex extends ElasticsearchIndexBase {
     if ($this->indexEntity->isMultilingual()) {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
-          parent::delete($source->getTranslation($langcode));
+          $translation = $source->getTranslation($langcode);
+          parent::delete($translation);
         }
       }
     }

@@ -32,6 +32,7 @@ use Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface;
  *     "bundle",
  *     "index_name",
  *     "multilingual",
+ *     "index_unpublished",
  *     "normalizer",
  *     "normalizer_configuration",
  *   },
@@ -44,6 +45,21 @@ use Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface;
  * )
  */
 class ElasticsearchContentIndex extends ConfigEntityBase implements ElasticsearchContentIndexInterface {
+
+  /**
+   * Indices that unpublished index should be indexed.
+   */
+  const INDEX_UNPUBLISHED = 1;
+
+  /**
+   * Indicates that unpublished content should not be indexed.
+   */
+  const INDEX_UNPUBLISHED_IGNORE = 0;
+
+  /**
+   * Indicates that publishing status is not available for entity type.
+   */
+  const INDEX_UNPUBLISHED_NA = -1;
 
   /**
    * Content index ID.
@@ -84,6 +100,11 @@ class ElasticsearchContentIndex extends ConfigEntityBase implements Elasticsearc
    * @var bool
    */
   protected $multilingual = FALSE;
+
+  /**
+   * @var bool
+   */
+  protected $index_unpublished = self::INDEX_UNPUBLISHED_IGNORE;
 
   /**
    * Bundle normalizer plugin ID.
@@ -139,6 +160,13 @@ class ElasticsearchContentIndex extends ConfigEntityBase implements Elasticsearc
    */
   public function isMultilingual() {
     return (bool) $this->multilingual;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function indexUnpublishedContent() {
+    return $this->index_unpublished;
   }
 
   /**

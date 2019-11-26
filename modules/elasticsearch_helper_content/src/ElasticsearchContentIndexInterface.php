@@ -51,9 +51,20 @@ interface ElasticsearchContentIndexInterface extends ConfigEntityInterface {
   /**
    * Returns TRUE if index supports multiple languages.
    *
-   * @return boolean
+   * @return bool
    */
   public function isMultilingual();
+
+  /**
+   * Returns flag which indicates if unpublished content should be index.
+   *
+   * @return int
+   *
+   * @see \Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex::INDEX_UNPUBLISHED
+   * @see \Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex::INDEX_UNPUBLISHED_IGNORE
+   * @see \Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex::INDEX_UNPUBLISHED_NA
+   */
+  public function indexUnpublishedContent();
 
   /**
    * Returns normalizer.

@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
+use Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -70,6 +71,8 @@ class ElasticsearchContentIndexForm extends EntityForm {
     /** @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface $index */
     $index = $this->entity;
 
+    $target_entity_type = $index->getTargetEntityType();
+
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Index label'),
@@ -111,6 +114,15 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#title' => $this->t('Multilingual'),
       '#description' => t('Check if this index should support multiple languages.'),
       '#default_value' => $index->isMultilingual(),
+      '#access' => $this->entityTypeTranslatable($target_entity_type),
+    ];
+
+    $form['index_unpublished'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Index unpublished content'),
+      '#description' => t('Check if this index should contain unpublished content.'),
+      '#default_value' => $index->indexUnpublishedContent(),
+      '#access' => $this->entityTypePublishAware($target_entity_type),
     ];
 
     // Get bundle info.
@@ -127,8 +139,6 @@ class ElasticsearchContentIndexForm extends EntityForm {
       /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
       return $entity_type->getLabel();
     }, $entity_types);
-
-    $target_entity_type = $index->getTargetEntityType();
 
     $form['entity_type'] = [
       '#type' => 'select',
@@ -203,6 +213,38 @@ class ElasticsearchContentIndexForm extends EntityForm {
   }
 
   /**
+   * Returns TRUE if entity type is translatable.
+   *
+   * @param $entity_type_id
+   *
+   * @return bool
+   *
+   * @throws
+   */
+  protected function entityTypeTranslatable($entity_type_id) {
+    // Get entity type instance.
+    $entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE);
+
+    return $entity_type && $entity_type->isTranslatable();
+  }
+
+  /**
+   * Returns TRUE if entity type supports published/unpublished status.
+   *
+   * @param $entity_type_id
+   *
+   * @return bool
+   *
+   * @throws
+   */
+  protected function entityTypePublishAware($entity_type_id) {
+    // Get entity type instance.
+    $entity_type = $this->entityTypeManager->getDefinition($entity_type_id, FALSE);
+
+    return $entity_type && $entity_type->hasKey('published');
+  }
+
+  /**
    * @param $form
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *
@@ -239,6 +281,21 @@ class ElasticsearchContentIndexForm extends EntityForm {
 
     /** @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface $index */
     $index = $this->entity;
+    $target_entity_type = $index->getTargetEntityType();
+
+    // Set multilingual flag to FALSE if entity type is not translatable.
+    if (!$this->entityTypeTranslatable($target_entity_type)) {
+      $index->set('multilingual', FALSE);
+    }
+
+    // Set "index unpublished" value.
+    if (!$this->entityTypePublishAware($target_entity_type)) {
+      $index_unpublished = ElasticsearchContentIndex::INDEX_UNPUBLISHED_NA;
+    }
+    else {
+      $index_unpublished = $form_state->getValue('index_unpublished') ? ElasticsearchContentIndex::INDEX_UNPUBLISHED : ElasticsearchContentIndex::INDEX_UNPUBLISHED_IGNORE;
+    }
+    $index->set('index_unpublished', $index_unpublished);
 
     // Get normalizer instance.
     $normalizer_instance = $index->getNormalizerInstance();
