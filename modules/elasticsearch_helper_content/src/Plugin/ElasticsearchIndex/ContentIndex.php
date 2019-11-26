@@ -197,13 +197,13 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Returns TRUE is entity should be added from the index.
+   * Returns TRUE is entity should be added to the index.
    *
    * @param $source
    *
    * @return bool
    */
-  protected function isStorable($source) {
+  protected function isIndexable($source) {
     $index_unpublished = $this->indexEntity->indexUnpublishedContent();
 
     // Return TRUE if entity type does not support publishing status or
@@ -256,7 +256,7 @@ class ContentIndex extends ElasticsearchIndexBase {
    * @param \Drupal\Core\Entity\ContentEntityInterface $source
    */
   protected function indexOrDelete($source) {
-    if ($this->isStorable($source)) {
+    if ($this->isIndexable($source)) {
       // Parent is called as this method is invoked from index().
       parent::index($source);
     }
