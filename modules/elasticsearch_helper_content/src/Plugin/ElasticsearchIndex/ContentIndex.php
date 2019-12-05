@@ -176,12 +176,12 @@ class ContentIndex extends ElasticsearchIndexBase {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
           $translation = $source->getTranslation($langcode);
-          $this->indexOrDelete($translation);
+          $this->indexOrDeleteTranslation($translation);
         }
       }
     }
     else {
-      $this->indexOrDelete($source);
+      $this->indexOrDeleteTranslation($source);
     }
   }
 
@@ -197,7 +197,7 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Returns TRUE is entity should be added to the index.
+   * Returns TRUE if translation of the entity should be added to the index.
    *
    * @param $source
    *
@@ -223,7 +223,7 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Returns TRUE is entity should be removed from the index.
+   * Returns TRUE if translation of the entity should be removed from the index.
    *
    * @param $source
    *
@@ -249,21 +249,18 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Indexes or removes the entity.
-   *
-   * The entity
+   * Indexes or removes translation of the entity.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $source
    */
-  protected function indexOrDelete($source) {
+  protected function indexOrDeleteTranslation($source) {
     if ($this->isIndexable($source)) {
-      // Parent is called as this method is invoked from index().
+      // Parent method is called here as this method is invoked from index().
       parent::index($source);
     }
 
     if ($this->isDeletable($source)) {
-      // Parent is called as this method is invoked from index().
-      parent::delete($source);
+      $this->deleteTranslation($source);
     }
   }
 
@@ -277,13 +274,22 @@ class ContentIndex extends ElasticsearchIndexBase {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
           $translation = $source->getTranslation($langcode);
-          parent::delete($translation);
+          $this->deleteTranslation($translation);
         }
       }
     }
     else {
-      parent::delete($source);
+      $this->deleteTranslation($source);
     }
+  }
+
+  /**
+   * Removes translation of the entity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $source
+   */
+  public function deleteTranslation($source) {
+    parent::delete($source);
   }
 
   /**
