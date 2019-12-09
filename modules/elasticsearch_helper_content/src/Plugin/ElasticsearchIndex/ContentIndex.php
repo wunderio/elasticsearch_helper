@@ -134,27 +134,18 @@ class ContentIndex extends ElasticsearchIndexBase {
       foreach ($this->getIndexNames() as $langcode => $index_name) {
         // Only setup index if it's not already existing.
         if (!$this->client->indices()->exists(['index' => $index_name])) {
-          $this->client->indices()->create([
-            'index' => $index_name,
-            'body' => [
-              // Use a single shard to improve relevance on a small dataset.
-              // TODO Make this configurable via settings.
-              'number_of_shards' => 1,
-              // No need for replicas, we only have one ES node.
-              // TODO Make this configurable via settings.
-              'number_of_replicas' => 0,
-            ],
-          ]);
+          $setup_configuration = $this->getIndexSetupSettings($index_name, $langcode);
+          $this->client->indices()->create($setup_configuration);
 
-          // Get default set of elasticsearch analyzers for the language.
-          $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+          // Get default analyzer for the language.
+          $analyzer = $this->getDefaultLanguageAnalyzer($langcode);
 
           // Assemble field mapping for index.
           $mapping_context = [
             'langcode' => $langcode,
             'analyzer' => $analyzer,
           ];
-          $mapping = $this->provideMapping($mapping_context);
+          $mapping = $this->getMappingSettings($mapping_context);
 
           // Save index mapping.
           $this->client->indices()->putMapping($mapping);
@@ -164,6 +155,35 @@ class ContentIndex extends ElasticsearchIndexBase {
     catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
     }
+  }
+
+  /**
+   * Returns index setup settings.
+   *
+   * @param $index_name
+   * @param string|null $langcode
+   *
+   * @return array
+   */
+  protected function getIndexSetupSettings($index_name, $langcode = NULL) {
+    return [
+      'index' => $index_name,
+      'body' => [
+        'number_of_shards' => 1,
+        'number_of_replicas' => 0,
+      ],
+    ];
+  }
+
+  /**
+   * Returns default analyzer for given language.
+   *
+   * @param string|null $langcode
+   *
+   * @return string
+   */
+  protected function getDefaultLanguageAnalyzer($langcode = NULL) {
+    return ElasticsearchLanguageAnalyzer::get($langcode);
   }
 
   /**
@@ -315,13 +335,13 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * Returns field mapping.
+   * Returns field mapping settings.
    *
    * @param array $mapping_context
    *
    * @return array
    */
-  protected function provideMapping(array $mapping_context) {
+  protected function getMappingSettings(array $mapping_context) {
     $mapping = [
       'index' => $this->getIndexName($mapping_context),
       'type' => $this->getTypeName($mapping_context),
