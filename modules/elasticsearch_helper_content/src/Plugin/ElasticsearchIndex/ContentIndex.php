@@ -114,7 +114,7 @@ class ContentIndex extends ElasticsearchIndexBase {
     if ($this->indexEntity->isMultilingual()) {
       $index_names = [];
 
-      foreach (\Drupal::service('language_manager')->getLanguages() as $language) {
+      foreach ($this->languageManager->getLanguages() as $language) {
         $langcode = $language->getId();
         $index_names[$langcode] = $this->getIndexName(['langcode' => $langcode]);
       }
