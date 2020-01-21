@@ -490,11 +490,7 @@ class FieldNormalizer extends ElasticsearchEntityNormalizerBase {
    * @return bool
    */
   protected function instanceMatchesPluginId($plugin_id, ElasticsearchNormalizerInterface $instance = NULL) {
-    if ($instance && $instance->getPluginId() == $plugin_id) {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $instance && $instance->getPluginId() == $plugin_id;
   }
 
   /**
@@ -504,9 +500,6 @@ class FieldNormalizer extends ElasticsearchEntityNormalizerBase {
     $configuration = $this->configuration;
     // Reset field settings.
     $configuration['fields'] = [];
-
-    $entity_type_id = $this->targetEntityType;
-    $bundle = $this->targetBundle;
 
     // Filter out unselected fields.
     $fields = array_filter($form_state->getValue('fields', []), function ($item) {
