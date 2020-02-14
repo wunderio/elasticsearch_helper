@@ -278,8 +278,7 @@ class ContentIndex extends ElasticsearchIndexBase {
       // Parent method is called here as this method is invoked from index().
       parent::index($source);
     }
-
-    if ($this->isDeletable($source)) {
+    elseif ($this->isDeletable($source)) {
       $this->deleteTranslation($source);
     }
   }
