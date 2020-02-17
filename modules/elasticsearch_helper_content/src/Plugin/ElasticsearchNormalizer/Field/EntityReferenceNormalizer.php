@@ -29,8 +29,9 @@ class EntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
 
     try {
       if ($field) {
-        $langcode = $entity->language()->getId();
         $cardinality = $this->getCardinality($field);
+        $langcode = $entity->language()->getId();
+        $context['langcode'] = $langcode;
 
         foreach ($field as $field_item) {
           $value = NULL;
