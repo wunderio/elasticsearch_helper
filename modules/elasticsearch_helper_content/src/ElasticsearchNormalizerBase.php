@@ -52,13 +52,6 @@ abstract class ElasticsearchNormalizerBase extends PluginBase implements Elastic
   /**
    * {@inheritdoc}
    */
-  public function normalize($object, array $context = []) {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getPropertyDefinitions() {
     return [];
   }

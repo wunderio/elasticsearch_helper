@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
@@ -60,13 +61,14 @@ class DateNormalizer extends ElasticsearchFieldNormalizerBase {
    *
    * @throws \InvalidArgumentException
    */
-  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(EntityInterface $entity, FieldItemInterface $item, array $context = []) {
     $value = NULL;
 
     if ($item instanceof DateTimeItemInterface) {
       /** @var \DateTime $date */
-      $date = $item->date;
-      $value = $date->getTimestamp();
+      if ($date = $item->date) {
+        $value = $date->getTimestamp();
+      }
     }
     else {
       $value = $item->value;

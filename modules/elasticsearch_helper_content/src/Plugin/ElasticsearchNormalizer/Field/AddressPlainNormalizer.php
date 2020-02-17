@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
@@ -25,7 +26,7 @@ class AddressPlainNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(EntityInterface $entity, FieldItemInterface $item, array $context = []) {
     // Render using the formatter.
     $build = $item->view(['type' => $this->formatter]);
     $result = \Drupal::service('renderer')->renderRoot($build);

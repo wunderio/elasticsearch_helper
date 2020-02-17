@@ -12,16 +12,6 @@ use Drupal\Core\Plugin\PluginFormInterface;
 interface ElasticsearchNormalizerInterface extends PluginInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
 
   /**
-   * Normalizes an object into a set of arrays/scalars.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $object
-   * @param array $context Context options for the normalizer
-   *
-   * @return array|string|int|float|bool
-   */
-  public function normalize($object, array $context = []);
-
-  /**
    * Returns property definitions.
    *
    * This method should return the same array structure that normalize()

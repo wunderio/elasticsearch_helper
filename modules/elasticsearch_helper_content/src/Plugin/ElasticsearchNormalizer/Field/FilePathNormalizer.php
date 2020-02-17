@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
@@ -21,7 +22,7 @@ class FilePathNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritDoc}
    */
-  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(EntityInterface $entity, FieldItemInterface $item, array $context = []) {
     $path = NULL;
 
     if ($file = $item->entity) {

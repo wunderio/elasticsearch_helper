@@ -2,7 +2,9 @@
 
 namespace Drupal\elasticsearch_helper_content;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Class FieldNormalizerBase
@@ -12,15 +14,15 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
   /**
    * {@inheritdoc}
    */
-  public function normalize($object, array $context = []) {
+  public function normalize($entity, $field, array $context = []) {
     $result = [];
 
     try {
-      if ($object) {
-        $cardinality = $this->getCardinality($object);
+      if ($field) {
+        $cardinality = $this->getCardinality($field);
 
-        foreach ($object as $item) {
-          $value = $this->getFieldItemValue($item, $context);
+        foreach ($field as $field_item) {
+          $value = $this->getFieldItemValue($entity, $field_item, $context);
 
           if ($cardinality === 1) {
             return $value;
@@ -41,23 +43,32 @@ abstract class ElasticsearchFieldNormalizerBase extends ElasticsearchNormalizerB
   }
 
   /**
-   * @param \Drupal\Core\Field\FieldItemListInterface $item_list
+   * Returns field cardinality.
+   *
+   * Defaults to 1 if cardinality cannot be established from field definition.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $field
    *
    * @return int
    */
-  protected function getCardinality($item_list) {
-    return $item_list->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
+  protected function getCardinality($field) {
+    if ($field instanceof FieldItemListInterface) {
+      return $field->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
+    }
+
+    return 1;
   }
 
   /**
    * Returns value of the field item.
    *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    * @param \Drupal\Core\Field\FieldItemInterface $item
    * @param array $context Context options for the normalizer
    *
    * @return mixed
    */
-  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(EntityInterface $entity, FieldItemInterface $item, array $context = []) {
     return '';
   }
 

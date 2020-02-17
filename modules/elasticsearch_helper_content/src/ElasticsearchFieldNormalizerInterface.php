@@ -10,8 +10,9 @@ interface ElasticsearchFieldNormalizerInterface extends ElasticsearchNormalizerI
   /**
    * {@inheritdoc}
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface|null $object
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Field\FieldItemListInterface|null $field
    */
-  public function normalize($object, array $context = []);
+  public function normalize($entity, $field, array $context = []);
 
 }

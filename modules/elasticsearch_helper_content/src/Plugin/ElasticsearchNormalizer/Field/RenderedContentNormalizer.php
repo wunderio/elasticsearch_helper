@@ -70,29 +70,15 @@ class RenderedContentNormalizer extends ElasticsearchFieldNormalizerBase {
   }
 
   /**
-   * Returns the rendered content of the entity.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $object
-   * @param array $context
-   *
-   * @return \Drupal\Component\Render\MarkupInterface|mixed
-   */
-  public function normalizeEntity($object, array $context = []) {
-    $build = $this->viewBuilder->view($object, $this->configuration['view_mode']);
-
-    return $this->renderer->renderRoot($build);
-  }
-
-  /**
    * {@inheritdoc}
    *
-   * @param \Drupal\Core\Field\FieldItemInterface $object
+   * @param \Drupal\Core\Field\FieldItemInterface $field
    */
-  public function normalize($object, array $context = []) {
+  public function normalize($entity, $field, array $context = []) {
     $result = [];
 
-    if ($object) {
-      $build = $object->view($this->configuration['view_mode']);
+    if ($field) {
+      $build = $field->view($this->configuration['view_mode']);
       $result = $this->renderer->renderRoot($build);
     }
 

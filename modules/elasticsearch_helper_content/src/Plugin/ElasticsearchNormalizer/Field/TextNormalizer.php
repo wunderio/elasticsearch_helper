@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Field;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
@@ -27,7 +28,7 @@ class TextNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function getFieldItemValue(FieldItemInterface $item, array $context = []) {
+  public function getFieldItemValue(EntityInterface $entity, FieldItemInterface $item, array $context = []) {
     return $item->get('value')->getValue();
   }
 

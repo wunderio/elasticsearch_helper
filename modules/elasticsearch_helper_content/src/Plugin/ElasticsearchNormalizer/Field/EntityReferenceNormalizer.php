@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchNormalizer\Fie
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\elasticsearch_helper_content\ElasticsearchDataTypeDefinition;
 use Drupal\elasticsearch_helper_content\ElasticsearchFieldNormalizerBase;
 
@@ -21,20 +22,25 @@ class EntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
   /**
    * {@inheritdoc}
    *
-   * @param $object \Drupal\Core\Field\EntityReferenceFieldItemListInterface
+   * @param \Drupal\Core\Field\EntityReferenceFieldItemListInterface $field
    */
-  public function normalize($object, array $context = []) {
+  public function normalize($entity, $field, array $context = []) {
     $result = [];
 
     try {
-      if ($object) {
-        $cardinality = $this->getCardinality($object);
+      if ($field) {
+        $langcode = $entity->language()->getId();
+        $cardinality = $this->getCardinality($field);
 
-        foreach ($object as $field_item) {
+        foreach ($field as $field_item) {
           $value = NULL;
 
-          if ($entity = $field_item->entity) {
-            $value = $this->getEntityValues($entity, $field_item, $context);
+          if ($referenced_entity = $field_item->entity) {
+            if ($referenced_entity instanceof TranslatableInterface) {
+              $referenced_entity = \Drupal::service('entity.repository')->getTranslationFromContext($referenced_entity, $langcode);
+            }
+
+            $value = $this->getEntityValues($referenced_entity, $field_item, $context);
           }
 
           if ($cardinality === 1) {

@@ -5,24 +5,22 @@ namespace Drupal\elasticsearch_helper_content;
 /**
  * Class ElasticsearchEntityNormalizerBase
  */
-abstract class ElasticsearchEntityNormalizerBase extends ElasticsearchNormalizerBase {
+abstract class ElasticsearchEntityNormalizerBase extends ElasticsearchNormalizerBase implements ElasticsearchEntityNormalizerInterface {
 
   /**
    * {@inheritdoc}
    *
-   * @param \Drupal\Core\Entity\EntityInterface $object
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    */
-  public function normalize($object, array $context = []) {
-    $data = parent::normalize($object, $context);
+  public function normalize($entity, array $context = []) {
+    $entity_type_id = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
 
-    $entity_type_id = $object->getEntityTypeId();
-    $bundle = $object->bundle();
-
-    $data['id'] = $object->id();
-    $data['uuid'] = $object->uuid();
+    $data['id'] = $entity->id();
+    $data['uuid'] = $entity->uuid();
     $data['entity_type'] = $entity_type_id;
     $data['bundle'] = $bundle;
-    $data['langcode'] = $object->language()->getId();
+    $data['langcode'] = $entity->language()->getId();
 
     return $data;
   }

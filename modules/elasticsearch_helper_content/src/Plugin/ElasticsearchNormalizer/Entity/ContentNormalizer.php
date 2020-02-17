@@ -88,16 +88,18 @@ class ContentNormalizer extends ElasticsearchEntityNormalizerBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    */
-  public function normalize($object, array $context = []) {
-    $data = parent::normalize($object, $context);
+  public function normalize($entity, array $context = []) {
+    $data = parent::normalize($entity, $context);
 
-    $data['label'] = $object->label();
-    $data['created'] = $object->hasField('created') ? $object->created->value : NULL;
+    $data['label'] = $entity->label();
+    $data['created'] = $entity->hasField('created') ? $entity->created->value : NULL;
     // No status field => assume 1 to simplify filtering cross entity types.
-    $data['status'] = $object->hasField('status') ? boolval($object->status->value) : TRUE;
-    $data['content'] = $this->entityRenderer->renderEntityPlainText($object, $this->configuration['view_mode']['content']);
-    $data['rendered_content'] = $this->entityRenderer->renderEntity($object, $this->configuration['view_mode']['rendered_content']);
+    $data['status'] = $entity->hasField('status') ? boolval($entity->status->value) : TRUE;
+    $data['content'] = $this->entityRenderer->renderEntityPlainText($entity, $this->configuration['view_mode']['content']);
+    $data['rendered_content'] = $this->entityRenderer->renderEntity($entity, $this->configuration['view_mode']['rendered_content']);
 
     return $data;
   }
