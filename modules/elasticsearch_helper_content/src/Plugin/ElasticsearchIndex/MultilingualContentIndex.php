@@ -123,7 +123,7 @@ abstract class MultilingualContentIndex extends ElasticsearchIndexBase {
         // Assemble field mapping for index.
         $mapping_context = [
           'index_name' => $index_name,
-          'languge' => $language,
+          'language' => $language,
           'analyzer' => $analyzer,
         ];
         $mapping = $this->provideMapping($mapping_context);
