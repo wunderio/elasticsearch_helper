@@ -41,7 +41,7 @@ class EntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
               $referenced_entity = \Drupal::service('entity.repository')->getTranslationFromContext($referenced_entity, $langcode);
             }
 
-            $value = $this->getEntityValues($referenced_entity, $field_item, $context);
+            $value = $this->getReferencedEntityValues($referenced_entity, $field_item, $entity, $context);
           }
 
           if ($cardinality === 1) {
@@ -63,18 +63,22 @@ class EntityReferenceNormalizer extends ElasticsearchFieldNormalizerBase {
   }
 
   /**
-   * Returns values of the entity.
+   * Returns values of the referenced entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $referenced_entity
+   *   Referenced entity from the field item.
    * @param \Drupal\Core\Field\FieldItemInterface $field_item
+   *   Field item from original entity.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Original entity.
    * @param array $context
    *
    * @return array
    */
-  protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
+  protected function getReferencedEntityValues(EntityInterface $referenced_entity, FieldItemInterface $field_item, EntityInterface $entity, array $context = []) {
     return [
-      'id' => $entity->id(),
-      'label' => $entity->label(),
+      'id' => $referenced_entity->id(),
+      'label' => $referenced_entity->label(),
     ];
   }
 

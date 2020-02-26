@@ -22,8 +22,8 @@ class EntityReferenceLabelNormalizer extends EntityReferenceNormalizer {
    *
    * @return string
    */
-  protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
-    return $entity->label();
+  protected function getReferencedEntityValues(EntityInterface $referenced_entity, FieldItemInterface $field_item, EntityInterface $entity, array $context = []) {
+    return $referenced_entity->label();
   }
 
   /**

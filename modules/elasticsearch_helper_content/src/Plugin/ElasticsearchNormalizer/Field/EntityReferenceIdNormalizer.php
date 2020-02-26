@@ -22,8 +22,8 @@ class EntityReferenceIdNormalizer extends EntityReferenceNormalizer {
    *
    * @return int
    */
-  protected function getEntityValues(EntityInterface $entity, FieldItemInterface $field_item, array $context = []) {
-    return $entity->id();
+  protected function getReferencedEntityValues(EntityInterface $referenced_entity, FieldItemInterface $field_item, EntityInterface $entity, array $context = []) {
+    return $referenced_entity->id();
   }
 
   /**
