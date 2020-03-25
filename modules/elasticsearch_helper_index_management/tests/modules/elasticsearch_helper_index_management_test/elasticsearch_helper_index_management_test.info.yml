@@ -1,0 +1,5 @@
+name: Elasticsearch helper index management test
+type: module
+description: Module for Elasticsearch Helper Index management tests
+core: 8.x
+package: Testing
