@@ -90,7 +90,7 @@ class AliasService implements AliasServiceInterface {
           \Drupal::messenger()->addMessage(t('Updating alias failed for index: @index', ['@index' => $index_name]), 'error');
         }
 
-        // @TODO, Dispatch event.
+        \Drupal::moduleHandler()->invokeAll('index_alias_update', [$index_name]);
       }
     }
   }
