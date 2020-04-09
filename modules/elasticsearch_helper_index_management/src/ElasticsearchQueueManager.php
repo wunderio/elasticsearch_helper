@@ -106,15 +106,14 @@ class ElasticsearchQueueManager implements ElasticsearchQueueManagerInterface {
    */
   public function addAll($index_id) {
     $definition = $this->pluginManagerElasticsearchIndexProcessor->getDefinition($index_id);
-
-    $query = $this
-      ->entityTypeManager
-      ->getStorage($definition['entityType'])
-      ->getQuery();
+    $storage = $this->entityTypeManager->getStorage($definition['entityType']);
+    $query = $storage->getQuery();
 
     if (isset($definition['bundle'])) {
+      $bundle_key = $this->entityTypeManager->getDefinition($definition['entityType'])->getKey('bundle');
+
       $entities = $query
-        ->condition('bundle', $definition['bundle'])
+        ->condition($bundle_key, $definition['bundle'])
         ->execute();
     }
     else {
