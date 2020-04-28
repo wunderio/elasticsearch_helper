@@ -38,7 +38,7 @@ class ListController extends ControllerBase {
   /**
    * List index plugins.
    *
-   * @return string
+   * @return array
    *   List markup.
    */
   public function display() {
@@ -54,19 +54,21 @@ class ListController extends ControllerBase {
     $rows = [];
 
     foreach ($this->elasticsearchHelperPluginManager->getDefinitions() as $plugin) {
-      $action = Link::createFromRoute(
-        $this->t('Manage'),
-        'elasticsearch_helper_index_management.reindex_controller_status',
-        ['index_id' => $plugin['id']],
-        ['attributes' => ['class' => 'button']]
-      );
+      if (isset($plugin['entityType'])) {
+        $action = Link::createFromRoute(
+          $this->t('Manage'),
+          'elasticsearch_helper_index_management.reindex_controller_status',
+          ['index_id' => $plugin['id']],
+          ['attributes' => ['class' => 'button']]
+        );
 
-      $rows[] = [
-        $plugin['label'],
-        $plugin['id'],
-        $plugin['entityType'],
-        $action,
-      ];
+        $rows[] = [
+          $plugin['label'],
+          $plugin['id'],
+          $plugin['entityType'],
+          $action,
+        ];
+      }
     }
 
     return [

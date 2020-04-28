@@ -51,7 +51,7 @@ class ReindexController extends ControllerBase {
    * @param string $index_id
    *   The index plugin id.
    *
-   * @return string
+   * @return array
    *   Status markup.
    */
   public function status($index_id) {
