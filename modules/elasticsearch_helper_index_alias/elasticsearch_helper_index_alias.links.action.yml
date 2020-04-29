@@ -1,0 +1,11 @@
+elasticsearch_helper_index_alias.manage_alias_controller.update_aliases:
+  route_name: elasticsearch_helper_index_alias.update_alias_confirm_form
+  title: 'Update index aliases to the latest index version'
+  appears_on:
+    - elasticsearch_helper_index_alias.manage_alias_controller.aliases
+
+elasticsearch_helper_index_alias.manage_alias_controller.increment_version:
+  route_name: elasticsearch_helper_index_alias.increment_version_confirm_form
+  title: 'Increment index version'
+  appears_on:
+    - elasticsearch_helper_index_alias.manage_alias_controller.aliases

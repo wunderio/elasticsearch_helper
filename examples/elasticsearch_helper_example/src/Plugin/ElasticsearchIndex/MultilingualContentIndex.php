@@ -123,7 +123,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
           'body' => [
             'properties' => [
               'title' => [
-                'type' => 'string',
+                'type' => 'text',
                 'analyzer' => $analyzer,
               ],
             ],

@@ -1,0 +1,7 @@
+services:
+  logger.channel.elasticsearch_helper_index_management:
+    parent: logger.channel_base
+    arguments: ['elasticsearch_helper_index_management']
+  elasticsearch_helper_index_management.queue_manager:
+    class: Drupal\elasticsearch_helper_index_management\ElasticsearchQueueManager
+    arguments: ['@database', '@plugin.manager.elasticsearch_index.processor', '@entity_type.manager']

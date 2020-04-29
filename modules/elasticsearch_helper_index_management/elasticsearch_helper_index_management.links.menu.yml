@@ -1,0 +1,5 @@
+elasticsearch_helper_index_management:
+  title: 'Elasticsearch Helper Index Management'
+  route_name: elasticsearch_helper_index_management.index_list_controller_display
+  description: 'Manage Elasticsearch Helper Indexes'
+  parent: elasticsearch_helper.elasticsearch_helper_settings_form

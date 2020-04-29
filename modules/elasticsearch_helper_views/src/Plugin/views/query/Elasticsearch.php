@@ -104,36 +104,36 @@ class Elasticsearch extends QueryPluginBase {
       $query_builder_options[$query_builder_plugin['id']] = sprintf('%s (%s)', $query_builder_plugin['label'], $query_builder_plugin['id']);
     }
 
-    $form['query_builder'] = array(
+    $form['query_builder'] = [
       '#type' => 'select',
       '#title' => $this->t('Elasticsearch query builder'),
       '#empty_value' => '',
       '#options' => $query_builder_options,
       '#default_value' => $this->options['query_builder'],
       '#required' => FALSE,
-    );
+    ];
 
-    $form['entity_relationship'] = array(
+    $form['entity_relationship'] = [
       '#type' => 'details',
       '#title' => $this->t('Entity relationship'),
       '#description' => $this->t('Define default entity relationship.'),
       '#open' => TRUE,
-    );
+    ];
 
-    $form['entity_relationship']['entity_type_key'] = array(
+    $form['entity_relationship']['entity_type_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Entity type field'),
       '#description' => $this->t('A field in Elasticsearch results which contains entity type name. To set a fixed value, prefix the string with @ (e.g., @node).'),
       '#default_value' => $this->options['entity_relationship']['entity_type_key'],
-    );
+    ];
 
-    $form['entity_relationship']['entity_id_key'] = array(
+    $form['entity_relationship']['entity_id_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Entity ID field'),
       '#description' => $this->t('A field in Elasticsearch results which contains entity ID value.'),
       '#default_value' => $this->options['entity_relationship']['entity_id_key'],
       '#group' => 'entity_type_key',
-    );
+    ];
   }
 
   /**
@@ -223,6 +223,12 @@ class Elasticsearch extends QueryPluginBase {
    * Placeholder method.
    */
   public function addRelationship() {
+  }
+
+  /**
+   * Placeholder method.
+   */
+  public function placeholder() {
   }
 
   /**
@@ -335,6 +341,16 @@ class Elasticsearch extends QueryPluginBase {
 
     $view->pager->postExecute($view->result);
     $view->pager->total_items = isset($data['hits']['total']) ? $data['hits']['total'] : 0;
+    // Account for offset when calculating total results.
+    if (!empty($view->pager->options['offset'])) {
+      // Make sure that total is never negative.
+      if ($view->pager->total_items >= $view->pager->options['offset']) {
+        $view->pager->total_items -= $view->pager->options['offset'];
+      }
+      else {
+        $view->pager->total_items = 0;
+      }
+    }
     $view->pager->updatePageInfo();
     $view->total_rows = $view->pager->getTotalItems();
 

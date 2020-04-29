@@ -27,10 +27,10 @@ class ElasticsearchDebugCommand implements CommandInterface {
    * Implements \Drupal\Core\Ajax\CommandInterface:render().
    */
   public function render() {
-    return array(
+    return [
       'command' => 'elasticsearch_query_debug',
       'text' => $this->text,
-    );
+    ];
   }
 
 }
