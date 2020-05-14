@@ -56,7 +56,7 @@ interface ElasticsearchContentIndexInterface extends ConfigEntityInterface {
   public function isMultilingual();
 
   /**
-   * Returns flag which indicates if unpublished content should be index.
+   * Returns flag which indicates if unpublished content should be indexed.
    *
    * @return int
    *

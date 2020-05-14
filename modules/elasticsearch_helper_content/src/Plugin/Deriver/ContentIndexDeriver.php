@@ -80,6 +80,10 @@ class ContentIndexDeriver implements ContainerDeriverInterface {
             'entityType' => $entity_type_id,
             'bundle' => $bundle,
             'index_entity_id' => $index_entity->id(),
+            // Expose content index plugin configuration in Elasticsearch index
+            // plugin definition. This allows other modules to create indices
+            // dynamically.
+            'multilingual' => $index_entity->isMultilingual(),
           ];
         }
       }

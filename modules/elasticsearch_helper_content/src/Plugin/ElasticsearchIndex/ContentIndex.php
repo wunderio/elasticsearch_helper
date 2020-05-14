@@ -33,11 +33,6 @@ class ContentIndex extends ElasticsearchIndexBase {
   protected $languageManager;
 
   /**
-   * @var \Drupal\elasticsearch_helper_content\ElasticsearchNormalizerInterface[]
-   */
-  protected $normalizerInstances;
-
-  /**
    * @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface|null
    */
   protected $indexEntity;
@@ -64,7 +59,7 @@ class ContentIndex extends ElasticsearchIndexBase {
 
     // Add language placeholder to index name if index supports multiple
     // languages.
-    if ($this->indexEntity->isMultilingual()) {
+    if ($this->isMultilingual()) {
       $this->pluginDefinition['indexName'] .= '_{langcode}';
     }
   }
@@ -104,6 +99,21 @@ class ContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
+   * Returns TRUE if content is multilingual.
+   *
+   * Multilingual configuration is taken from plugin definition which enables
+   * other modules to change the behaviour of the plugin by instantiating
+   * the plugin directly.
+   *
+   * @return bool
+   *
+   * @see \Drupal\elasticsearch_helper_content\Plugin\Deriver\ContentIndexDeriver::getDerivativeDefinitions()
+   */
+  protected function isMultilingual() {
+    return !empty($this->pluginDefinition['multilingual']);
+  }
+
+  /**
    * Returns a list of index names this plugin produces.
    *
    * List is keyed by language code.
@@ -111,7 +121,7 @@ class ContentIndex extends ElasticsearchIndexBase {
    * @return array
    */
   public function getIndexNames() {
-    if ($this->indexEntity->isMultilingual()) {
+    if ($this->isMultilingual()) {
       $index_names = [];
 
       foreach ($this->languageManager->getLanguages() as $language) {
@@ -192,7 +202,7 @@ class ContentIndex extends ElasticsearchIndexBase {
    * @param \Drupal\Core\Entity\ContentEntityInterface $source
    */
   public function index($source) {
-    if ($this->indexEntity->isMultilingual()) {
+    if ($this->isMultilingual()) {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
           $translation = $source->getTranslation($langcode);
@@ -289,7 +299,7 @@ class ContentIndex extends ElasticsearchIndexBase {
    * @param \Drupal\Core\Entity\ContentEntityInterface $source
    */
   public function delete($source) {
-    if ($this->indexEntity->isMultilingual()) {
+    if ($this->isMultilingual()) {
       foreach ($source->getTranslationLanguages() as $langcode => $language) {
         if ($source->hasTranslation($langcode)) {
           $translation = $source->getTranslation($langcode);
