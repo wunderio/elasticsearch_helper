@@ -79,6 +79,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#maxlength' => 255,
       '#default_value' => $index->label(),
       '#required' => TRUE,
+      '#weight' => 5,
     ];
 
     $form['id'] = [
@@ -88,6 +89,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
         'exists' => '\Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex::load',
       ],
       '#disabled' => !$index->isNew(),
+      '#weight' => 10,
     ];
 
     $index_name_description = $this->t('Index name must contain only lowercase letters, numbers, hyphens and underscores.');
@@ -106,7 +108,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
         'replace_pattern' => '^[^a-z0-9]|[^a-z0-9_-]+',
         'error' => $index_name_description,
       ],
-      // '#disabled' => !$index->isNew(),
+      '#weight' => 15,
     ];
 
     $form['multilingual'] = [
@@ -115,6 +117,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#description' => t('Check if this index should support multiple languages.'),
       '#default_value' => $index->isMultilingual(),
       '#access' => $this->entityTypeTranslatable($target_entity_type),
+      '#weight' => 20,
     ];
 
     $form['index_unpublished'] = [
@@ -123,6 +126,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#description' => t('Check if this index should contain unpublished content.'),
       '#default_value' => $index->indexUnpublishedContent(),
       '#access' => $this->entityTypePublishAware($target_entity_type),
+      '#weight' => 25,
     ];
 
     // Get bundle info.
@@ -148,6 +152,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#default_value' => $target_entity_type,
       '#required' => TRUE,
       '#ajax' => $ajax_attribute,
+      '#weight' => 30,
     ];
 
     $bundle_options = array_map(function ($bundle) {
@@ -169,6 +174,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       '#default_value' => $target_bundle,
       '#required' => TRUE,
       '#ajax' => $ajax_attribute,
+      '#weight' => 35,
     ];
 
     // Get entity normalizer definitions.
@@ -185,6 +191,7 @@ class ElasticsearchContentIndexForm extends EntityForm {
       }, $entity_normalizer_definitions),
       '#default_value' => $normalizer,
       '#ajax' => $ajax_attribute,
+      '#weight' => 40,
     ];
 
     if ($normalizer) {
@@ -202,9 +209,16 @@ class ElasticsearchContentIndexForm extends EntityForm {
           '#open' => TRUE,
           '#title' => $this->t('Normalizer settings'),
           'configuration' => ['#tree' => TRUE] + $configuration_form,
+          '#weight' => 45,
         ];
       }
       catch (\Exception $e) {
+        $form['normalizer_configuration_error'] = [
+          '#prefix' => '<div class="messages messages--error">',
+          '#markup' => $this->t('An error occurred while rendering normalizer configuration form.'),
+          '#suffix' => '</div>',
+          '#weight' => 45,
+        ];
         watchdog_exception('elasticsearch_helper_content', $e);
       }
     }
