@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
 use Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface;
 use Drupal\elasticsearch_helper_content\Entity\ElasticsearchContentIndex;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,16 +32,23 @@ class ElasticsearchContentIndexForm extends EntityForm {
   protected $elasticsearchEntityNormalizerManager;
 
   /**
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
+   */
+  protected $elasticsearchIndexManager;
+
+  /**
    * ElasticsearchContentIndexForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    * @param \Drupal\elasticsearch_helper_content\ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearch_index_manager
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, EntityTypeBundleInfoInterface $entity_type_bundle_info, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, EntityTypeBundleInfoInterface $entity_type_bundle_info, ElasticsearchEntityNormalizerManagerInterface $elasticsearch_entity_normalizer_manager, ElasticsearchIndexManager $elasticsearch_index_manager) {
     $this->entityTypeManager = $entityTypeManager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->elasticsearchEntityNormalizerManager = $elasticsearch_entity_normalizer_manager;
+    $this->elasticsearchIndexManager = $elasticsearch_index_manager;
   }
 
   /**
@@ -50,7 +58,8 @@ class ElasticsearchContentIndexForm extends EntityForm {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('entity_type.bundle.info'),
-      $container->get('plugin.manager.elasticsearch_entity_normalizer')
+      $container->get('plugin.manager.elasticsearch_entity_normalizer'),
+      $container->get('plugin.manager.elasticsearch_index.processor')
     );
   }
 
@@ -321,6 +330,9 @@ class ElasticsearchContentIndexForm extends EntityForm {
 
     // Set normalizer configuration.
     $index->setNormalizerConfiguration($normalizer_instance->getConfiguration());
+
+    // Clear cached Elasticsearch index plugin definitions.
+    $this->elasticsearchIndexManager->clearCachedDefinitions();
   }
 
   /**
