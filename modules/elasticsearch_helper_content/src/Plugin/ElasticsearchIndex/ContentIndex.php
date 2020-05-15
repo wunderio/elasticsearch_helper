@@ -88,7 +88,7 @@ class ContentIndex extends ElasticsearchIndexBase {
   public function getContentIndexEntity() {
     try {
       /** @var \Drupal\elasticsearch_helper_content\ElasticsearchContentIndexInterface $entity */
-      $entity = $this->entityTypeManager->getStorage('elasticsearch_content_index')->load($this->pluginDefinition['index_entity_id']);
+      $entity = $this->entityTypeManager->getStorage('elasticsearch_content_index')->load($this->pluginDefinition['content_index_entity_id']);
     }
     catch (\Exception $e) {
       watchdog_exception('elasticsearch_helper_content', $e);
