@@ -7,7 +7,6 @@ namespace Drupal\elasticsearch_helper_content\Plugin\ElasticsearchIndex;
  *   id = "content_index_term",
  *   label = @Translation("Topics Index (Multilingual)"),
  *   indexName = "content-topics-{langcode}",
- *   typeName = "taxonomy_term",
  *   entityType = "taxonomy_term",
  * )
  */

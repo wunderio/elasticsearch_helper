@@ -9,7 +9,6 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "content_index_user",
  *   label = @Translation("User Index"),
  *   indexName = "content-user",
- *   typeName = "user",
  *   entityType = "user"
  * )
  */

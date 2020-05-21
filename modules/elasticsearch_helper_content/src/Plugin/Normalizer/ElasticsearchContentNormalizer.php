@@ -2,14 +2,16 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\Normalizer;
 
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\serialization\Normalizer\ContentEntityNormalizer;
 use Drupal\Core\Theme\ThemeManager;
 use Drupal\Core\Theme\ThemeInitialization;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\core\Entity\EntityManagerInterface;
 use Drupal\core\Entity\ContentEntityBase;
 use Drupal\Core\Render\Renderer;
 use Drupal\Core\Config\ConfigFactory;
@@ -49,9 +51,9 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
   protected $format = ['elasticsearch_helper'];
 
   /**
-   * The entity_type.manager service.
+   *  The entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -98,19 +100,28 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
   protected $entityTypeBundleInfo;
 
   /**
-   * Constructs a new FilefieldDownloader object.
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplayRepository;
+
+  /**
+   * Constructs an ElasticsearchContentNormalizer object.
    */
   public function __construct(
-    EntityManagerInterface $entity_manager,
-    EntityTypeManager $entity_type_manager,
+    EntityTypeManagerInterface $entity_type_manager,
+    EntityTypeRepositoryInterface $entity_type_repository,
+    EntityFieldManagerInterface $entity_field_manager,
     ConfigFactory $config_factory,
     Renderer $renderer,
     ThemeManager $theme_manager,
     ThemeInitialization $theme_initialization,
     LanguageManager $language_manager,
-    EntityTypeBundleInfo $entity_type_bundle_info
+    EntityTypeBundleInfo $entity_type_bundle_info,
+    EntityDisplayRepositoryInterface $entity_display_repository
   ) {
-    parent::__construct($entity_manager);
+    parent::__construct($entity_type_manager, $entity_type_repository, $entity_field_manager);
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_factory;
     $this->renderer = $renderer;
@@ -118,6 +129,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
     $this->themeInitialization = $theme_initialization;
     $this->languageManager = $language_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->entityDisplayRepository = $entity_display_repository;
   }
 
   /**
@@ -278,7 +290,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
     // @Todo Check what happens if $view_mode has no explicit settings.
     //       (I.e. when "default" should be used => is this working automatically?)
     /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display */
-    $display = entity_get_display($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
+    $display = $this->entityDisplayRepository->getViewDisplay($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
     $display_components = $display->getComponents();
     uasort($display_components, function($a, $b) { return $a['weight'] - $b['weight']; });
     $build = [];
