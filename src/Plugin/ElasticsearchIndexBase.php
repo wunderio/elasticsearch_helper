@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Elasticsearch\Client;
@@ -42,6 +43,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   protected $placeholder_regex = '/{[_\-\w\d]*}/';
 
   /**
+   * The Messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * ElasticsearchIndexBase constructor.
    * @param array $configuration
    * @param string $plugin_id
@@ -49,13 +57,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, MessengerInterface $messenger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->client = $client;
     $this->serializer = $serializer;
     $this->logger = $logger;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -72,7 +82,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $plugin_definition,
       $container->get('elasticsearch_helper.elasticsearch_client'),
       $container->get('serializer'),
-      $container->get('logger.factory')->get('elasticsearch_helper')
+      $container->get('logger.factory')->get('elasticsearch_helper'),
+      $container->get('messenger')
     );
   }
 
@@ -119,7 +130,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       if ($indices = $this->client->indices()->get($params)) {
         // Notify user that indices have been deleted.
         foreach ($indices as $indexName => $index) {
-          drupal_set_message($this->t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
+          $this->messenger->addStatus($this->t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
         }
 
         // Delete matching indices.
@@ -127,7 +138,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (Missing404Exception $e) {
-      drupal_set_message($this->t('No Elasticsearch index matching @pattern could be dropped.', [
+      $this->messenger->addStatus($this->t('No Elasticsearch index matching @pattern could be dropped.', [
         '@pattern' => $this->indexNamePattern(),
       ]));
     }

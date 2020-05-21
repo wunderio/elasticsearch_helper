@@ -278,7 +278,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
     // @Todo Check what happens if $view_mode has no explicit settings.
     //       (I.e. when "default" should be used => is this working automatically?)
     /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display */
-    $display = entity_get_display($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
+    $display = \Drupal::service('entity_display.repository')->getViewDisplay($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
     $display_components = $display->getComponents();
     uasort($display_components, function($a, $b) { return $a['weight'] - $b['weight']; });
     $build = [];

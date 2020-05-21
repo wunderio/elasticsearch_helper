@@ -1,6 +1,6 @@
 name: Elasticsearch Helper Index management
 type: module
 description: A module for managing indices in elasticsearch.
-core: 8.x
+core_version_requirement: ^8.5.0 || ^9
 dependencies:
   - elasticsearch_helper
