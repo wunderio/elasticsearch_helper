@@ -152,7 +152,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
-      'type' => $this->getTypeName($serialized_data),
       'body' => $serialized_data,
     ];
 
@@ -171,7 +170,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
-      'type' => $this->getTypeName($serialized_data),
       'id' => $this->getId($serialized_data),
     ];
 
@@ -186,7 +184,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
-      'type' => $this->getTypeName($serialized_data),
       'id' => $this->getId($serialized_data),
       'body' => [
         'doc' => $serialized_data,
@@ -205,7 +202,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
-      'type' => $this->getTypeName($serialized_data),
       'id' => $this->getId($serialized_data),
     ];
 
@@ -225,7 +221,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function search($params) {
     return $this->client->search([
       'index' => $this->indexNamePattern(),
-      'type' => $this->typeNamePattern(),
     ] + $params);
   }
 
@@ -235,7 +230,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function msearch($params) {
     return $this->client->msearch([
       'index' => $this->indexNamePattern(),
-      'type' => $this->typeNamePattern(),
     ] + $params);
   }
 
@@ -247,7 +241,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
     $params = [
       'index' => $this->getIndexName($serialized_data),
-      'type' => $this->getTypeName($serialized_data),
       'body' => $serialized_data,
     ];
 
@@ -294,15 +287,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * Determine the name of the type where the given data will be indexed.
-   *
-   * @return string
-   */
-  protected function getTypeName($data) {
-    return $this->replacePlaceholders($this->pluginDefinition['typeName'], $data);
-  }
-
-  /**
    * Determine the name of the ID for the elasticsearch entry.
    *
    * @return string
@@ -327,15 +311,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   protected function indexNamePattern() {
     return preg_replace($this->placeholder_regex, '*', $this->pluginDefinition['indexName']);
-  }
-
-  /**
-   * Define a pattern that will match all types.
-   *
-   * @return string
-   */
-  protected function typeNamePattern() {
-    return preg_replace($this->placeholder_regex, '*', $this->pluginDefinition['typeName']);
   }
 
   /**
