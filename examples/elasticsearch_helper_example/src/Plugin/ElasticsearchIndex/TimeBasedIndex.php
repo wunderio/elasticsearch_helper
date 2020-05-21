@@ -9,7 +9,6 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "time_based_index",
  *   label = @Translation("Example Time-based Index"),
  *   indexName = "time-based-{year}{month}",
- *   typeName = "node",
  *   entityType = "node"
  * )
  */

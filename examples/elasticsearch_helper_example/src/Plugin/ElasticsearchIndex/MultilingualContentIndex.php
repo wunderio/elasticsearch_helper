@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
@@ -15,7 +16,6 @@ use Symfony\Component\Serializer\Serializer;
  *   id = "multilingual_content_index",
  *   label = @Translation("Multilingual Content Index"),
  *   indexName = "multilingual-{langcode}",
- *   typeName = "node",
  *   entityType = "node"
  * )
  */
@@ -34,10 +34,11 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $languageManager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, MessengerInterface $messenger, LanguageManagerInterface $languageManager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger, $messenger);
 
     $this->language_manager = $languageManager;
   }
@@ -57,6 +58,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
       $container->get('elasticsearch_helper.elasticsearch_client'),
       $container->get('serializer'),
       $container->get('logger.factory')->get('elasticsearch_helper'),
+      $container->get('messenger'),
       $container->get('language_manager')
     );
   }
@@ -110,8 +112,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
         $this->client->indices()->create([
           'index' => 'multilingual-' . $langcode,
           'body' => [
-            'number_of_shards' => 1,
-            'number_of_replicas' => 0,
+            'settings' => [
+              'number_of_shards' => 1,
+              'number_of_replicas' => 0,
+            ],
           ],
         ]);
 
@@ -119,7 +123,6 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
         $mapping = [
           'index' => 'multilingual-' . $langcode,
-          'type' => 'node',
           'body' => [
             'properties' => [
               'title' => [

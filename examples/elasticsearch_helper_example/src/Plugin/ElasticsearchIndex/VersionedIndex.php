@@ -11,7 +11,6 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "versioned_example_index",
  *   label = @Translation("Example Versioned Index"),
  *   indexName = "versioned_example{version}",
- *   typeName = "node",
  *   entityType = "node",
  *   versioned = TRUE
  * )
@@ -48,14 +47,15 @@ class VersionedIndex extends ElasticsearchIndexBase {
       $this->client->indices()->create([
         'index' => $index_name,
         'body' => [
-          'number_of_shards' => 1,
-          'number_of_replicas' => 1,
+          'settings' => [
+            'number_of_shards' => 1,
+            'number_of_replicas' => 1,
+          ],
         ],
       ]);
 
       $this->client->indices()->putMapping([
         'index' => $index_name,
-        'type' => 'node',
         'body' => [
           'properties' => [
             'title' => [

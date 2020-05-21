@@ -9,7 +9,6 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "simple_node_index",
  *   label = @Translation("Simple Node Index"),
  *   indexName = "simple",
- *   typeName = "node",
  *   entityType = "node"
  * )
  */
