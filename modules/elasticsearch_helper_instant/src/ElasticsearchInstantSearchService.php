@@ -107,8 +107,8 @@ class ElasticsearchInstantSearchService {
     $result['searchphrase'] = $searchphrase;
     $result['query'] = $query;
 
-    foreach($result['hits']['hits'] ?? [] as $index => $hit) {
-       $this->modifySearchResult($result['hits']['hits'][$index]['_source']);
+    foreach ($result['hits']['hits'] ?? [] as $index => $hit) {
+      $this->modifySearchResult($result['hits']['hits'][$index]['_source']);
     }
 
     return $result;
@@ -134,6 +134,7 @@ class ElasticsearchInstantSearchService {
    *   The search phrase to create a query for.
    * @param string $langcode
    *   The language code to retrieve search results in.
+   *
    * @return array
    *   The query as an array.
    */

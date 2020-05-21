@@ -98,4 +98,3 @@
   };
 
 })(jQuery, Drupal);
-

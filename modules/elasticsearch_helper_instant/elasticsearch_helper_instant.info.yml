@@ -1,7 +1,7 @@
 name: Elasticsearch Helper Instant
 type: module
 description: Instant search functionality based on elasticssearch_helper_content.module.
-core: 8.x
+core_version_requirement: ^8.8.0 || ^9
 package: ElasticSearch Helper
 dependencies:
   - elasticsearch_helper
