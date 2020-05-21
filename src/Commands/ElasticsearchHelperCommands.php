@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\elasticsearch_helper\Commands;
 
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
