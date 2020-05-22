@@ -340,7 +340,7 @@ class Elasticsearch extends QueryPluginBase {
     $view->result = $result;
 
     $view->pager->postExecute($view->result);
-    $view->pager->total_items = isset($data['hits']['total']) ? $data['hits']['total'] : 0;
+    $view->pager->total_items = isset($data['hits']['total']['value']) ? $data['hits']['total']['value'] : 0;
     // Account for offset when calculating total results.
     if (!empty($view->pager->options['offset'])) {
       // Make sure that total is never negative.
