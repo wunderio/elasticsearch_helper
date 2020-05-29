@@ -1,0 +1,37 @@
+version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: wunderio/circleci-codeception-base
+    - image: circleci/mariadb:10.2
+      environment:
+        MYSQL_DATABASE: drupal
+        MYSQL_ROOT_PASSWORD: badpassword
+        MYSQL_ROOT_HOST: "%"
+    - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.3
+      environment:
+        - discovery.type=single-node
+        - http.host=0.0.0.0
+        - transport.host=127.0.0.1
+        - xpack.security.enabled=false
+        - cluster.name=docker-cluster
+        - bootstrap.memory_lock=true
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+jobs:
+  build:
+    docker:
+      - image: wunderio/circleci-codeception-base
+
+    steps:
+      - run:
+          name: Install drupal
+          command: |
+            composer create-project drupal/recommended-project drupal
+            cd drupal
+            drush site:install
+
+workflows:
+  build_and_test:
+    jobs:
+      - build
