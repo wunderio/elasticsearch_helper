@@ -16,7 +16,7 @@
  * @param \Elasticsearch\ClientBuilder
  *   The ClientBuilder object.
  */
-function elasticsearch_helper_aws_elasticsearch_helper_client_builder_alter(\Elasticsearch\ClientBuilder $clientBuilder) {
+function hook_elasticsearch_helper_client_builder_alter(\Elasticsearch\ClientBuilder $clientBuilder) {
   // Send log entries from the client directly to Drupal's log.
   $clientBuilder->setLogger(\Drupal::logger('elasticsearch'));
 }
