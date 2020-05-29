@@ -52,6 +52,10 @@ jobs:
           command: |
             cd drupal && drush si --db-url=mysql://drupal:badpassword@localhost:3306/drupal --account-pass=admin -y
 
+      - run:
+          name: Install Elasticsearch Helper
+          command: |
+            cd drupal && drush pm-enable elasticsearch_helper
 
 workflows:
   build_and_test:
