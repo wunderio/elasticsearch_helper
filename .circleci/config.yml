@@ -29,7 +29,7 @@ jobs:
           command: |
             composer create-project drupal/recommended-project drupal
             cd drupal
-            composer require drush/drush:8
+            composer require drush/drush:9
             drush si --db-url=mysql://drupal:badpassword@127.0.0.1:3306/drupal --account-pass=admin
 
 workflows:
