@@ -1,7 +1,0 @@
-elasticsearch_helper_instant.search:
-  path: '_search'
-  defaults:
-    _controller: '\Drupal\elasticsearch_helper_instant\Controller\InstantSearchResults::retrieveResults'
-    _title: 'Search'
-  requirements:
-    _permission: 'access content'

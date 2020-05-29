@@ -1,8 +1,0 @@
-services:
-  elasticsearch_helper_instant.search:
-    class: Drupal\elasticsearch_helper_instant\ElasticsearchInstantSearchService
-    arguments: ['@elasticsearch_helper.elasticsearch_client', '@logger.channel.elasticsearch_helper_instant', '@language_manager', '@entity_type.manager', '@renderer']
-
-  logger.channel.elasticsearch_helper_instant:
-    parent: logger.channel_base
-    arguments: ['elasticsearch_helper_instant']
