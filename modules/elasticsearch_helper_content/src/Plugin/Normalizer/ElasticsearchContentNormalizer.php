@@ -2,14 +2,15 @@
 
 namespace Drupal\elasticsearch_helper_content\Plugin\Normalizer;
 
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\serialization\Normalizer\ContentEntityNormalizer;
 use Drupal\Core\Theme\ThemeManager;
 use Drupal\Core\Theme\ThemeInitialization;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\core\Entity\EntityManagerInterface;
 use Drupal\core\Entity\ContentEntityBase;
 use Drupal\Core\Render\Renderer;
 use Drupal\Core\Config\ConfigFactory;
@@ -101,8 +102,9 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
    * Constructs a new FilefieldDownloader object.
    */
   public function __construct(
-    EntityManagerInterface $entity_manager,
-    EntityTypeManager $entity_type_manager,
+    EntityTypeManagerInterface $entity_type_manager,
+    EntityTypeRepositoryInterface $entity_type_repository,
+    EntityFieldManagerInterface $entity_field_manager,
     ConfigFactory $config_factory,
     Renderer $renderer,
     ThemeManager $theme_manager,
@@ -110,7 +112,7 @@ class ElasticsearchContentNormalizer extends ContentEntityNormalizer {
     LanguageManager $language_manager,
     EntityTypeBundleInfo $entity_type_bundle_info
   ) {
-    parent::__construct($entity_manager);
+    parent::__construct($entity_type_manager, $entity_type_repository, $entity_field_manager);
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_factory;
     $this->renderer = $renderer;
