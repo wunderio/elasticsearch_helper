@@ -55,6 +55,10 @@ jobs:
           name: Install Elasticsearch Helper
           command: |
             cd drupal && drush pm-enable elasticsearch_helper -y
+      - run:
+          name: Install Elasticsearch Helper Test module
+          command: |
+            cd drupal && drush pm-enable elasticsearch_helper_test -y
 
 workflows:
   build_and_test:
