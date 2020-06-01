@@ -29,8 +29,8 @@ jobs:
           command: |
             composer create-project drupal/recommended-project drupal
             cd drupal
-            composer require drupal/core-dev
-            composer require drush/drush:9
+            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev
+            COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:9
       - save_cache:
           paths:
             - ~/project/drupal
