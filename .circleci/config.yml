@@ -51,11 +51,14 @@ jobs:
       - run:
           name: Enable scannning of test module directory
           command: |
-            echo '$settings['extension_discovery_scan_tests'] = TRUE;' >> drupal/web/sites/default/settings.php
+            echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
       - run:
           name: Install Drupal
           command: |
             cd drupal && drush si --db-url=mysql://root:badpassword@127.0.0.1:3306/drupal --account-pass=admin -y
+      - run:
+          name: Clear cache
+          command: cd drupal && drush cr
       - run:
           name: Install Elasticsearch Helper
           command: |
