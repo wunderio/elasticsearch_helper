@@ -1,5 +1,21 @@
 # Elasticsearch Helper
 
+## System requirements
+* Drupal >= 8.7.7 or 9.0
+* [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php) library
+
+## Installation
+
+The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php) library to
+communicate with Elasticsearch server. Please make sure you install the version of the library compatible with
+the version of the server (see the [compatibility matrix](https://github.com/elastic/elasticsearch-php#version-matrix)).
+
+To install the library for use with Elasticsearch 7.x:
+```
+composer require elasticsearch/elasticsearch:~7.0
+```
+
+
 ## Drush commands
 
 ```
