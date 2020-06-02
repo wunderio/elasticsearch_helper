@@ -58,12 +58,12 @@ jobs:
             chmod ug+w drupal/web/sites/default/settings.php
             echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
       - run:
-          name: Clear cache
-          command: cd drupal && drush cr
-      - run:
           name: Install Elasticsearch Helper
           command: |
             cd drupal && drush pm-enable elasticsearch_helper -y
+      - run:
+          name: Clear cache
+          command: cd drupal && drush cr
       - run:
           name: Install Elasticsearch Helper Test module
           command: |
