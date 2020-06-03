@@ -34,10 +34,6 @@ class NodeNormalizer extends ContentEntityNormalizer {
       'uuid' => $object->uuid(),
       'title' => $object->getTitle(),
       'status' => $object->isPublished(),
-      'user' => [
-        'name' => $object->getRevisionAuthor()->getAccountName(),
-        'id' => $object->getRevisionAuthor()->id(),
-      ],
     ];
 
     return $data;

@@ -5,4 +5,4 @@ elasticsearch_helper:
   authentication: 0
   user: ""
   password: ""
-  defer_indexing: 0
+  defer_indexing: false
