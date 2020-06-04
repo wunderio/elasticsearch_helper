@@ -69,6 +69,10 @@ jobs:
           name: Install Elasticsearch Helper Test module
           command: |
             cd drupal && drush pm-enable elasticsearch_helper_test -y
+      - run:
+          name: Run Tests
+          command: |
+            cd drupal/web && php core/scripts/run-tests.sh --verbose --sqlite --module elasticsearch_helper
 
 workflows:
   build_and_test:
