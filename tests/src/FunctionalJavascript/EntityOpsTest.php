@@ -12,6 +12,8 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
  */
 class EntityOpsTest extends WebDriverTestBase {
 
+  protected $defaultTheme = 'stable';
+
   /**
    * {@inheritdoc}
    */
