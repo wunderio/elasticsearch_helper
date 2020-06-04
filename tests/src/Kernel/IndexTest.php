@@ -20,6 +20,8 @@ class IndexTest extends EntityKernelTestBase {
    */
   public static $modules = [
     'node',
+    'system',
+    'field',
     'serialization',
     'elasticsearch_helper',
     'elasticsearch_helper_test',
@@ -60,7 +62,8 @@ class IndexTest extends EntityKernelTestBase {
     // Entity save will index the page.
     $page->save();
 
-    $this->container->get('plugin.manager.elasticsearch_index.processor')->indexEntity($page);
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
 
     // Query URI for fetching the document from elasticsearch.
     $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $page->id();
