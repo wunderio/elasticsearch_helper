@@ -27,9 +27,9 @@ jobs:
       - run:
           name: Create Drupal
           command: |
-            composer create-project drupal/recommended-project drupal
+            composer create-project drupal/recommended-project:8.8.6 drupal
             cd drupal
-            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev
+            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^8
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:9
             COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~6.0
       - save_cache:
