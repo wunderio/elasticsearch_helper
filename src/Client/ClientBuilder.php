@@ -8,6 +8,9 @@ use Elasticsearch\Transport;
 
 /**
  * Class ClientBuilder
+ *
+ * Overrides the original \Elasticsearch\ClientBuilder and returns
+ * overridden \Elasticsearch\Client class.
  */
 class ClientBuilder extends OriginalClientBuilder {
 
