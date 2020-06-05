@@ -37,9 +37,11 @@ commands:
 
 jobs:
   build:
+    parameters:
+      version:
+        type: string
     docker:
       - image: wunderio/circleci-codeception-base
-
     steps:
       - run:
           name: Create Drupal
@@ -48,7 +50,7 @@ jobs:
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^8
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:9
-            COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~6.0
+            COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
       - save_cache:
           paths:
             - ~/project/drupal
@@ -109,10 +111,15 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - build
+      - build:
+          name: build-es6
+          version: "6"
+      - build:
+          name: build-es7
+          version: "7"
       - test-es-6:
           requires:
-            - build
+            - build-es6
       - test-es-7:
           requires:
-            - build
+            - build-es7
