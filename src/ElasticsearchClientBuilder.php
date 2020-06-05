@@ -4,7 +4,7 @@ namespace Drupal\elasticsearch_helper;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Elasticsearch\ClientBuilder;
+use Drupal\elasticsearch_helper\Client\ClientBuilder;
 
 /**
  * Class ElasticsearchClientBuilder.
