@@ -1,0 +1,6 @@
+services:
+  elasticsearch_helper_test.normalizer.node_normalizer:
+    class: Drupal\elasticsearch_helper_test\Plugin\Normalizer\NodeNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
