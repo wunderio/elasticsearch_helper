@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -35,6 +36,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
+
+  /**
+   * @var string
+   */
+  protected $clientMajorVersion;
 
   /**
    * The regular expression used to identify placeholders in index and type names.
@@ -83,6 +89,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function getClient() {
     return $this->client;
+  }
+
+  /**
+   * Prepares parameters prior to dispatching them to Elasticsearch client.
+   *
+   * @param $method
+   * @param array $params
+   */
+  protected function prepareRequestParams($method, array &$params) {
+    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+      if (isset($params['type'])) {
+        unset($params);
+      }
+    }
   }
 
   /**
@@ -151,6 +171,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $params['id'] = $id;
     }
 
+    $this->prepareRequestParams(__METHOD__, $params);
+
     $this->client->index($params);
   }
 
@@ -165,6 +187,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       'type' => $this->getTypeName($serialized_data),
       'id' => $this->getId($serialized_data),
     ];
+
+    $this->prepareRequestParams(__METHOD__, $params);
 
     return $this->client->get($params);
   }
@@ -185,6 +209,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ],
     ];
 
+    $this->prepareRequestParams(__METHOD__, $params);
+
     $this->client->update($params);
   }
 
@@ -200,6 +226,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       'id' => $this->getId($serialized_data),
     ];
 
+    $this->prepareRequestParams(__METHOD__, $params);
+
     try {
       $this->client->delete($params);
     }
@@ -214,6 +242,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @inheritdoc
    */
   public function search($params) {
+    $this->prepareRequestParams(__METHOD__, $params);
+
     return $this->client->search([
       'index' => $this->indexNamePattern(),
       'type' => $this->typeNamePattern(),
@@ -224,6 +254,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @inheritdoc
    */
   public function msearch($params) {
+    $this->prepareRequestParams(__METHOD__, $params);
+
     return $this->client->msearch([
       'index' => $this->indexNamePattern(),
       'type' => $this->typeNamePattern(),
@@ -242,6 +274,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       'body' => $serialized_data,
     ];
 
+    $this->prepareRequestParams(__METHOD__, $params);
+
     $this->client->bulk($params);
   }
 
@@ -250,7 +284,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * the format that should be stored in the Elasticsearch index.
    */
   public function serialize($source, $context = []) {
-
     if ($source instanceof EntityInterface) {
       if (isset($this->pluginDefinition['normalizerFormat'])) {
         // Use custom normalizerFormat if it's defined in plugin.
@@ -299,7 +332,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   public function getId($data) {
-
     if (isset($data['id']) && (is_string($data['id']) || is_numeric($data['id']))) {
       // If there is an attribute with the key 'id', use it.
       return $data['id'];
