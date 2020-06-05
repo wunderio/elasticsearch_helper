@@ -17,8 +17,6 @@ class IndicesNamespace extends OriginalIndicesNamespace {
     // the settings.
     if (!empty($params['body'])) {
       if (!isset($params['body']['settings']) && !isset($params['body']['mapping'])) {
-        @trigger_error('Index settings should be included in "settings" element.', E_USER_DEPRECATED);
-
         $params['body'] = [
           'settings' => $params['body'],
         ];
@@ -33,8 +31,6 @@ class IndicesNamespace extends OriginalIndicesNamespace {
    */
   public function putMapping(array $params = []) {
     if (isset($params['type'])) {
-      @trigger_error('Field "type" should not be defined in field mapping.', E_USER_DEPRECATED);
-
       unset($params['type']);
     }
 

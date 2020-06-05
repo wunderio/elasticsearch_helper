@@ -41,8 +41,6 @@ class Client extends OriginalClient {
    */
   protected function __removeType(&$params) {
     if (isset($params['type'])) {
-      @trigger_error('Field "type" should not be defined in provided parameters.', E_USER_DEPRECATED);
-
       unset($params['type']);
     }
   }
