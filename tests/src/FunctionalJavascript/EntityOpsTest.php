@@ -3,14 +3,16 @@
 namespace Drupal\Tests\elasticsearch_helper\FunctionalJavascript;
 
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
  * Test basic functionality.
  *
  * @group elasticsearch_helper
  */
-class EntityOpsTest extends JavascriptTestBase {
+class EntityOpsTest extends WebDriverTestBase {
+
+  protected $defaultTheme = 'stable';
 
   /**
    * {@inheritdoc}
