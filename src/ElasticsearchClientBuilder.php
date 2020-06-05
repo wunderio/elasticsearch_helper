@@ -78,4 +78,22 @@ class ElasticsearchClientBuilder {
     return [$host];
   }
 
+  /**
+   * Returns Elasticsearch client class name based on provided version.
+   *
+   * @return string|null
+   */
+  public static function getElasticsearchClientClassName() {
+    $major_version = ElasticsearchClientVersion::getMajorVersion();
+
+    if ($major_version >= 7) {
+      return '\Drupal\elasticsearch_helper\Client\Version_7\Client';
+    }
+    elseif ($major_version >= 5) {
+      return '\Elasticsearch\Client';
+    }
+
+    return NULL;
+  }
+
 }
