@@ -100,7 +100,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   protected function prepareRequestParams($method, array &$params) {
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
       if (isset($params['type'])) {
-        unset($params);
+        unset($params['type']);
       }
     }
   }
