@@ -56,7 +56,12 @@ jobs:
             - ~/project/drupal
           key: v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
 
-  test-es-6:
+  test-es:
+    parameters:
+      version:
+        type: string
+      image_version:
+        type: string
     docker:
       - image: wunderio/circleci-codeception-base
       - image: circleci/mariadb:10.2
@@ -64,7 +69,7 @@ jobs:
           MYSQL_DATABASE: drupal
           MYSQL_ROOT_PASSWORD: dbpassword
           MYSQL_ROOT_HOST: "%"
-      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.10
+      - image: docker.elastic.co/elasticsearch/elasticsearch:<< parameters.image_version >>
         environment:
           - discovery.type=single-node
           - http.host=0.0.0.0
@@ -79,47 +84,27 @@ jobs:
           path: ~/project/drupal/web/modules/elasticsearch_helper
       - restore_cache:
           keys:
-            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v6
-      - start-drupal-test
-
-  test-es-7:
-    docker:
-      - image: wunderio/circleci-codeception-base
-      - image: circleci/mariadb:10.2
-        environment:
-          MYSQL_DATABASE: drupal
-          MYSQL_ROOT_PASSWORD: dbpassword
-          MYSQL_ROOT_HOST: "%"
-      - image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
-        environment:
-          - discovery.type=single-node
-          - http.host=0.0.0.0
-          - transport.host=127.0.0.1
-          - xpack.security.enabled=false
-          - cluster.name=docker-cluster
-          - bootstrap.memory_lock=true
-          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-
-    steps:
-      - checkout:
-          path: ~/project/drupal/web/modules/elasticsearch_helper
-      - restore_cache:
-          keys:
-            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v7
+            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
       - start-drupal-test
 
 workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-es6
+          name: build-es-6
           version: "6"
       - build:
-          name: build-es7
+          name: build-es-7
           version: "7"
-      - test-es-6:
+      - test-es:
+          name: test-es-6
+          version: "6"
+          image_version: "6.8.10"
           requires:
-            - build-es6
-      - test-es-7:
+            - build-es-6
+      - test-es:
+          name: test-es-7
+          version: "7"
+          image_version: "7.7.0"
           requires:
-            - build-es7
+            - build-es-7
