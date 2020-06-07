@@ -48,6 +48,37 @@ class IndexTest extends EntityKernelTestBase {
   }
 
   /**
+   * Query the test index.
+   *
+   * @param int $docId
+   *   The document id to query.
+   *
+   * @return array
+   *   The response.
+   */
+  protected function queryIndex($docId) {
+    $elasticsearch_host = $this
+      ->config('elasticsearch_helper.settings')
+      ->get('elasticsearch_helper.host');
+
+    // Query URI for fetching the document from elasticsearch.
+    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $docId;
+
+    // Query elasticsearch.
+    // Use Curl for now because http client middleware fails in KernelTests
+    // (See: https://www.drupal.org/project/drupal/issues/2571475)
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $uri);
+    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $json = curl_exec($curl);
+
+    $response = json_decode($json, TRUE);
+
+    return $response;
+  }
+
+  /**
    * Test node indexing.
    */
   public function testNodeIndexing() {
