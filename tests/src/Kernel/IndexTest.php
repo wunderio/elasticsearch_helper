@@ -20,8 +20,11 @@ class IndexTest extends EntityKernelTestBase {
    */
   public static $modules = [
     'node',
+    'user',
     'system',
     'field',
+    'text',
+    'filter',
     'serialization',
     'elasticsearch_helper',
     'elasticsearch_helper_test',
