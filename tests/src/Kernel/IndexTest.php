@@ -87,10 +87,6 @@ class IndexTest extends EntityKernelTestBase {
    * Test node indexing.
    */
   public function testNodeIndexing() {
-    $elasticsearch_host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
-
     // Create a test page to be indexed.
     $page = Node::create([
       'type' => 'page',
@@ -104,22 +100,44 @@ class IndexTest extends EntityKernelTestBase {
     // Wait for elasticsearch indexing to complete.
     sleep(1);
 
-    // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $page->id();
-
-    // Query elasticsearch.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
-
-    $response = json_decode($json, TRUE);
+    $response = $this->queryIndex($page->id());
 
     $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $page->getTitle(), 'Title field is found in document');
     $this->assertEqual($response['hits']['hits'][0]['_source']['status'], TRUE, 'Status field is found in document');
+  }
+
+  /**
+   * Test node update.
+   */
+  public function testNodeUpdate() {
+    // Create a test page to be indexed.
+    $page = Node::create([
+      'type' => 'page',
+      'title' => $this->randomMachineName(),
+      'uid' => 1,
+    ]);
+
+    // Entity save will index the page.
+    $page->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($page->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $page->getTitle(), 'Title field is found in document');
+
+    // Update the node title.
+    $new_title = $this->randomMachineName();
+    $page->setTitle($new_title);
+    $page->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($page->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
   }
 
 }
