@@ -37,6 +37,7 @@ class IndexTest extends EntityKernelTestBase {
     parent::setUp();
 
     $this->installConfig(['elasticsearch_helper']);
+    $this->installSchema('node', 'node_access');
 
     // Create the node bundles required for testing.
     $type = NodeType::create([
