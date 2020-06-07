@@ -43,8 +43,13 @@ class IndexTest extends EntityKernelTestBase {
 
     $type->save();
 
-    $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
-    $client->indices()->delete(['index' => 'simple']);
+    try {
+      $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
+      $client->indices()->delete(['index' => 'simple']);
+    }
+    catch (\Exception $e) {
+      // Do nothing.
+    }
   }
 
   /**
