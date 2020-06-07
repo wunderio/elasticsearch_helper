@@ -88,9 +88,9 @@ class IndexTest extends EntityKernelTestBase {
   }
 
   /**
-   * Test node indexing.
+   * Test node insert.
    */
-  public function testNodeIndexing() {
+  public function testNodeInsert() {
     // Create a test page to be indexed.
     $page = Node::create([
       'type' => 'page',
@@ -142,6 +142,38 @@ class IndexTest extends EntityKernelTestBase {
     $response = $this->queryIndex($page->id());
 
     $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
+  }
+
+  /**
+   * Test node delete.
+   */
+  public function testNodeDelete() {
+    // Create a test page to be indexed.
+    $page = Node::create([
+      'type' => 'page',
+      'title' => $this->randomMachineName(),
+      'uid' => 1,
+    ]);
+
+    // Entity save will index the page.
+    $page->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($page->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $page->getTitle(), 'Title field is found in document');
+
+    // Delete node.
+    $page->delete();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($page->id());
+
+    $this->assertEmpty($response['hits']['hits']);
   }
 
 }
