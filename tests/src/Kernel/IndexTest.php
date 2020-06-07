@@ -7,7 +7,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 
 /**
- * Tests elasticsearch_helper index functionality.
+ * Tests elasticsearch_helper indexing functionality (insert, update, delete)
  *
  * @group elasticsearch_helper
  */
