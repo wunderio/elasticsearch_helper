@@ -33,7 +33,7 @@ commands:
       - run:
           name: Run Tests
           command: |
-            cd drupal/web && php core/scripts/run-tests.sh --suppress-deprecations --verbose --sqlite --module elasticsearch_helper
+            cd drupal/web && php core/scripts/run-tests.sh --verbose --sqlite --module elasticsearch_helper
 
 jobs:
   build:
