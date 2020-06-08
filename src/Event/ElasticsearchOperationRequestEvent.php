@@ -14,14 +14,14 @@ class ElasticsearchOperationRequestEvent extends Event {
    *
    * @var callable
    */
-  protected $callable;
+  protected $callback;
 
   /**
    * Elasticsearch operation request callable parameters.
    *
    * @var array
    */
-  protected $callableParameters = [];
+  protected $callbackParameters = [];
 
   /**
    * Elasticsearch operation event.
@@ -33,32 +33,32 @@ class ElasticsearchOperationRequestEvent extends Event {
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
-   * @param callable $callable
-   * @param array $callable_parameters
+   * @param callable $callback
+   * @param array $callback_parameters
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent|null $operation_event
    */
-  public function __construct($callable, array $callable_parameters, ElasticsearchOperationEvent $operation_event = NULL) {
-    $this->callable = $callable;
-    $this->callableParameters = $callable_parameters;
+  public function __construct($callback, array $callback_parameters, ElasticsearchOperationEvent $operation_event = NULL) {
+    $this->callback = $callback;
+    $this->callbackParameters = $callback_parameters;
     $this->operationEvent = $operation_event;
   }
 
   /**
-   * Returns request callable.
+   * Returns request callback.
    *
    * @return callable
    */
-  public function &getCallable() {
-    return $this->callable;
+  public function &getCallback() {
+    return $this->callback;
   }
 
   /**
-   * Returns request callable parameters.
+   * Returns request callback parameters.
    *
    * @return array
    */
-  public function &getCallableParameters() {
-    return $this->callableParameters;
+  public function &getCallbackParameters() {
+    return $this->callbackParameters;
   }
 
   /**

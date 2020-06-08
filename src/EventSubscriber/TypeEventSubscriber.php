@@ -26,10 +26,10 @@ class TypeEventSubscriber implements EventSubscriberInterface {
    */
   public function onOperationRequest(ElasticsearchOperationRequestEvent $event) {
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-      $callable_parameters = &$event->getCallableParameters();
+      $callback_parameters = &$event->getCallbackParameters();
 
-      if (isset($callable_parameters[0]['type'])) {
-        unset($callable_parameters[0]['type']);
+      if (isset($callback_parameters[0]['type'])) {
+        unset($callback_parameters[0]['type']);
       }
     }
   }
