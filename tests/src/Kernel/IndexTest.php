@@ -7,7 +7,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 
 /**
- * Tests elasticsearch_helper index functionality.
+ * Tests elasticsearch_helper indexing functionality (insert, update, delete)
  *
  * @group elasticsearch_helper
  */
@@ -20,8 +20,11 @@ class IndexTest extends EntityKernelTestBase {
    */
   public static $modules = [
     'node',
+    'user',
     'system',
     'field',
+    'text',
+    'filter',
     'serialization',
     'elasticsearch_helper',
     'elasticsearch_helper_test',
@@ -34,6 +37,17 @@ class IndexTest extends EntityKernelTestBase {
     parent::setUp();
 
     $this->installConfig(['elasticsearch_helper']);
+    $this->installSchema('node', 'node_access');
+
+    // Delete any pre-existing indices.
+    // @TODO, Setup mapping.
+    try {
+      $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
+      $client->indices()->delete(['index' => 'simple']);
+    }
+    catch (\Exception $e) {
+      // Do nothing.
+    }
 
     // Create the node bundles required for testing.
     $type = NodeType::create([
@@ -42,31 +56,34 @@ class IndexTest extends EntityKernelTestBase {
     ]);
 
     $type->save();
-  }
-
-  /**
-   * Test node indexing.
-   */
-  public function testNodeIndexing() {
-    $elasticsearch_host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
 
     // Create a test page to be indexed.
-    $page = Node::create([
+    $this->node = Node::create([
       'type' => 'page',
       'title' => $this->randomMachineName(),
       'uid' => 1,
     ]);
 
     // Entity save will index the page.
-    $page->save();
+    $this->node->save();
+  }
 
-    // Wait for elasticsearch indexing to complete.
-    sleep(1);
+  /**
+   * Query the test index.
+   *
+   * @param int $docId
+   *   The document id to query.
+   *
+   * @return array
+   *   The response.
+   */
+  protected function queryIndex($docId) {
+    $elasticsearch_host = $this
+      ->config('elasticsearch_helper.settings')
+      ->get('elasticsearch_helper.host');
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $page->id();
+    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $docId;
 
     // Query elasticsearch.
     // Use Curl for now because http client middleware fails in KernelTests
@@ -79,8 +96,72 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = json_decode($json, TRUE);
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $page->getTitle(), 'Title field is found in document');
+    return $response;
+  }
+
+  /**
+   * Test node insert.
+   */
+  public function testNodeInsert() {
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($this->node->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
     $this->assertEqual($response['hits']['hits'][0]['_source']['status'], TRUE, 'Status field is found in document');
+  }
+
+  /**
+   * Test node update.
+   */
+  public function testNodeUpdate() {
+    // Entity save will index the page.
+    $this->node->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($this->node->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+
+    // Update the node title.
+    $new_title = $this->randomMachineName();
+    $this->node->setTitle($new_title);
+    $this->node->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($this->node->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
+  }
+
+  /**
+   * Test node delete.
+   */
+  public function testNodeDelete() {
+    // Entity save will index the page.
+    $this->node->save();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($this->node->id());
+
+    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+
+    // Delete node.
+    $this->node->delete();
+
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
+    $response = $this->queryIndex($this->node->id());
+
+    $this->assertEmpty($response['hits']['hits'], 'Document not found');
   }
 
 }
