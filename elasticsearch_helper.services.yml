@@ -10,3 +10,8 @@ services:
   plugin.manager.elasticsearch_index.processor:
     class: Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
     arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@entity_type.manager', '@queue', '@logger.factory']
+
+  elasticsearch_helper.type_event_subscriber:
+    class: Drupal\elasticsearch_helper\EventSubscriber\TypeEventSubscriber
+    tags:
+      - { name: event_subscriber }
