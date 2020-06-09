@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -24,23 +25,32 @@ class ElasticsearchOperationRequestEvent extends Event {
   protected $callbackParameters = [];
 
   /**
-   * Elasticsearch operation event.
+   * Elasticsearch operation.
    *
-   * @var \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent|null
+   * @var string
    */
-  protected $operationEvent;
+  protected $operation;
+
+  /**
+   * Elasticsearch index plugin instance.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  protected $pluginInstance;
 
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
-   * @param callable $callback
+   * @param $callback
    * @param array $callback_parameters
-   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent|null $operation_event
+   * @param $operation
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct($callback, array $callback_parameters, ElasticsearchOperationEvent $operation_event = NULL) {
+  public function __construct($callback, array $callback_parameters, $operation, ElasticsearchIndexInterface $plugin_instance) {
     $this->callback = $callback;
     $this->callbackParameters = $callback_parameters;
-    $this->operationEvent = $operation_event;
+    $this->operation = $operation;
+    $this->pluginInstance = $plugin_instance;
   }
 
   /**
@@ -62,12 +72,21 @@ class ElasticsearchOperationRequestEvent extends Event {
   }
 
   /**
-   * Returns Elasticsearch operation event.
+   * Returns Elasticsearch operation.
    *
-   * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent|null
+   * @return string
    */
-  public function &getOperationEvent() {
-    return $this->operationEvent;
+  public function &getOperation() {
+    return $this->operation;
+  }
+
+  /**
+   * Returns Elasticsearch index plugin instance.
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  public function getPluginInstance() {
+    return $this->pluginInstance;
   }
 
 }

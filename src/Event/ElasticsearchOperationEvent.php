@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -24,14 +25,23 @@ class ElasticsearchOperationEvent extends Event {
   protected $object;
 
   /**
+   * Elasticsearch index plugin instance.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  protected $pluginInstance;
+
+  /**
    * ElasticsearchOperationEvent constructor.
    *
    * @param $operation
    * @param $object
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct($operation, $object) {
+  public function __construct($operation, $object, ElasticsearchIndexInterface $plugin_instance) {
     $this->operation = $operation;
     $this->object = $object;
+    $this->pluginInstance = $plugin_instance;
   }
 
   /**
@@ -50,6 +60,15 @@ class ElasticsearchOperationEvent extends Event {
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns Elasticsearch index plugin instance.
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  public function getPluginInstance() {
+    return $this->pluginInstance;
   }
 
 }
