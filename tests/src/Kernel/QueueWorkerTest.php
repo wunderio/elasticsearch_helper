@@ -87,10 +87,13 @@ class QueueWorkerTest extends KernelTestBase {
     $queue_worker->processItem($item->data);
     $queue->deleteItem($item);
 
+    // Wait for elasticsearch indexing to complete.
+    sleep(1);
+
     // Check number of items in the queue.
     $this->assertEquals(0, $queue->numberOfItems());
 
-    // Check index count.
+    // Check elasticsearch index count.
     $this->assertEquals(2, $this->queryIndexCount());
   }
 
