@@ -110,8 +110,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
         $this->client->indices()->create([
           'index' => 'multilingual-' . $langcode,
           'body' => [
-            'number_of_shards' => 1,
-            'number_of_replicas' => 0,
+            'settings' => [
+              'number_of_shards' => 1,
+              'number_of_replicas' => 0,
+            ],
           ],
         ]);
 
