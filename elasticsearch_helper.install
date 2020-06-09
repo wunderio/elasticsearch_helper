@@ -17,7 +17,7 @@ function elasticsearch_helper_requirements($phase) {
     // Check that the Elasticsearch PHP library is available.
     if (!class_exists('\Elasticsearch\Client')) {
       $requirements['elasticsearch_library'] = [
-        'description' => t("Elasticsearch Helper requires the Elasticsearch PHP library."),
+        'description' => t('Elasticsearch Helper requires Elasticsearch PHP library to be installed. See README.md for further details.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     }
