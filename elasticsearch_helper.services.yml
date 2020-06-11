@@ -15,3 +15,7 @@ services:
     class: Drupal\elasticsearch_helper\EventSubscriber\TypeEventSubscriber
     tags:
       - { name: event_subscriber }
+
+  elasticsearch_helper.data_type_repository:
+    class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
+    arguments: ['@event_dispatcher']
