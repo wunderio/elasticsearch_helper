@@ -2,12 +2,16 @@
 
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
+use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
  *   id = "simple_node_index",
- *   label = @Translation("Simple Node Index"),
+ *   label = @Translation("Simple node index"),
  *   indexName = "simple",
  *   typeName = "node",
  *   entityType = "node"
@@ -16,7 +20,37 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 class SimpleNodeIndex extends ElasticsearchIndexBase {
 
   /**
-   * NOTE: The structure of the indexed data is determined by normalizers,
-   * see NodeNormalizer.php.
+   * {@inheritdoc}
    */
+  public function getIndexDefinition() {
+    // Get field mappings.
+    $mappings = $this->getIndexMappings();
+
+    // Get index settings.
+    $settings = SettingsDefinition::create()
+      ->addOptions([
+        'number_of_shards' => 1,
+        'number_of_replicas' => 0,
+      ]);
+
+    return IndexDefinition::create()
+      ->setMappings($mappings)
+      ->setSettings($settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIndexMappings() {
+    $user_property = FieldDefinition::create('object')
+      ->addProperty('id', FieldDefinition::create('integer'))
+      ->addProperty('name', FieldDefinition::create('keyword'));
+
+    return MappingsDefinition::create()
+      ->addProperty('id', FieldDefinition::create('integer'))
+      ->addProperty('uuid', FieldDefinition::create('keyword'))
+      ->addProperty('title', FieldDefinition::create('text'))
+      ->addProperty('status', FieldDefinition::create('keyword'))
+      ->addProperty('user', $user_property);
+  }
 }

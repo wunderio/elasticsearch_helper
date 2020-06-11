@@ -3,6 +3,10 @@
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
@@ -13,7 +17,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @ElasticsearchIndex(
  *   id = "multilingual_content_index",
- *   label = @Translation("Multilingual Content Index"),
+ *   label = @Translation("Multilingual content index"),
  *   indexName = "multilingual-{langcode}",
  *   typeName = "node",
  *   entityType = "node"
@@ -28,9 +32,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
   /**
    * MultilingualContentIndex constructor.
+   *
    * @param array $configuration
-   * @param string $plugin_id
-   * @param mixed $plugin_definition
+   * @param $plugin_id
+   * @param $plugin_definition
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
@@ -43,11 +48,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @param array $configuration
-   * @param string $plugin_id
-   * @param mixed $plugin_definition
-   * @return static
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
@@ -62,10 +63,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function serialize($source, $context = []) {
-    /** @var \Drupal\node\Entity\Node $source */
+    /** @var \Drupal\node\NodeInterface $source */
 
     $data = parent::serialize($source, $context);
 
@@ -76,10 +77,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function index($source) {
-    /** @var \Drupal\node\Entity\Node $source */
+    /** @var \Drupal\node\NodeInterface $source */
     foreach ($source->getTranslationLanguages() as $langcode => $language) {
       if ($source->hasTranslation($langcode)) {
         parent::index($source->getTranslation($langcode));
@@ -88,10 +89,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function delete($source) {
-    /** @var \Drupal\node\Entity\Node $source */
+    /** @var \Drupal\node\NodeInterface $source */
     foreach ($source->getTranslationLanguages() as $langcode => $language) {
       if ($source->hasTranslation($langcode)) {
         parent::delete($source->getTranslation($langcode));
@@ -100,41 +101,59 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function setup() {
+    // Get index definition.
+    $index_definition = $this->getIndexDefinition();
+
     // Create one index per language, so that we can have different analyzers.
     foreach ($this->language_manager->getLanguages() as $langcode => $language) {
+      // Get index name.
+      $index_name = $this->getIndexName(['langcode' => $langcode]);
 
-      if (!$this->client->indices()->exists(['index' => 'multilingual-' . $langcode])) {
+      // Get analyzer for the language.
+      $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+
+      // Put analyzer parameter to all "text" fields in the mapping.
+      foreach ($index_definition->getMappings()->getProperties() as $property) {
+        if ($property->getDataType()->getType() == 'text') {
+          $property->addOption('analyzer', $analyzer);
+        }
+      }
+
+      if (!$this->client->indices()->exists(['index' => $index_name])) {
         $this->client->indices()->create([
-          'index' => 'multilingual-' . $langcode,
-          'body' => [
-            'settings' => [
-              'number_of_shards' => 1,
-              'number_of_replicas' => 0,
-            ],
-          ],
+          'index' => $index_name,
+          'body' => $index_definition->toArray(),
         ]);
-
-        $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
-
-        $mapping = [
-          'index' => 'multilingual-' . $langcode,
-          'type' => 'node',
-          'body' => [
-            'properties' => [
-              'title' => [
-                'type' => 'text',
-                'analyzer' => $analyzer,
-              ],
-            ],
-          ],
-        ];
-
-        $this->client->indices()->putMapping($mapping);
       }
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIndexDefinition() {
+    $settings = SettingsDefinition::create()
+      ->addOptions([
+        'number_of_shards' => 1,
+        'number_of_replicas' => 0,
+      ]);
+    $mappings = $this->getIndexMappings();
+
+    return IndexDefinition::create()
+      ->setSettings($settings)
+      ->setMappings($mappings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIndexMappings() {
+    // Define only one field. Other fields will be created dynamically.
+    return MappingsDefinition::create()
+      ->addProperty('title', FieldDefinition::create('text'));
   }
 
 }
