@@ -33,9 +33,14 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
         'number_of_replicas' => 0,
       ]);
 
-    return IndexDefinition::create()
+    $index_definition = IndexDefinition::create()
       ->setMappings($mappings)
       ->setSettings($settings);
+
+    // If you are using Elasticsearch < 7, add the type to the index definition.
+    $index_definition->setType($this->getTypeName([]));
+
+    return $index_definition;
   }
 
   /**

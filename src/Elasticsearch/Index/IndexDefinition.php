@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper\Elasticsearch\Index;
 
 use Drupal\elasticsearch_helper\Elasticsearch\DefinitionBase;
 use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 
 /**
  * Index definition provides an unified way to describe index structure.
@@ -40,6 +41,7 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
 class IndexDefinition extends DefinitionBase {
 
   use ObjectTrait;
+  use TypeTrait;
 
   /**
    * Index mappings.
@@ -107,15 +109,18 @@ class IndexDefinition extends DefinitionBase {
   public function toArray() {
     $result = $this->getOptions();
 
-    /** @var \Drupal\elasticsearch_helper\Elasticsearch\DefinitionBase[] $parts */
-    $parts = [
-      'mappings' => $this->getMappings(),
-      'settings' => $this->getSettings(),
-    ];
+    if ($settings = $this->getSettings()) {
+      $result['settings'] = $settings->toArray();
+    }
 
-    foreach ($parts as $name => $definition) {
-      if ($definition) {
-        $result[$name] = $definition->toArray();
+    if ($mappings = $this->getMappings()) {
+      $mappings_array = $mappings->toArray();
+
+      if (ElasticsearchClientVersion::getMajorVersion() < 7) {
+        $result['mappings'][$this->getType()] = $mappings_array;
+      }
+      else {
+        $result['mappings'] = $mappings_array;
       }
     }
 
