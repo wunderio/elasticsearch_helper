@@ -21,6 +21,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $source
    *   The data to be indexed.
+   *
+   * @return array|null
    */
   public function index($source);
 
@@ -29,6 +31,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $source
    *   The data to get.
+   *
+   * @return array|null
    */
   public function get($source);
 
@@ -37,6 +41,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $source
    *   The data to be used to determine which entry should be deleted.
+   *
+   * @return array|null
    */
   public function delete($source);
 
@@ -61,6 +67,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * Wrapper around the Elasticsearch search() method.
    *
    * @param array $params
+   *
+   * @return array|null
    */
   public function search($params);
 
@@ -68,6 +76,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * Wrapper around the Elasticsearch msearch() method.
    *
    * @param array $params
+   *
+   * @return array|null
    */
   public function msearch($params);
 
@@ -76,6 +86,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $body
    *   The body of the bulk operation.
+   *
+   * @return array|null
    */
   public function bulk($body);
 
