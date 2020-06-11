@@ -52,6 +52,20 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   public function setup();
 
   /**
+   * Returns index definition.
+   *
+   * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition|null
+   */
+  public function getIndexDefinition();
+
+  /**
+   * Returns index mapping definition.
+   *
+   * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition|null
+   */
+  public function getIndexMappings();
+
+  /**
    * Get an array of index names for this plugin.
    *
    * @return array
