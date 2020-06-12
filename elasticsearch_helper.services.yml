@@ -19,3 +19,13 @@ services:
   elasticsearch_helper.data_type_repository:
     class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
     arguments: ['@event_dispatcher']
+
+  elasticsearch_helper.language_switcher:
+    class: Drupal\elasticsearch_helper\Language\LanguageSwitcher
+    arguments: ['@language_manager', '@elasticsearch_helper.switchable_language_negotiator']
+
+  elasticsearch_helper.switchable_language_negotiator:
+    class: Drupal\elasticsearch_helper\Language\SwitchableLanguageNegotiator
+    arguments: ['@language_manager', '@plugin.manager.language_negotiation_method', '@config.factory', '@settings', '@request_stack']
+    calls:
+      - [initLanguageManager]
