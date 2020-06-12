@@ -13,7 +13,7 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
  * Example:
  *
  *   Elasticsearch index plugins must return mapping definition using
- *   getIndexMappings() method.
+ *   getMappingDefinition() method.
  *
  *   To create a mapping definition, use the following code:
  *

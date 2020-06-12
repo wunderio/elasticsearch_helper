@@ -44,7 +44,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
       'body' => [
         // Any index matching the pattern will get the given index configuration.
         'template' => $this->indexNamePattern(),
-        'mappings' => $this->getIndexMappings()->toArray(),
+        'mappings' => $this->getMappingDefinition()->toArray(),
       ],
     ]);
   }
@@ -52,7 +52,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getIndexMappings() {
+  public function getMappingDefinition() {
     // Define created field.
     $created_field = FieldDefinition::create('date')
       ->addOption('format', 'epoch_second');

@@ -140,7 +140,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
         'number_of_shards' => 1,
         'number_of_replicas' => 0,
       ]);
-    $mappings = $this->getIndexMappings();
+    $mappings = $this->getMappingDefinition();
 
     return IndexDefinition::create()
       ->setSettings($settings)
@@ -150,7 +150,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getIndexMappings() {
+  public function getMappingDefinition() {
     // Define only one field. Other fields will be created dynamically.
     return MappingDefinition::create()
       ->addProperty('title', FieldDefinition::create('text'));

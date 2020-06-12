@@ -12,9 +12,9 @@ use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
  * Example:
  *
  *   Elasticsearch index plugins must return mapping definition using
- *   $plugin->getIndexMappings() method.
+ *   $plugin->getMappingDefinition() method.
  *
- *     $mappings = $this->getIndexMappings();
+ *     $mappings = $this->getMappingDefinition();
  *
  *   Index settings definition can be provided using the following code:
  *

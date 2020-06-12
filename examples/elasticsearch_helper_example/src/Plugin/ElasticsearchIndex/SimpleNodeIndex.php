@@ -24,7 +24,7 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
    */
   public function getIndexDefinition() {
     // Get field mappings.
-    $mappings = $this->getIndexMappings();
+    $mappings = $this->getMappingDefinition();
 
     // Get index settings.
     $settings = SettingsDefinition::create()
@@ -46,7 +46,7 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getIndexMappings() {
+  public function getMappingDefinition() {
     $user_property = FieldDefinition::create('object')
       ->addProperty('uid', FieldDefinition::create('integer'))
       ->addProperty('name', FieldDefinition::create('keyword'));

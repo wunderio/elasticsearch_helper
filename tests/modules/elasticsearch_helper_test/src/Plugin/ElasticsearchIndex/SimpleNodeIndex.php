@@ -24,7 +24,7 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
    */
   public function getIndexDefinition() {
     // Get field mappings.
-    $mappings = $this->getIndexMappings();
+    $mappings = $this->getMappingDefinition();
 
     // Get index settings.
     $settings = SettingsDefinition::create()
@@ -41,7 +41,7 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getIndexMappings() {
+  public function getMappingDefinition() {
     $keyword_field = FieldDefinition::create('keyword');
 
     return MappingDefinition::create()
