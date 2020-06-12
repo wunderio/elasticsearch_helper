@@ -17,7 +17,7 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
  *
  *   To create a mapping definition, use the following code:
  *
- *     $mapping_definition = MappingsDefinition::create()
+ *     $mapping_definition = MappingDefinition::create()
  *       ->addProperty('id', FieldDefinition::create('integer'))
  *       ->addProperty('uuid', FieldDefinition::create('keyword'))
  *       ->addProperty('entity_type', FieldDefinition::create('keyword'))
@@ -32,10 +32,10 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
  *       'label' => FieldDefinition::create('text'),
  *     ];
  *
- *     $mapping_definition = MappingsDefinition::create()
+ *     $mapping_definition = MappingDefinition::create()
  *       ->addProperties($properties);
  */
-class MappingsDefinition extends DefinitionBase {
+class MappingDefinition extends DefinitionBase {
 
   use ObjectTrait;
 

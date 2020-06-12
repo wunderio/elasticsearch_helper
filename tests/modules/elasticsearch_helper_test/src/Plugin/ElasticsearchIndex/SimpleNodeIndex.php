@@ -4,7 +4,7 @@ namespace Drupal\elasticsearch_helper_test\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
@@ -44,7 +44,7 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
   public function getIndexMappings() {
     $keyword_field = FieldDefinition::create('keyword');
 
-    return MappingsDefinition::create()
+    return MappingDefinition::create()
       ->addProperty('id', FieldDefinition::create('integer'))
       ->addProperty('uuid', $keyword_field)
       ->addProperty('title', FieldDefinition::create('text'))

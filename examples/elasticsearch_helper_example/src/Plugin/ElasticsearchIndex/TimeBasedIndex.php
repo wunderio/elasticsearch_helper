@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
@@ -61,7 +61,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
     $disabled_field = FieldDefinition::create('object')
       ->addOption('enabled', FALSE);
 
-    return MappingsDefinition::create()
+    return MappingDefinition::create()
       ->addProperty('created', $created_field)
       ->addProperty('year', $disabled_field)
       ->addProperty('month', $disabled_field);

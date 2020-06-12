@@ -5,7 +5,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
@@ -152,7 +152,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    */
   public function getIndexMappings() {
     // Define only one field. Other fields will be created dynamically.
-    return MappingsDefinition::create()
+    return MappingDefinition::create()
       ->addProperty('title', FieldDefinition::create('text'));
   }
 

@@ -35,7 +35,7 @@ use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
  *   $plugin->getIndexDefinition() method, method $plugin->setup() will be
  *   able to set-up an index using provided mapping and settings.
  *
- * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition
+ * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition
  */
 class IndexDefinition extends DefinitionBase {
@@ -46,7 +46,7 @@ class IndexDefinition extends DefinitionBase {
   /**
    * Index mappings.
    *
-   * @var \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition
+   * @var \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
    */
   protected $mappings;
 
@@ -60,11 +60,11 @@ class IndexDefinition extends DefinitionBase {
   /**
    * Sets mappings definition.
    *
-   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition $mappings
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition $mappings
    *
    * @return self
    */
-  public function setMappings(MappingsDefinition $mappings) {
+  public function setMappings(MappingDefinition $mappings) {
     $this->mappings = $mappings;
 
     return $this;
@@ -73,7 +73,7 @@ class IndexDefinition extends DefinitionBase {
   /**
    * Returns mappings definition instance.
    *
-   * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition
+   * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
    */
   public function getMappings() {
     return $this->mappings;

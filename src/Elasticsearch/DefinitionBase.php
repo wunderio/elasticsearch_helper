@@ -11,7 +11,7 @@ namespace Drupal\elasticsearch_helper\Elasticsearch;
  *
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition
- * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingsDefinition
+ * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition
  */
 class DefinitionBase {
