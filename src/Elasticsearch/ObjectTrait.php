@@ -37,8 +37,7 @@ trait ObjectTrait {
    */
   public function addOption($option, $value) {
     $options = [$option => $value];
-    $this->validateOptions($options);
-    $this->options = NestedArray::mergeDeep($this->options, $options);
+    $this->addOptions($options);
 
     return $this;
   }
