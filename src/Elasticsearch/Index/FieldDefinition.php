@@ -230,19 +230,13 @@ class FieldDefinition extends DefinitionBase {
    */
   protected function validateOptions(array $options = []) {
     if (isset($options['type'])) {
-      throw new \InvalidArgumentException(t('Data type should be added as an argument to the constructor of @class.', [
-        '@class' => __CLASS__,
-      ]));
+      throw new \InvalidArgumentException(sprintf('Data type should be added as an argument to the constructor of %s.', self::class));
     }
     elseif (isset($options['properties'])) {
-      throw new \InvalidArgumentException(t('Properties should be added using @method method.', [
-        '@method' => 'addProperty()',
-      ]));
+      throw new \InvalidArgumentException('Properties should be added using addProperty() method.');
     }
     elseif (isset($options['fields'])) {
-      throw new \InvalidArgumentException(t('Multi-fields should be added using @method method.', [
-        '@method' => 'addMultiField()',
-      ]));
+      throw new \InvalidArgumentException('Multi-fields should be added using addMultiField() method.');
     }
   }
 
@@ -253,7 +247,7 @@ class FieldDefinition extends DefinitionBase {
    */
   protected function validatePropertyAddition() {
     if ($this->hasMultiFields()) {
-      throw new \InvalidArgumentException(t('Properties cannot be added if multi-fields exist.'));
+      throw new \InvalidArgumentException('Properties cannot be added if multi-fields exist.');
     }
   }
 
@@ -264,7 +258,7 @@ class FieldDefinition extends DefinitionBase {
    */
   protected function validateMultiFieldAddition() {
     if ($this->hasProperties()) {
-      throw new \InvalidArgumentException(t('Multi-fields cannot be added if properties exist.'));
+      throw new \InvalidArgumentException('Multi-fields cannot be added if properties exist.');
     }
   }
 

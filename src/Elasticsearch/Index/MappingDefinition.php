@@ -107,9 +107,7 @@ class MappingDefinition extends DefinitionBase {
    */
   protected function validateOptions(array $options = []) {
     if (isset($options['properties'])) {
-      throw new \InvalidArgumentException(t('Properties should be added using @method method.', [
-        '@method' => 'addProperty()',
-      ]));
+      throw new \InvalidArgumentException('Properties should be added using addProperty() method.');
     }
   }
 
