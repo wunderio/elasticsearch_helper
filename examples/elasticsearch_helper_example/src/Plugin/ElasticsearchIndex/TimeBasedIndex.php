@@ -2,12 +2,14 @@
 
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
+use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
  *   id = "time_based_index",
- *   label = @Translation("Example Time-based Index"),
+ *   label = @Translation("Example time-based index"),
  *   indexName = "time-based-{year}{month}",
  *   typeName = "node",
  *   entityType = "node"
@@ -16,7 +18,7 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 class TimeBasedIndex extends ElasticsearchIndexBase {
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function serialize($source, $context = []) {
     /** @var \Drupal\node\Entity\Node $source */
@@ -34,7 +36,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function setup() {
     $this->client->indices()->putTemplate([
@@ -42,25 +44,27 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
       'body' => [
         // Any index matching the pattern will get the given index configuration.
         'template' => $this->indexNamePattern(),
-        'mappings' => [
-          'node' => [
-            'properties' => [
-              'created' => [
-                'type' => 'date',
-                'format' => 'epoch_second',
-              ],
-              // Don't save year and month, we just need them for the placeholders.
-              'year' => [
-                'enabled' => FALSE,
-              ],
-              'month' => [
-                'enabled' => FALSE,
-              ],
-            ],
-          ],
-        ],
+        'mappings' => $this->getMappingDefinition()->toArray(),
       ],
     ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMappingDefinition() {
+    // Define created field.
+    $created_field = FieldDefinition::create('date')
+      ->addOption('format', 'epoch_second');
+
+    // Define a field that is not stored.
+    $disabled_field = FieldDefinition::create('object')
+      ->addOption('enabled', FALSE);
+
+    return MappingDefinition::create()
+      ->addProperty('created', $created_field)
+      ->addProperty('year', $disabled_field)
+      ->addProperty('month', $disabled_field);
   }
 
 }

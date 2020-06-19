@@ -106,11 +106,26 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function setup() {
-    // TODO: create index templates.
-    // $this->client->indices()->putTemplate().
+    // Create an index if index definition is provided by the index plugin.
+    if ($index_definition = $this->getIndexDefinition()) {
+      $index_name = $this->getIndexName([]);
+
+      if (!$this->client->indices()->exists(['index' => $index_name])) {
+        $this->client->indices()->create([
+          'index' => $index_name,
+          'body' => $index_definition->toArray(),
+        ]);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIndexDefinition() {
   }
 
   /**
