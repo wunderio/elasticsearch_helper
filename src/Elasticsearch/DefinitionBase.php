@@ -14,6 +14,6 @@ namespace Drupal\elasticsearch_helper\Elasticsearch;
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
  * @see \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition
  */
-class DefinitionBase {
+abstract class DefinitionBase {
 
 }
