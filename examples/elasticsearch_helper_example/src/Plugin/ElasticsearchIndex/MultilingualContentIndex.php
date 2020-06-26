@@ -39,12 +39,12 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
-   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $languageManager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
-    $this->language_manager = $languageManager;
+    $this->language_manager = $language_manager;
   }
 
   /**
@@ -116,7 +116,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
       $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
 
       // Put analyzer parameter to all "text" fields in the mapping.
-      foreach ($index_definition->getMappings()->getProperties() as $property) {
+      foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
         if ($property->getDataType()->getType() == 'text') {
           $property->addOption('analyzer', $analyzer);
         }
@@ -143,8 +143,8 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
     $mappings = $this->getMappingDefinition();
 
     return IndexDefinition::create()
-      ->setSettings($settings)
-      ->setMappings($mappings);
+      ->setSettingsDefinition($settings)
+      ->setMappingDefinition($mappings);
   }
 
   /**

@@ -28,8 +28,8 @@ use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
  *   an index.
  *
  *     $index_definition = IndexDefinition::create()
- *       ->setMappings($mappings)
- *       ->setSettings($settings);
+ *       ->setMappingDefinition($mappings)
+ *       ->setSettingsDefinition($settings);
  *
  *   If Elasticsearch index plugin returns index definition in
  *   $plugin->getIndexDefinition() method, method $plugin->setup() will be
@@ -44,61 +44,61 @@ class IndexDefinition extends DefinitionBase {
   use TypeTrait;
 
   /**
-   * Index mappings.
+   * Index mapping definition.
    *
    * @var \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
    */
-  protected $mappings;
+  protected $mappingDefinition;
 
   /**
-   * Index settings.
+   * Index settings definition.
    *
    * @var \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition
    */
-  protected $settings;
+  protected $settingsDefinition;
 
   /**
-   * Sets mappings definition.
+   * Sets mapping definition.
    *
-   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition $mappings
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition $mapping_definition
    *
    * @return self
    */
-  public function setMappings(MappingDefinition $mappings) {
-    $this->mappings = $mappings;
+  public function setMappingDefinition(MappingDefinition $mapping_definition) {
+    $this->mappingDefinition = $mapping_definition;
 
     return $this;
   }
 
   /**
-   * Returns mappings definition instance.
+   * Returns mapping definition instance.
    *
    * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition
    */
-  public function getMappings() {
-    return $this->mappings;
+  public function getMappingDefinition() {
+    return $this->mappingDefinition;
   }
 
   /**
-   * Sets index settings.
+   * Sets index settings definition.
    *
-   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition $settings
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition $settings_definition
    *
    * @return self
    */
-  public function setSettings(SettingsDefinition $settings) {
-    $this->settings = $settings;
+  public function setSettingsDefinition(SettingsDefinition $settings_definition) {
+    $this->settingsDefinition = $settings_definition;
 
     return $this;
   }
 
   /**
-   * Returns index settings.
+   * Returns index settings definition instance.
    *
    * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition
    */
-  public function getSettings() {
-    return $this->settings;
+  public function getSettingsDefinition() {
+    return $this->settingsDefinition;
   }
 
   /**
@@ -109,11 +109,11 @@ class IndexDefinition extends DefinitionBase {
   public function toArray() {
     $result = $this->getOptions();
 
-    if ($settings = $this->getSettings()) {
+    if ($settings = $this->getSettingsDefinition()) {
       $result['settings'] = $settings->toArray();
     }
 
-    if ($mappings = $this->getMappings()) {
+    if ($mappings = $this->getMappingDefinition()) {
       $mappings_array = $mappings->toArray();
 
       if (ElasticsearchClientVersion::getMajorVersion() < 7) {

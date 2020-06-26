@@ -34,8 +34,8 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
       ]);
 
     return IndexDefinition::create()
-      ->setMappings($mappings)
-      ->setSettings($settings);
+      ->setMappingDefinition($mappings)
+      ->setSettingsDefinition($settings);
   }
 
   /**
