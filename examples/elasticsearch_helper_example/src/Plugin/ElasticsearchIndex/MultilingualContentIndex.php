@@ -39,12 +39,12 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * @param \Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
-   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $languageManager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
-    $this->language_manager = $languageManager;
+    $this->language_manager = $language_manager;
   }
 
   /**
