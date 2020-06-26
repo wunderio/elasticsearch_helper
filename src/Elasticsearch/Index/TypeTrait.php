@@ -2,18 +2,20 @@
 
 namespace Drupal\elasticsearch_helper\Elasticsearch\Index;
 
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
+
 /**
  * Provides support for legacy "type" parameter.
  *
- * @deprecated Will be removed from the codebase when support for Elasticsearch
- *   is dropped.
+ * @deprecated Will be removed from the codebase when support for
+ *   Elasticsearch 6 is removed.
  */
 trait TypeTrait {
 
   /**
    * @var string
    */
-  protected $type = '_doc';
+  protected $type = ElasticsearchIndexInterface::TYPE_DEFAULT;
 
   /**
    * Sets index type.

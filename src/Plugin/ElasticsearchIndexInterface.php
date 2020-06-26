@@ -10,6 +10,14 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 interface ElasticsearchIndexInterface extends PluginInspectionInterface {
 
   /**
+   * Defines default document type.
+   *
+   * @deprecated Will be removed from the codebase when support for
+   *   Elasticsearch 6 is removed.
+   */
+  const TYPE_DEFAULT = '_doc';
+
+  /**
    * Get the Elasticsearch client.
    *
    * @return \Drupal\elasticsearch_helper\ElasticsearchClientBuilder
