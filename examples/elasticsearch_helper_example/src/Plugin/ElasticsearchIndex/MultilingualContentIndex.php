@@ -116,7 +116,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
       $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
 
       // Put analyzer parameter to all "text" fields in the mapping.
-      foreach ($index_definition->getMappings()->getProperties() as $property) {
+      foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
         if ($property->getDataType()->getType() == 'text') {
           $property->addOption('analyzer', $analyzer);
         }
@@ -143,8 +143,8 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
     $mappings = $this->getMappingDefinition();
 
     return IndexDefinition::create()
-      ->setSettings($settings)
-      ->setMappings($mappings);
+      ->setSettingsDefinition($settings)
+      ->setMappingDefinition($mappings);
   }
 
   /**

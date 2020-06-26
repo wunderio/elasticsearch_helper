@@ -34,8 +34,8 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
       ]);
 
     $index_definition = IndexDefinition::create()
-      ->setMappings($mappings)
-      ->setSettings($settings);
+      ->setMappingDefinition($mappings)
+      ->setSettingsDefinition($settings);
 
     // If you are using Elasticsearch < 7, add the type to the index definition.
     $index_definition->setType($this->getTypeName([]));
