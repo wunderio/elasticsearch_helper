@@ -62,16 +62,22 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Returns index definition.
    *
+   * @param array $context
+   *   Additional context parameters.
+   *
    * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition|null
    */
-  public function getIndexDefinition();
+  public function getIndexDefinition(array $context = []);
 
   /**
    * Returns index mapping definition.
    *
+   * @param array $context
+   *   Additional context parameters.
+   *
    * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition|null
    */
-  public function getMappingDefinition();
+  public function getMappingDefinition(array $context = []);
 
   /**
    * Get an array of index names for this plugin.
