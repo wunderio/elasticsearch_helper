@@ -125,7 +125,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * {@inheritdoc}
    */
-  public function getIndexDefinition() {
+  public function getIndexDefinition(array $context = []) {
   }
 
   /**

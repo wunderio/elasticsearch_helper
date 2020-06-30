@@ -52,7 +52,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getMappingDefinition() {
+  public function getMappingDefinition(array $context = []) {
     // Define created field.
     $created_field = FieldDefinition::create('date')
       ->addOption('format', 'epoch_second');
