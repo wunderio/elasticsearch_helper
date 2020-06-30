@@ -66,10 +66,10 @@ class ElasticsearchLanguageAnalyzer {
       'ja' => 'cjk',
       'ko' => 'cjk',
 
-      // For improved chinese support install the analysis-smartcn
-      // elasticsearch plugin with the 'smartcn' analyzer.
-      // For improved japanese support install the analysis-kuromoji
-      // elasticsearch plugin with the 'kuromoji' analyzer.
+      // For improved Chinese support install the analysis-smartcn
+      // Elasticsearch plugin with the 'smartcn' analyzer.
+      // For improved Japanese support install the analysis-kuromoji
+      // Elasticsearch plugin with the 'kuromoji' analyzer.
     ];
 
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
@@ -79,9 +79,8 @@ class ElasticsearchLanguageAnalyzer {
     if (isset($language_analyzers[$langcode])) {
       return $language_analyzers[$langcode];
     }
-    else {
-      return self::DEFAULT_ANALYZER;
-    }
+
+    return self::DEFAULT_ANALYZER;
   }
 
 }
