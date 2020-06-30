@@ -76,6 +76,17 @@ class MappingDefinition extends DefinitionBase {
   }
 
   /**
+   * Returns a property.
+   *
+   * @param $property
+   *
+   * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition|null
+   */
+  public function getProperty($property) {
+    return isset($this->properties[$property]) ? $this->properties[$property] : NULL;
+  }
+
+  /**
    * Returns properties.
    *
    * @return \Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition[]
