@@ -4,9 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
@@ -135,16 +133,21 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function getIndexDefinition(array $context = []) {
-    $settings = SettingsDefinition::create()
-      ->addOptions([
-        'number_of_shards' => 1,
-        'number_of_replicas' => 0,
-      ]);
-    $mappings = $this->getMappingDefinition($context);
+    // Get index definition.
+    $index_definition = parent::getIndexDefinition($context);
 
-    return IndexDefinition::create()
-      ->setSettingsDefinition($settings)
-      ->setMappingDefinition($mappings);
+    // Add custom settings.
+    $index_definition->getSettingsDefinition()->addOptions([
+      'analysis' => [
+        'analyzer' => [
+          'english' => [
+            'tokenizer' => 'standard',
+          ],
+        ],
+      ],
+    ]);
+
+    return $index_definition;
   }
 
   /**
