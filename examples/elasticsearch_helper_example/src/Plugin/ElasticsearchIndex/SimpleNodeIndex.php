@@ -22,30 +22,6 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
   /**
    * {@inheritdoc}
    */
-  public function getIndexDefinition(array $context = []) {
-    // Get field mappings.
-    $mappings = $this->getMappingDefinition($context);
-
-    // Get index settings.
-    $settings = SettingsDefinition::create()
-      ->addOptions([
-        'number_of_shards' => 1,
-        'number_of_replicas' => 0,
-      ]);
-
-    $index_definition = IndexDefinition::create()
-      ->setMappingDefinition($mappings)
-      ->setSettingsDefinition($settings);
-
-    // If you are using Elasticsearch < 7, add the type to the index definition.
-    $index_definition->setType($this->getTypeName([]));
-
-    return $index_definition;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getMappingDefinition(array $context = []) {
     $user_property = FieldDefinition::create('object')
       ->addProperty('uid', FieldDefinition::create('integer'))
