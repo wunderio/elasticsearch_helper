@@ -7,6 +7,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
@@ -134,6 +136,21 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * {@inheritdoc}
    */
   public function getIndexDefinition(array $context = []) {
+    $settings_definition = SettingsDefinition::create()
+      ->addOptions([
+        'number_of_shards' => 1,
+        'number_of_replicas' => 0,
+      ]);
+    $mapping_definition = $this->getMappingDefinition($context);
+
+    $index_definition = IndexDefinition::create()
+      ->setSettingsDefinition($settings_definition)
+      ->setMappingDefinition($mapping_definition);
+
+    // If you are using Elasticsearch < 7, add the type to the index definition.
+    $index_definition->setType($this->getTypeName([]));
+
+    return $index_definition;
   }
 
   /**
