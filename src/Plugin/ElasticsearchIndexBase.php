@@ -53,6 +53,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @var string
    */
   protected $placeholder_regex = '/{[_\-\w\d]*}/';
+  
+  /**
+   * Index shards.
+   *
+   * @var int
+   */
+  protected $shards;
+
+  /**
+   * Index replicas.
+   *
+   * @var int
+   */
+  protected $replicas;
 
   /**
    * ElasticsearchIndexBase constructor.
@@ -69,6 +83,10 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $this->client = $client;
     $this->serializer = $serializer;
     $this->logger = $logger;
+    
+    // Set the default shards and replicas count.
+    $this->shards = 1;
+    $this->replicas = 0;
   }
 
   /**
@@ -138,8 +156,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function getIndexDefinition(array $context = []) {
     $settings_definition = SettingsDefinition::create()
       ->addOptions([
-        'number_of_shards' => 1,
-        'number_of_replicas' => 0,
+        'number_of_shards' => $this->shards,
+        'number_of_replicas' => $this->replicas,
       ]);
     $mapping_definition = $this->getMappingDefinition($context);
 
