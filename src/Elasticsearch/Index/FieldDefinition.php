@@ -119,6 +119,23 @@ class FieldDefinition extends DefinitionBase {
   }
 
   /**
+   * Adds properties to the field defintion.
+   *
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition[] $properties
+   *   An array containing FieldDefinition.
+   *
+   * @return self
+   *   Return self object.
+   */
+  public function addProperties(array $properties) {
+    $this->validatePropertyAddition();
+
+    $this->properties = array_merge($this->properties, $properties);
+
+    return $this;
+  }
+
+  /**
    * Return a property.
    *
    * @param $field_name
