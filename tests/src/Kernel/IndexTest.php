@@ -69,6 +69,29 @@ class IndexTest extends EntityKernelTestBase {
   }
 
   /**
+   * HTTP request with curl.
+   *
+   * @param string $uri
+   *   The request uri
+   *
+   * @return array
+   *   The decoded response.
+   */
+  protected function httpRequest($uri) {
+    // Query elasticsearch.
+    // Use Curl for now because http client middleware fails in KernelTests
+    // (See: https://www.drupal.org/project/drupal/issues/2571475)
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $uri);
+    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $json = curl_exec($curl);
+
+    return json_decode($json, TRUE);
+  }
+
+
+  /**
    * Query the test index.
    *
    * @param int $docId
@@ -84,19 +107,32 @@ class IndexTest extends EntityKernelTestBase {
 
     // Query URI for fetching the document from elasticsearch.
     $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $docId;
+    return $this->httpRequest($uri);
+  }
 
-    // Query elasticsearch.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
+  /**
+   * Test index mapping.
+   */
+  public function testIndexMapping() {
+    $elasticsearch_host = $this
+      ->config('elasticsearch_helper.settings')
+      ->get('elasticsearch_helper.host');
 
-    $response = json_decode($json, TRUE);
+    // Query URI for fetching the document from elasticsearch.
+    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_mapping';
 
-    return $response;
+    $response = $this->httpRequest($uri);
+
+    // Verify the mapping structure.
+    $this->assertEqual($response['simple']['mappings']['properties']['id']['type'], 'text', 'ID field is found');
+    $this->assertEqual($response['simple']['mappings']['properties']['status']['type'], 'boolean', 'Status field is found');
+    $this->assertEqual($response['simple']['mappings']['properties']['title']['type'], 'text', 'Title field is found');
+    $this->assertEqual(
+      $response['simple']['mappings']['properties']['title']['fields'],
+      ['keyword' => ['type' => 'keyword', 'ignore_above' => 256]],
+      'Title sub-field is found'
+    );
+    $this->assertEqual($response['simple']['mappings']['properties']['uuid']['type'], 'text', 'UUID field is found');
   }
 
   /**
