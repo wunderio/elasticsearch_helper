@@ -9,6 +9,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
@@ -441,6 +442,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   protected function getTypeName($data) {
+    // Set the default type to prevent throwing notice errors.
+    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+      return static::TYPE_DEFAULT;
+    }
+
     return $this->replacePlaceholders($this->pluginDefinition['typeName'], $data);
   }
 
