@@ -18,7 +18,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   const TYPE_DEFAULT = '_doc';
 
   /**
-   * Get the Elasticsearch client.
+   * Returns the instance of Elasticsearch client.
    *
    * @return \Elasticsearch\Client
    */
