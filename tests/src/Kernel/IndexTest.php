@@ -129,7 +129,7 @@ class IndexTest extends EntityKernelTestBase {
       $properties = $response['simple']['mappings']['properties'];
     } else {
       // ES6 mapping structure with type name.
-      $properties = $response['simple']['mappings']['_doc']['properties'];
+      $properties = $response['simple']['mappings']['node']['properties'];
     }
 
     $this->assertEqual($properties['id']['type'], 'text', 'ID field is found');
