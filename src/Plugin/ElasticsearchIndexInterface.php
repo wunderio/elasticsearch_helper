@@ -20,7 +20,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Get the Elasticsearch client.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchClientBuilder
+   * @return \Elasticsearch\Client
    */
   public function getClient();
 
