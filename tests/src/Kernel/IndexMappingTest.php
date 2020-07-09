@@ -86,7 +86,7 @@ class IndexMappingTest extends EntityKernelTestBase {
       $properties = $response[$index_name]['mappings']['node']['properties'];
     }
 
-    $this->assertEqual($properties['id']['type'], 'text', 'ID field is found');
+    $this->assertEqual($properties['id']['type'], 'integer', 'ID field is found');
     $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
     $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
     $this->assertEqual(
