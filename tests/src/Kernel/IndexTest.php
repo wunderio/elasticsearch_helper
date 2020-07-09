@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -69,6 +70,29 @@ class IndexTest extends EntityKernelTestBase {
   }
 
   /**
+   * HTTP request with curl.
+   *
+   * @param string $uri
+   *   The request uri
+   *
+   * @return array
+   *   The decoded response.
+   */
+  protected function httpRequest($uri) {
+    // Query elasticsearch.
+    // Use Curl for now because http client middleware fails in KernelTests
+    // (See: https://www.drupal.org/project/drupal/issues/2571475)
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $uri);
+    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $json = curl_exec($curl);
+
+    return json_decode($json, TRUE);
+  }
+
+
+  /**
    * Query the test index.
    *
    * @param int $docId
@@ -84,19 +108,7 @@ class IndexTest extends EntityKernelTestBase {
 
     // Query URI for fetching the document from elasticsearch.
     $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $docId;
-
-    // Query elasticsearch.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
-
-    $response = json_decode($json, TRUE);
-
-    return $response;
+    return $this->httpRequest($uri);
   }
 
   /**
