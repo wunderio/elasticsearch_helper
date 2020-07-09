@@ -18,9 +18,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   const TYPE_DEFAULT = '_doc';
 
   /**
-   * Get the Elasticsearch client.
+   * Returns the instance of Elasticsearch client.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchClientBuilder
+   * @return \Elasticsearch\Client
    */
   public function getClient();
 
