@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
+use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
+use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;
@@ -90,6 +92,28 @@ class IndexMappingTest extends EntityKernelTestBase {
     $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
     $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
     $this->assertEqual($properties['uuid']['type'], 'keyword', 'UUID field is found');
+  }
+
+  /**
+   * Test mapping definition.
+   */
+  public function testMappingDefinition() {
+    $mapping_definition = MappingDefinition::create()
+      ->addProperty('id', FieldDefinition::create('integer'))
+      ->addProperty('uuid', FieldDefinition::create('keyword'))
+      ->addProperty('title', FieldDefinition::create('text'))
+      ->addProperty('status', FieldDefinition::create('boolean'));
+
+    $expected = [
+      'properties' => [
+        'id' => ['type' => 'integer'],
+        'uuid' => ['type' => 'keyword'],
+        'title' => ['type' => 'text'],
+        'status' => ['type' => 'boolean'],
+      ]
+    ];
+
+    $this->assertEqual($mapping_definition->toArray(), $expected);
   }
 
 }
