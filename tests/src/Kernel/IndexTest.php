@@ -112,38 +112,6 @@ class IndexTest extends EntityKernelTestBase {
   }
 
   /**
-   * Test index mapping.
-   */
-  public function testIndexMapping() {
-    $elasticsearch_host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
-
-    // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_mapping';
-
-    $response = $this->httpRequest($uri);
-
-    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-      // ES7 mapping structure with no type name.
-      $properties = $response['simple']['mappings']['properties'];
-    } else {
-      // ES6 mapping structure with type name.
-      $properties = $response['simple']['mappings']['node']['properties'];
-    }
-
-    $this->assertEqual($properties['id']['type'], 'text', 'ID field is found');
-    $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
-    $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
-    $this->assertEqual(
-      $properties['title']['fields'],
-      ['keyword' => ['type' => 'keyword', 'ignore_above' => 256]],
-      'Title sub-field is found'
-    );
-    $this->assertEqual($properties['uuid']['type'], 'text', 'UUID field is found');
-  }
-
-  /**
    * Test node insert.
    */
   public function testNodeInsert() {
