@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -123,16 +124,23 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = $this->httpRequest($uri);
 
-    // Verify the mapping structure.
-    $this->assertEqual($response['simple']['mappings']['properties']['id']['type'], 'text', 'ID field is found');
-    $this->assertEqual($response['simple']['mappings']['properties']['status']['type'], 'boolean', 'Status field is found');
-    $this->assertEqual($response['simple']['mappings']['properties']['title']['type'], 'text', 'Title field is found');
+    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+      // ES7 mapping structure with no type name.
+      $properties = $response['simple']['mappings']['properties'];
+    } else {
+      // ES6 mapping structure with type name.
+      $properties = $response['simple']['mappings']['_doc']['properties'];
+    }
+
+    $this->assertEqual($properties['id']['type'], 'text', 'ID field is found');
+    $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
+    $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
     $this->assertEqual(
-      $response['simple']['mappings']['properties']['title']['fields'],
+      $properties['title']['fields'],
       ['keyword' => ['type' => 'keyword', 'ignore_above' => 256]],
       'Title sub-field is found'
     );
-    $this->assertEqual($response['simple']['mappings']['properties']['uuid']['type'], 'text', 'UUID field is found');
+    $this->assertEqual($properties['uuid']['type'], 'text', 'UUID field is found');
   }
 
   /**
