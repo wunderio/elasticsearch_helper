@@ -83,18 +83,13 @@ class IndexMappingTest extends EntityKernelTestBase {
       $properties = $response[$index_name]['mappings']['properties'];
     } else {
       // ES6 mapping structure with type name.
-      $properties = $response[$index_name]['mappings']['node']['properties'];
+      $properties = $response[$index_name]['mappings']['_doc']['properties'];
     }
 
     $this->assertEqual($properties['id']['type'], 'integer', 'ID field is found');
     $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
     $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
-    $this->assertEqual(
-      $properties['title']['fields'],
-      ['keyword' => ['type' => 'keyword', 'ignore_above' => 256]],
-      'Title sub-field is found'
-    );
-    $this->assertEqual($properties['uuid']['type'], 'text', 'UUID field is found');
+    $this->assertEqual($properties['uuid']['type'], 'keyword', 'UUID field is found');
   }
 
 }

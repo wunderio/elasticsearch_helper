@@ -21,11 +21,9 @@ class NodeIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function getMappingDefinition(array $context = []) {
-    $keyword_field = FieldDefinition::create('keyword');
-
     return MappingDefinition::create()
       ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', $keyword_field)
+      ->addProperty('uuid', FieldDefinition::create('keyword'))
       ->addProperty('title', FieldDefinition::create('text'))
       ->addProperty('status', FieldDefinition::create('boolean'));
   }
