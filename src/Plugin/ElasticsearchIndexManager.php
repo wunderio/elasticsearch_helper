@@ -56,9 +56,11 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   }
 
   /**
-   * Index an entity into any matching indices.
+   * Indexes the entity into any matching indices.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function indexEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
@@ -84,9 +86,11 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   }
 
   /**
-   * Delete an entity from any matching indices.
+   * Deletes the entity from any matching indices.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function deleteEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
@@ -117,6 +121,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    * @param array $indices
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Exception
    */
   public function reindex($indices = []) {
     foreach ($this->getDefinitions() as $definition) {
