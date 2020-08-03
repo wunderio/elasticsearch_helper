@@ -430,18 +430,22 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * Determine the name of the index where the given data will be indexed.
    *
+   * @param array $data
+   *
    * @return string
    */
-  protected function getIndexName($data) {
+  public function getIndexName($data) {
     return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
   }
 
   /**
    * Determine the name of the type where the given data will be indexed.
    *
+   * @param array $data
+   *
    * @return string
    */
-  protected function getTypeName($data) {
+  public function getTypeName($data) {
     // Set the default type to prevent throwing notice errors.
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
       return static::TYPE_DEFAULT;
