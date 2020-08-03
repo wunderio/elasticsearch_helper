@@ -499,7 +499,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return string
    */
-  private function replacePlaceholders($haystack, $data) {
+  protected function replacePlaceholders($haystack, $data) {
     // Replace any placeholders with the right value.
     $matches = [];
 
