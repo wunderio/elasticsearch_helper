@@ -218,7 +218,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function index($source) {
     $operation = ElasticsearchOperations::DOCUMENT_INDEX;
@@ -341,7 +341,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function search($params) {
     $params = [
@@ -357,7 +357,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function msearch($params) {
     $params = [
@@ -456,6 +456,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   /**
    * Determine the name of the ID for the elasticsearch entry.
+   *
+   * @param array $data
    *
    * @return string
    */
