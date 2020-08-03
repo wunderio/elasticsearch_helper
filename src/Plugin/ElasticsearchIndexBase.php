@@ -218,7 +218,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function index($source) {
     $operation = ElasticsearchOperations::DOCUMENT_INDEX;
@@ -341,7 +341,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function search($params) {
     $params = [
@@ -357,7 +357,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function msearch($params) {
     $params = [
@@ -430,18 +430,22 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * Determine the name of the index where the given data will be indexed.
    *
+   * @param array $data
+   *
    * @return string
    */
-  protected function getIndexName($data) {
+  public function getIndexName(array $data = []) {
     return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
   }
 
   /**
    * Determine the name of the type where the given data will be indexed.
    *
+   * @param array $data
+   *
    * @return string
    */
-  protected function getTypeName($data) {
+  public function getTypeName(array $data = []) {
     // Set the default type to prevent throwing notice errors.
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
       return static::TYPE_DEFAULT;
@@ -453,9 +457,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * Determine the name of the ID for the elasticsearch entry.
    *
+   * @param array $data
+   *
    * @return string
    */
-  public function getId($data) {
+  public function getId(array $data = []) {
     if (isset($data['id']) && (is_string($data['id']) || is_numeric($data['id']))) {
       // If there is an attribute with the key 'id', use it.
       return $data['id'];
@@ -489,11 +495,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Replace any placeholders of the form {name} in the given string.
    *
    * @param $haystack
-   * @param $data
+   * @param array $data
    *
    * @return string
    */
-  private function replacePlaceholders($haystack, $data) {
+  protected function replacePlaceholders($haystack, array $data) {
     // Replace any placeholders with the right value.
     $matches = [];
 
