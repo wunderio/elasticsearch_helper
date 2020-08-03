@@ -119,4 +119,13 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    */
   public function bulk($body);
 
+  /**
+   * Re-indexes all the content that the plugin manages.
+   *
+   * It is recommended to use the queue to reindex content.
+   *
+   * @return void
+   */
+  public function reindex();
+
 }

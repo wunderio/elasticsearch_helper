@@ -49,6 +49,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   protected $eventDispatcher;
 
   /**
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
+   */
+  protected $indexPluginManager;
+
+  /**
    * The regular expression used to identify placeholders in index and type names.
    *
    * @var string
@@ -110,7 +115,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * Gets the event dispatcher.
+   * Returns the event dispatcher.
    *
    * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
@@ -118,7 +123,21 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     if (!$this->eventDispatcher) {
       $this->eventDispatcher = \Drupal::service('event_dispatcher');
     }
+
     return $this->eventDispatcher;
+  }
+
+  /**
+   * Returns Elasticsearch index plugin manager.
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
+   */
+  protected function getElasticsearchIndexPluginManager() {
+    if (!$this->indexPluginManager) {
+      $this->indexPluginManager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
+    }
+
+    return $this->indexPluginManager;
   }
 
   /**
@@ -396,6 +415,23 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
 
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function reindex() {
+    if (isset($this->pluginDefinition['entityType'])) {
+      $entity_type = $this->pluginDefinition['entityType'];
+      $bundle = NULL;
+
+      if (isset($this->pluginDefinition['bundle'])) {
+        $bundle = $this->pluginDefinition['bundle'];
+      }
+
+      // Re-index entities that this plugin manages.
+      $this->getElasticsearchIndexPluginManager()->reindexEntities($entity_type, $bundle);
+    }
   }
 
   /**
