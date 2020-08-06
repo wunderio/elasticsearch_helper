@@ -10,9 +10,7 @@ use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ElasticsearchHelperSettingsForm.
- *
- * @package Drupal\elasticsearch_helper\Form
+ * Class ElasticsearchHelperSettingsForm
  */
 class ElasticsearchHelperSettingsForm extends ConfigFormBase {
 
@@ -22,6 +20,13 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * @var \Elasticsearch\Client
    */
   protected $client;
+
+  /**
+   * Configuration object.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
 
   /**
    * ElasticsearchHelperSettingsForm constructor.
@@ -35,6 +40,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     parent::__construct($config_factory);
 
     $this->client = $elasticsearch_client;
+    $this->config = $this->config('elasticsearch_helper.settings');
   }
 
   /**
@@ -64,25 +70,66 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Returns host default settings.
+   *
+   * @return array
+   */
+  protected function getHostDefaultSettings() {
+    return [
+      'scheme' => 'http',
+      'host' => NULL,
+      'authentication' => [
+        'enabled' => FALSE,
+        'user' => NULL,
+        'password' => NULL,
+      ],
+    ];
+  }
+
+  /**
+   * Returns server health status.
+   *
+   * @return string
+   *
+   * @throws \Exception
+   */
+  protected function getServerHealthStatus() {
+    $result = $this->client->cluster()->health();
+
+    return $result['status'];
+  }
+
+  /**
+   * Returns server health to message status mapping.
+   *
+   * @return array
+   */
+  protected function getHealthMessageMapping() {
+    return [
+      'green' => 'status',
+      'yellow' => 'warning',
+      'red' => 'error',
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('elasticsearch_helper.settings');
+    $config = $this->config;
 
     try {
-      $health = $this->client->cluster()->health();
+      // Get server health status.
+      $status = $this->getServerHealthStatus();
 
       $this->messenger()->addMessage($this->t('Connected to Elasticsearch'));
 
-      $color_states = [
-        'green' => 'status',
-        'yellow' => 'warning',
-        'red' => 'error',
-      ];
+      // Get health status / message status mapping.
+      $color_states = $this->getHealthMessageMapping();
 
       $this->messenger()->addMessage($this->t('Elasticsearch cluster status is @status', [
-        '@status' => $health['status'],
-      ]), $color_states[$health['status']]);
+        '@status' => $status,
+      ]), $color_states[$status]);
     }
     catch (NoNodesAvailableException $e) {
       $this->messenger()->addError($this->t('Could not connect to Elasticsearch'));
@@ -91,68 +138,133 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       $this->messenger()->addError($e->getMessage());
     }
 
-    $form['scheme'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Scheme'),
-      '#options' => [
-        'http' => 'http',
-        'https' => 'https',
-      ],
-      '#default_value' => $config->get('elasticsearch_helper.scheme'),
-    ];
-
-    $form['host'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Host'),
-      '#size' => 32,
-      '#default_value' => $config->get('elasticsearch_helper.host'),
-    ];
-    $form['port'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Port'),
-      '#maxlength' => 4,
-      '#size' => 4,
-      '#default_value' => $config->get('elasticsearch_helper.port'),
-    ];
-
-    $form['authentication'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Use authentication'),
-      '#default_value' => (int) $config->get('elasticsearch_helper.authentication'),
-    ];
-
-    $form['credentials'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Basic authentication'),
-      '#states' => [
-        'visible' => [
-          ':input[name="authentication"]' => ['checked' => TRUE],
+    $form['hosts'] = [
+      '#type' => 'table',
+      '#header' => ['', $this->t('Scheme'), $this->t('Host'), $this->t('Port'), $this->t('Authentication'), $this->t('Weight')],
+      '#empty' => $this->t('No hosts are defined.'),
+      '#tabledrag' => [
+        [
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'weight',
         ],
       ],
+      '#tree' => TRUE,
     ];
 
-    $form['credentials']['user'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('User'),
-      '#default_value' => $config->get('elasticsearch_helper.user'),
-      '#size' => 32,
-    ];
+    foreach ($this->config->get('hosts') as $index => $host) {
+      $form['hosts'][$index]['#attributes'] = ['class' => ['draggable'], 'id' => 'row-' . $index];
 
-    $form['credentials']['password'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('password'),
-      '#default_value' => $config->get('elasticsearch_helper.password'),
-      '#size' => 32,
+      $form['hosts'][$index]['handle'] = [];
+
+      $form['hosts'][$index]['scheme'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Scheme'),
+        '#options' => [
+          'http' => 'http',
+          'https' => 'https',
+        ],
+        '#default_value' => $host['scheme'],
+      ];
+
+      $form['hosts'][$index]['host'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Host'),
+        '#default_value' => $host['host'],
+      ];
+
+      $form['hosts'][$index]['port'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Port'),
+        '#maxlength' => 4,
+        '#size' => 4,
+        '#default_value' => $host['port'],
+      ];
+
+      $form['hosts'][$index]['authentication']['enabled'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Use authentication'),
+        '#default_value' => (int) $host['authentication']['enabled'],
+      ];
+
+      $form['hosts'][$index]['authentication']['credentials'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Basic authentication'),
+        '#states' => [
+          'visible' => [
+            ':input[name="hosts[' . $index . '][authentication][enabled]"]' => ['checked' => TRUE],
+          ],
+        ],
+      ];
+
+      $form['hosts'][$index]['authentication']['credentials']['user'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('User'),
+        '#default_value' => $host['authentication']['user'],
+        '#size' => 32,
+        '#parents' => ['hosts', $index, 'authentication', 'user'],
+      ];
+
+      $form['hosts'][$index]['authentication']['credentials']['password'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('password'),
+        '#default_value' => $host['authentication']['password'],
+        '#size' => 32,
+        '#parents' => ['hosts', $index, 'authentication', 'password'],
+      ];
+
+      $form['hosts'][$index]['weight'] = [
+        '#type' => 'textfield',
+        '#default_value' => $index,
+        '#attributes' => ['class' => ['weight']],
+        '#title' => t('Weight'),
+        '#title_display' => 'invisible',
+      ];
+    }
+
+    $form['add_host'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add host'),
+      '#submit' => [[$this, 'addHostForm']],
     ];
 
     $form['defer_indexing'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Defer indexing'),
       '#description' => $this->t('Defer indexing to a queue worker instead of indexing immediately. This can be useful when importing very large amounts of Drupal entities.'),
-      '#default_value' => (int) $config->get('elasticsearch_helper.defer_indexing'),
+      '#default_value' => (int) $config->get('defer_indexing'),
     ];
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * Adds new entry to the list of hosts.
+   *
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function addHostForm(array $form, FormStateInterface $form_state) {
+    // Store submitted values.
+    $this->storeSubmittedValues($form_state);
+
+    // Add a new host.
+    $hosts = $this->config->get('hosts');
+    $hosts[] = $this->getHostDefaultSettings();
+    $this->config->set('hosts', $hosts);
+
+    $form_state->setRebuild();
+  }
+
+  /**
+   * Stores submitted values.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function storeSubmittedValues(FormStateInterface $form_state) {
+    $this->config
+      ->set('hosts', $form_state->getValue('hosts'))
+      ->set('defer_indexing', $form_state->getValue('defer_indexing'));
   }
 
   /**
@@ -161,15 +273,11 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $this->config('elasticsearch_helper.settings')
-      ->set('elasticsearch_helper.scheme', $form_state->getValue('scheme'))
-      ->set('elasticsearch_helper.host', $form_state->getValue('host'))
-      ->set('elasticsearch_helper.port', $form_state->getValue('port'))
-      ->set('elasticsearch_helper.authentication', $form_state->getValue('authentication'))
-      ->set('elasticsearch_helper.user', $form_state->getValue('user'))
-      ->set('elasticsearch_helper.password', $form_state->getValue('password'))
-      ->set('elasticsearch_helper.defer_indexing', $form_state->getValue('defer_indexing'))
-      ->save();
+    // Store submitted values.
+    $this->storeSubmittedValues($form_state);
+
+    // Save submitted configuration values.
+    $this->config->save();
   }
 
 }

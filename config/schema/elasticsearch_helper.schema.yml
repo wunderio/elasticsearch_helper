@@ -2,10 +2,9 @@ elasticsearch_helper.settings:
   type: config_object
   label: 'Elasticsearch helper config.'
   mapping:
-    elasticsearch_helper:
-      type: config_object
-      label: 'Elasticsearch helper config.'
-      mapping:
+    hosts:
+      type: sequence
+      sequence:
         scheme:
           type: string
           label: Scheme
@@ -16,14 +15,18 @@ elasticsearch_helper.settings:
           type: integer
           label: Port
         authentication:
-          type: integer
+          type: mapping
           label: Authentication
-        user:
-          type: string
-          label: User
-        password:
-          type: string
-          label: Password
-        defer_indexing:
-          type: boolean
-          label: 'Defer indexing'
+          mapping:
+            enabled:
+              type: boolean
+              label: Enabled
+            user:
+              type: string
+              label: User
+            password:
+              type: string
+              label: Password
+    defer_indexing:
+      type: boolean
+      label: 'Defer indexing'
