@@ -5,6 +5,7 @@ namespace Drupal\elasticsearch_helper\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -116,8 +117,6 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config;
-
     try {
       // Get server health status.
       $status = $this->getServerHealthStatus();
@@ -138,9 +137,19 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       $this->messenger()->addError($e->getMessage());
     }
 
+    $header = [
+      '',
+      $this->t('Scheme'),
+      $this->t('Host'),
+      $this->t('Port'),
+      $this->t('Authentication'),
+      $this->t('Weight'),
+      $this->t('Remove'),
+    ];
+
     $form['hosts'] = [
       '#type' => 'table',
-      '#header' => ['', $this->t('Scheme'), $this->t('Host'), $this->t('Port'), $this->t('Authentication'), $this->t('Weight')],
+      '#header' => $header,
       '#empty' => $this->t('No hosts are defined.'),
       '#tabledrag' => [
         [
@@ -152,7 +161,9 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       '#tree' => TRUE,
     ];
 
-    foreach ($this->config->get('hosts') as $index => $host) {
+    foreach ($this->getHosts($form_state) as $index => $host) {
+      $host = ElasticsearchHost::createFromArray($host);
+
       $form['hosts'][$index]['#attributes'] = ['class' => ['draggable'], 'id' => 'row-' . $index];
 
       $form['hosts'][$index]['handle'] = [];
@@ -164,13 +175,13 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
           'http' => 'http',
           'https' => 'https',
         ],
-        '#default_value' => $host['scheme'],
+        '#default_value' => $host->getScheme(),
       ];
 
       $form['hosts'][$index]['host'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Host'),
-        '#default_value' => $host['host'],
+        '#default_value' => $host->getHost(),
       ];
 
       $form['hosts'][$index]['port'] = [
@@ -178,13 +189,13 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         '#title' => $this->t('Port'),
         '#maxlength' => 4,
         '#size' => 4,
-        '#default_value' => $host['port'],
+        '#default_value' => $host->getPort(),
       ];
 
       $form['hosts'][$index]['authentication']['enabled'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Use authentication'),
-        '#default_value' => (int) $host['authentication']['enabled'],
+        '#default_value' => (int) $host->isAuthEnabled(),
       ];
 
       $form['hosts'][$index]['authentication']['credentials'] = [
@@ -200,7 +211,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       $form['hosts'][$index]['authentication']['credentials']['user'] = [
         '#type' => 'textfield',
         '#title' => $this->t('User'),
-        '#default_value' => $host['authentication']['user'],
+        '#default_value' => $host->getAuthUsername(),
         '#size' => 32,
         '#parents' => ['hosts', $index, 'authentication', 'user'],
       ];
@@ -208,7 +219,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       $form['hosts'][$index]['authentication']['credentials']['password'] = [
         '#type' => 'textfield',
         '#title' => $this->t('password'),
-        '#default_value' => $host['authentication']['password'],
+        '#default_value' => $host->getAuthPassword(),
         '#size' => 32,
         '#parents' => ['hosts', $index, 'authentication', 'password'],
       ];
@@ -220,22 +231,67 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         '#title' => t('Weight'),
         '#title_display' => 'invisible',
       ];
+
+      $form['hosts'][$index]['remove'] = [
+        '#type' => 'submit',
+        '#index' => $index,
+        '#value' => t('Remove'),
+        '#submit' => [[$this, 'removeHost']],
+      ];
     }
 
     $form['add_host'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add host'),
-      '#submit' => [[$this, 'addHostForm']],
+      '#submit' => [[$this, 'addHost']],
     ];
 
     $form['defer_indexing'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Defer indexing'),
       '#description' => $this->t('Defer indexing to a queue worker instead of indexing immediately. This can be useful when importing very large amounts of Drupal entities.'),
-      '#default_value' => (int) $config->get('defer_indexing'),
+      '#default_value' => (int) $this->config->get('defer_indexing'),
     ];
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * Returns a list of host configurations.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return array
+   */
+  protected function getHosts(FormStateInterface $form_state) {
+    if ($form_state->isProcessingInput()) {
+      $result = $form_state->get('hosts');
+    }
+    else {
+      $result = $this->config->get('hosts');
+    }
+
+    return $result ?: [];
+  }
+
+  /**
+   * Removes the host from the list.
+   *
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function removeHost(array $form, FormStateInterface $form_state) {
+    // Store submitted host values.
+    $this->copyHostValuesFromFormState($form_state);
+
+    $triggering_element = $form_state->getTriggeringElement();
+    $index = $triggering_element['#index'];
+
+    $hosts = $form_state->get('hosts');
+    unset($hosts[$index]);
+    $form_state->set('hosts', $hosts);
+
+    $form_state->setRebuild();
   }
 
   /**
@@ -244,27 +300,47 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * @param array $form
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function addHostForm(array $form, FormStateInterface $form_state) {
-    // Store submitted values.
-    $this->storeSubmittedValues($form_state);
+  public function addHost(array $form, FormStateInterface $form_state) {
+    // Store submitted host values.
+    $this->copyHostValuesFromFormState($form_state);
 
     // Add a new host.
-    $hosts = $this->config->get('hosts');
+    $hosts = $form_state->get('hosts');
     $hosts[] = $this->getHostDefaultSettings();
-    $this->config->set('hosts', $hosts);
+    $form_state->set('hosts', $hosts);
 
     $form_state->setRebuild();
   }
 
   /**
-   * Stores submitted values.
+   * Stores submitted host values.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function storeSubmittedValues(FormStateInterface $form_state) {
-    $this->config
-      ->set('hosts', $form_state->getValue('hosts'))
-      ->set('defer_indexing', $form_state->getValue('defer_indexing'));
+  public function copyHostValuesFromFormState(FormStateInterface $form_state) {
+    // Filter out empty hosts.
+    $hosts = array_filter($form_state->getValue('hosts'), function ($host) {
+      return !empty($host['host']);
+    });
+
+    // Sort hosts by weight.
+    uasort($hosts, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
+
+    // Store only necessary values.
+    $hosts = array_map(function ($host) {
+      return [
+        'scheme' => $host['scheme'],
+        'host' => $host['host'],
+        'port' => $host['port'],
+        'authentication' => [
+          'enabled' => $host['authentication']['enabled'],
+          'user' => $host['authentication']['user'],
+          'password' => $host['authentication']['password'],
+        ],
+      ];
+    }, $hosts);
+
+    $form_state->set('hosts', $hosts);
   }
 
   /**
@@ -274,7 +350,12 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     // Store submitted values.
-    $this->storeSubmittedValues($form_state);
+    $this->copyHostValuesFromFormState($form_state);
+
+    // Reset host keys.
+    $hosts = array_values($form_state->get('hosts'));
+    $this->config->set('hosts', $hosts);
+    $this->config->set('defer_indexing', $form_state->getValue('defer_indexing'));
 
     // Save submitted configuration values.
     $this->config->save();
