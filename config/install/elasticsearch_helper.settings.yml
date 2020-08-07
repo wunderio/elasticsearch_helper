@@ -1,7 +1,10 @@
 hosts:
   -
-    scheme: 'http'
-    host: 'localhost'
+    scheme: http
+    host: localhost
     port: 9200
-    authentication: { }
+    authentication:
+      enabled: 0
+      user: ''
+      password: ''
 defer_indexing: false
