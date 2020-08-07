@@ -88,7 +88,38 @@ function elasticsearch_helper_update_8001() {
  */
 function elasticsearch_helper_update_8002() {
   $config = \Drupal::service('config.factory')->getEditable('elasticsearch_helper.settings');
+
   if ($config->get('elasticsearch_helper.scheme')) {
     $config->set('elasticsearch_helper.scheme', 'http');
   }
+}
+
+/**
+ * Change module's configuration structure to allow defining multiple hosts.
+ */
+function elasticsearch_helper_update_8003() {
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('elasticsearch_helper.settings');
+
+  $hosts = [
+    [
+      'scheme' => $config->get('elasticsearch_helper.scheme'),
+      'host' => $config->get('elasticsearch_helper.host'),
+      'port' => $config->get('elasticsearch_helper.port'),
+      'authentication' => [
+        'enabled' => (bool) $config->get('elasticsearch_helper.authentication'),
+        'user' => $config->get('elasticsearch_helper.user'),
+        'password' => $config->get('elasticsearch_helper.password'),
+      ],
+    ]
+  ];
+  $defer_indexing = $config->get('elasticsearch_helper.defer_indexing');
+
+  // Delete the configuration object altogether.
+  $config->delete();
+
+  // Reinstate the configuration.
+  $config->set('hosts', $hosts);
+  $config->set('defer_indexing', (bool) $defer_indexing);
+  $config->save();
 }

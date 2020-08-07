@@ -3,6 +3,7 @@
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
+use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -102,12 +103,13 @@ class IndexTest extends EntityKernelTestBase {
    *   The response.
    */
   protected function queryIndex($docId) {
-    $elasticsearch_host = $this
+    $host = $this
       ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
+      ->get('hosts')[0];
+    $host = ElasticsearchHost::createFromArray($host);
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_search?q=id:' . $docId;
+    $uri = 'http://' . $host->getHost() . ':9200/simple/_search?q=id:' . $docId;
     return $this->httpRequest($uri);
   }
 

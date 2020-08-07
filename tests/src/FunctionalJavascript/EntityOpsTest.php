@@ -29,7 +29,7 @@ class EntityOpsTest extends WebDriverTestBase {
     $this->assertEquals($queue->numberOfItems(), 0);
     \Drupal::configFactory()
       ->getEditable('elasticsearch_helper.settings')
-      ->set('elasticsearch_helper.defer_indexing', 1)
+      ->set('defer_indexing', TRUE)
       ->save();
     elasticsearch_helper_entity_insert($entity);
     $this->assertEquals($queue->numberOfItems(), 1);
