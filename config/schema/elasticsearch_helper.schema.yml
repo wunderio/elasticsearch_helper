@@ -19,7 +19,7 @@ elasticsearch_helper.settings:
           label: Authentication
           mapping:
             enabled:
-              type: boolean
+              type: integer
               label: Enabled
             user:
               type: string
