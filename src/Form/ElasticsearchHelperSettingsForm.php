@@ -356,7 +356,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     // Reset host keys.
     $hosts = array_values($form_state->get('hosts'));
     $this->config->set('hosts', $hosts);
-    $this->config->set('defer_indexing', $form_state->getValue('defer_indexing'));
+    $this->config->set('defer_indexing', (bool) $form_state->getValue('defer_indexing'));
 
     // Save submitted configuration values.
     $this->config->save();

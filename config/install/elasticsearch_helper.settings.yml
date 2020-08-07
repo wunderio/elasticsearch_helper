@@ -2,7 +2,7 @@ hosts:
   -
     scheme: http
     host: localhost
-    port: 9200
+    port: '9200'
     authentication:
       enabled: false
       user: ''

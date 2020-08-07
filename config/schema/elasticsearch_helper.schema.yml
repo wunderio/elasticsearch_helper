@@ -5,28 +5,31 @@ elasticsearch_helper.settings:
     hosts:
       type: sequence
       sequence:
-        scheme:
-          type: string
-          label: Scheme
-        host:
-          type: string
-          label: Host
-        port:
-          type: string
-          label: Port
-        authentication:
-          type: mapping
-          label: Authentication
-          mapping:
-            enabled:
-              type: boolean
-              label: Enabled
-            user:
-              type: string
-              label: User
-            password:
-              type: string
-              label: Password
+        type: mapping
+        label: Host
+        mapping:
+          scheme:
+            type: string
+            label: Scheme
+          host:
+            type: string
+            label: Host
+          port:
+            type: string
+            label: Port
+          authentication:
+            type: mapping
+            label: Authentication
+            mapping:
+              enabled:
+                type: boolean
+                label: Enabled
+              user:
+                type: string
+                label: User
+              password:
+                type: string
+                label: Password
     defer_indexing:
       type: boolean
       label: 'Defer indexing'

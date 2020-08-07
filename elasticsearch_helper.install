@@ -120,6 +120,6 @@ function elasticsearch_helper_update_8003() {
 
   // Reinstate the configuration.
   $config->set('hosts', $hosts);
-  $config->set('defer_indexing', $defer_indexing);
+  $config->set('defer_indexing', (bool) $defer_indexing);
   $config->save();
 }
