@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
+use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -104,12 +105,13 @@ class QueueWorkerTest extends KernelTestBase {
    *   The index count.
    */
   protected function queryIndexCount() {
-    $elasticsearch_host = $this
+    $host = $this
       ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
+      ->get('hosts')[0];
+    $host = ElasticsearchHost::createFromArray($host);
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/simple/_count';
+    $uri = 'http://' . $host->getHost() . ':9200/simple/_count';
 
     // Query index total count.
     // Use Curl for now because http client middleware fails in KernelTests

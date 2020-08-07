@@ -107,7 +107,7 @@ function elasticsearch_helper_update_8003() {
       'host' => $config->get('elasticsearch_helper.host'),
       'port' => $config->get('elasticsearch_helper.port'),
       'authentication' => [
-        'enabled' => (int) $config->get('elasticsearch_helper.authentication'),
+        'enabled' => (bool) $config->get('elasticsearch_helper.authentication'),
         'user' => $config->get('elasticsearch_helper.user'),
         'password' => $config->get('elasticsearch_helper.password'),
       ],

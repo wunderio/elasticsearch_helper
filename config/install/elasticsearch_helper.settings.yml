@@ -4,7 +4,7 @@ hosts:
     host: localhost
     port: 9200
     authentication:
-      enabled: 0
+      enabled: false
       user: ''
       password: ''
 defer_indexing: false

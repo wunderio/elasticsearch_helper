@@ -12,14 +12,14 @@ elasticsearch_helper.settings:
           type: string
           label: Host
         port:
-          type: integer
+          type: string
           label: Port
         authentication:
           type: mapping
           label: Authentication
           mapping:
             enabled:
-              type: integer
+              type: boolean
               label: Enabled
             user:
               type: string

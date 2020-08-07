@@ -334,7 +334,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         'host' => $host['host'],
         'port' => $host['port'],
         'authentication' => [
-          'enabled' => $host['authentication']['enabled'],
+          'enabled' => (bool) $host['authentication']['enabled'],
           'user' => $host['authentication']['user'],
           'password' => $host['authentication']['password'],
         ],

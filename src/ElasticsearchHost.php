@@ -28,7 +28,7 @@ class ElasticsearchHost {
   protected $port;
 
   /**
-   * @var int
+   * @var bool
    */
   protected $authEnabled;
 
@@ -45,12 +45,12 @@ class ElasticsearchHost {
   /**
    * ElasticsearchHost constructor.
    *
-   * @param $scheme
-   * @param $host
-   * @param $port
-   * @param $auth_enabled
-   * @param $auth_username
-   * @param $auth_password
+   * @param string $scheme
+   * @param string $host
+   * @param string $port
+   * @param bool $auth_enabled
+   * @param string $auth_username
+   * @param string $auth_password
    */
   public function __construct($scheme, $host, $port, $auth_enabled, $auth_username, $auth_password) {
     $this->scheme = $scheme;
@@ -73,7 +73,7 @@ class ElasticsearchHost {
       isset($values['scheme']) ? $values['scheme'] : NULL,
       isset($values['host']) ? $values['host'] : NULL,
       isset($values['port']) ? $values['port'] : NULL,
-      isset($values['authentication']['enabled']) ? $values['authentication']['enabled'] : NULL,
+      isset($values['authentication']['enabled']) ? (bool) $values['authentication']['enabled'] : NULL,
       isset($values['authentication']['user']) ? $values['authentication']['user'] : NULL,
       isset($values['authentication']['password']) ? $values['authentication']['password'] : NULL
     );
@@ -109,7 +109,7 @@ class ElasticsearchHost {
   /**
    * Returns 1 if authentication is enabled.
    *
-   * @return int
+   * @return bool
    */
   public function isAuthEnabled() {
     return $this->authEnabled;

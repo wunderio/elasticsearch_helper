@@ -5,6 +5,7 @@ namespace Drupal\Tests\elasticsearch_helper\Kernel;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
+use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -69,14 +70,15 @@ class IndexMappingTest extends EntityKernelTestBase {
    * Test index mapping.
    */
   public function testIndexMapping() {
-    $elasticsearch_host = $this
+    $host = $this
       ->config('elasticsearch_helper.settings')
-      ->get('elasticsearch_helper.host');
+      ->get('hosts')[0];
+    $host = ElasticsearchHost::createFromArray($host);
 
     $index_name = 'node_index';
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $elasticsearch_host . ':9200/'. $index_name .'/_mapping';
+    $uri = 'http://' . $host->getHost() . ':9200/'. $index_name .'/_mapping';
 
     $response = $this->httpRequest($uri);
 
