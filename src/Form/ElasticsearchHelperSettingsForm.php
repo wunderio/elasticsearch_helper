@@ -188,6 +188,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Port'),
         '#maxlength' => 4,
+        '#placeholder' => ElasticsearchHost::PORT_DEFAULT,
         '#size' => 4,
         '#default_value' => $host->getPort(),
       ];

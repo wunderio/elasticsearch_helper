@@ -8,6 +8,11 @@ namespace Drupal\elasticsearch_helper;
 class ElasticsearchHost {
 
   /**
+   * Defines default Elasticsearch server port.
+   */
+  const PORT_DEFAULT = 9200;
+
+  /**
    * @var string
    */
   protected $scheme;
