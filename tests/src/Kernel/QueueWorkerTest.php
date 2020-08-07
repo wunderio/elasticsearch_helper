@@ -53,7 +53,7 @@ class QueueWorkerTest extends KernelTestBase {
     // Enable defer indexing.
     \Drupal::configFactory()
       ->getEditable('elasticsearch_helper.settings')
-      ->set('elasticsearch_helper.defer_indexing', 1)
+      ->set('defer_indexing', 1)
       ->save();
 
     // Return elasticsearch_helper related queue and queue worker.

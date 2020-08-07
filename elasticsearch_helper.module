@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityInterface;
  */
 function elasticsearch_helper_entity_insert(EntityInterface $entity) {
   $config = \Drupal::config('elasticsearch_helper.settings');
-  if ($config->get('elasticsearch_helper.defer_indexing')) {
+  if ($config->get('defer_indexing')) {
     \Drupal::queue('elasticsearch_helper_indexing')
       ->createItem([
         'entity_type' => $entity->getEntityTypeId(),
