@@ -420,7 +420,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * {@inheritdoc}
    */
-  public function reindex() {
+  public function reindex(array $context = []) {
     if (isset($this->pluginDefinition['entityType'])) {
       $entity_type = $this->pluginDefinition['entityType'];
       $bundle = NULL;

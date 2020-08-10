@@ -40,6 +40,14 @@ composer require drupal/elasticsearch_helper_views
 
 ### New methods
 
+Three new methods are added to ElasticsearchIndexInterface:
+
+1. `public function getMappingDefinition(array $context = [])`
+2. `public function getIndexDefinition(array $context = [])`
+3. `public function reindex(array $context = [])`
+
+#### getMappingDefinition()
+
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined field mappings in `setup()`
 method as arrays.
 
@@ -75,6 +83,8 @@ Example:
       ->addProperty('user', $user_property);
   }
 ```
+
+#### getIndexDefinition()
 
 Additionally, in Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
 method.
@@ -114,6 +124,13 @@ default index settings which can be overridden in index plugins:
 'number_of_shards' => 1,
 'number_of_replicas' => 0,
 ```
+
+#### reindex()
+
+In Elasticsearch Helper 5.x and 6.x running `drush elasticsearch-helper-reindex` would only reindex entities.
+
+In Elasticsearch Helper 7.x index plugins can define their own reindex logic in `reindex()` method. Existing
+index plugins that manage entities work as before.
 
 ### Changes in existing methods
 

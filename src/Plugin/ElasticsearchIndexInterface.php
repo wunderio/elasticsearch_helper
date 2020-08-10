@@ -124,8 +124,11 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * It is recommended to use the queue to reindex content.
    *
+   * @param array $context
+   *   Additional context parameters.
+   *
    * @return void
    */
-  public function reindex();
+  public function reindex(array $context = []);
 
 }

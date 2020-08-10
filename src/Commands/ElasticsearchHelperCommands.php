@@ -20,14 +20,14 @@ class ElasticsearchHelperCommands extends DrushCommands {
    * ElasticsearchHelperCommands constructor.
    *
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $manager
-   *   The elastic manager.
+   *   The Elasticsearch index plugin manager.
    */
   public function __construct(ElasticsearchIndexManager $manager) {
     $this->elasticsearchPluginManager = $manager;
   }
 
   /**
-   * List ElasticsearchIndex plugins.
+   * Lists Elasticsearch index plugins.
    *
    * @command elasticsearch:helper:list
    * @table-style default
@@ -52,11 +52,15 @@ class ElasticsearchHelperCommands extends DrushCommands {
   }
 
   /**
-   * Setup Elasticsearch indices.
+   * Creates Elasticsearch indices.
+   *
+   * @param string|null $indices
+   *   Comma separated list of indices to be set up
    *
    * @command elasticsearch:helper:setup
-   * @param $indices Comma separated list of indices to be set up
    * @aliases eshs,elasticsearch-helper-setup
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function helperSetup($indices = NULL) {
     // Indices can be specified with a comma-separate value.
@@ -71,11 +75,15 @@ class ElasticsearchHelperCommands extends DrushCommands {
   }
 
   /**
-   * Drop Elasticsearch indices.
+   * Drops Elasticsearch indices.
+   *
+   * @param string|null $indices
+   *   Comma separated list of indices to be deleted
    *
    * @command elasticsearch:helper:drop
-   * @param $indices Comma separated list of indices to be deleted
    * @aliases eshd,elasticsearch-helper-drop
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function helperDrop($indices = NULL) {
     // Indices can be specified with a comma-separate value.
@@ -110,18 +118,26 @@ class ElasticsearchHelperCommands extends DrushCommands {
   }
 
   /**
-   * Reindex entities associated with an elasticsearch index
+   * Re-indexes entities associated with an Elasticsearch index plugin.
+   *
+   * @param string|null $indices
+   *   Comma separated list of indices for which entities should be re-indexed.
    *
    * @command elasticsearch:helper:reindex
-   * @param $indices Comma separated list of indices for which entities should be reindexed
    * @aliases eshr,elasticsearch-helper-reindex
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Exception
    */
   public function helperReindex($indices = NULL) {
     // Indices can be specified with a comma-separate value.
     if ($indices && is_string($indices)) {
       $indices = explode(',', $indices);
     }
-    $this->elasticsearchPluginManager->reindex($indices);
+
+    $context['caller'] = 'drush';
+
+    $this->elasticsearchPluginManager->reindex($indices, $context);
   }
 
 }
