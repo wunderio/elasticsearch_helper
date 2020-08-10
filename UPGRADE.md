@@ -121,7 +121,7 @@ public function getId(array $data = [])
 ## Changes in configuration
 
 Running `drush updb` and exporting the changed configuration should be sufficient
-to convert the configuration structure to the new format.
+to convert the old configuration structure to the new structure.
 
 Configuration object `elasticsearch_helper.settings` structure has been changed:
 
@@ -155,7 +155,7 @@ defer_indexing: false
 
 ### settings.php
 
-Update the settings in `settings.php` file if necessary:
+Update the configuration overrides in `settings.php` file if necessary:
 
 Before (Elasticsearch Helper 5.x and 6.x):
 
