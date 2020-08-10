@@ -26,9 +26,9 @@ already defined in `getMappingDefinition()` and `getIndexDefinition()` methods.
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined field mappings in `setup()`
 method as arrays.
 
-In Elasticsearch Helper 7.x `ElasticsearchIndexInterface` requires `public function getMappingDefinition()` method to
-be present in all implementation classes. This method should return an instance of `MappindDefinition`
-class which contains index field mappings described in an object oriented way.
+In Elasticsearch Helper 7.x `ElasticsearchIndexInterface` requires `public function getMappingDefinition()`
+method to be present in all implementation classes. This method should return an instance of
+`MappindDefinition` class which contains index field mappings described in an object oriented way.
 
 Each field can be described with an instance of `FieldDefinition` class. It has the following methods:
 * Nested fields can be added using `addProperty()` or `addProperties()` methods.
@@ -62,8 +62,8 @@ Example:
 Additionally, in Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
 method.
 
-In Elasticsearch Helper 7.x method `public function getIndexDefinition()` has been added to `ElasticsearchIndexInterface`
-to make it easier to configure the index settings.
+In Elasticsearch Helper 7.x method `public function getIndexDefinition()` has been added to
+`ElasticsearchIndexInterface` to make it easier to configure the index settings.
 
 Example:
 
