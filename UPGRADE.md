@@ -10,7 +10,12 @@ The most notable changes in version 7.x:
 3. Support for event subscribers to react to most common Elasticsearch operations.
 4. Support for object-oriented description of index settings and field mappings.
 5. Simplified index plugin structure (no need to explicitly create an index in `setup()` method).
-5. Index plugins can define their own overall content reindex procedures in `reindex()` method.
+6. Index plugins can define their own overall content reindex procedures in `reindex()` method.
+7. Sub-modules are split into their own separate projects:
+  * [Elasticsearch Helper AWS](https://drupal.org/project/elasticsearch_helper_aws)
+  * [Elasticsearch Helper Content](https://www.drupal.org/project/elasticsearch_helper_content)
+  * [Elasticsearch Helper Instant](https://www.drupal.org/project/elasticsearch_helper_instant)
+  * [Elasticsearch Helper Views](https://www.drupal.org/project/elasticsearch_helper_views)
 
 Minimal upgrade checklist:
 1. [ ] Add `getMappingDefinition()` method to index plugins to conform to the interface.
@@ -18,6 +23,18 @@ Minimal upgrade checklist:
 already defined in `getMappingDefinition()` and `getIndexDefinition()` methods.
 3. [ ] Run `drush updb` to update the configuration structure.
 4. [ ] Export configuration of Elasticsearch Helper module.
+
+## Changes in included sub-modules
+
+As sub-modules in Elasticsearch Helper 7.x have been moved to their own project pages, add them
+manually to the project if necessary:
+
+``
+composer require drupal/elasticsearch_helper_aws
+composer require drupal/elasticsearch_helper_content
+composer require drupal/elasticsearch_helper_instant
+composer require drupal/elasticsearch_helper_views
+``
 
 ## Changes in index plugins
 
