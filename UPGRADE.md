@@ -29,12 +29,12 @@ already defined in `getMappingDefinition()` and `getIndexDefinition()` methods.
 As sub-modules in Elasticsearch Helper 7.x have been moved to their own project pages, add them
 manually to the project if necessary:
 
-``
+```
 composer require drupal/elasticsearch_helper_aws
 composer require drupal/elasticsearch_helper_content
 composer require drupal/elasticsearch_helper_instant
 composer require drupal/elasticsearch_helper_views
-``
+```
 
 ## Changes in index plugins
 
