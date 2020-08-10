@@ -135,8 +135,7 @@ class ElasticsearchHelperCommands extends DrushCommands {
       $indices = explode(',', $indices);
     }
 
-    $context['caller'] = 'drush';
-
+    $context = ['caller' => 'drush'];
     $this->elasticsearchPluginManager->reindex($indices, $context);
   }
 
