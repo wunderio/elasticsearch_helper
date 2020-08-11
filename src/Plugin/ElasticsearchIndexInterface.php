@@ -127,7 +127,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * @param array $context
    *   Additional context parameters.
    *
-   * @return void
+   * @return mixed
    */
   public function reindex(array $context = []);
 

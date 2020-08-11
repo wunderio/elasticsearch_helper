@@ -4,3 +4,7 @@ services:
     tags:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+  elasticsearch_helper_example.reindex_event_subscriber:
+    class: Drupal\elasticsearch_helper_example\EventSubscriber\ReindexEventSubscriber
+    tags:
+      - { name: event_subscriber }
