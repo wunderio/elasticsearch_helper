@@ -12,6 +12,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ReindexEventSubscriber implements EventSubscriberInterface {
 
   /**
+   * @var string
+   */
+  protected $ignoredPluginId = 'time_based_index';
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
@@ -30,7 +35,7 @@ class ReindexEventSubscriber implements EventSubscriberInterface {
     $plugin = $event->getPluginInstance();
 
     // Change the reindex callback for "time_based_index" index plugin.
-    if ($plugin->getPluginId() == 'time_based_index') {
+    if ($plugin->getPluginId() == $this->ignoredPluginId) {
       $callback = &$event->getCallback();
       $callback = [$this, 'reindexNone'];
     }
@@ -40,7 +45,9 @@ class ReindexEventSubscriber implements EventSubscriberInterface {
    * Dummy reindex callback.
    */
   public function reindexNone() {
-    \Drupal::logger('elasticsearch_helper_example')->info(t('Content will not be re-indexed.'));
+    $t_args = ['@plugin_id' => $this->ignoredPluginId];
+    $message = t('Content will not be re-indexed for "@plugin_id" index plugin.', $t_args);
+    \Drupal::logger('elasticsearch_helper_example')->notice($message);
   }
 
 }
