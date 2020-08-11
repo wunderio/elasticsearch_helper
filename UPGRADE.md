@@ -40,10 +40,18 @@ composer require drupal/elasticsearch_helper_views
 
 ### New methods
 
+Three new methods are added to `ElasticsearchIndexInterface`:
+
+1. `public function getMappingDefinition(array $context = [])`
+2. `public function getIndexDefinition(array $context = [])`
+3. `public function reindex(array $context = [])`
+
+#### getMappingDefinition()
+
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined field mappings in `setup()`
 method as arrays.
 
-In Elasticsearch Helper 7.x `ElasticsearchIndexInterface` requires `public function getMappingDefinition()`
+In Elasticsearch Helper 7.x `ElasticsearchIndexInterface` requires `getMappingDefinition()`
 method to be present in all implementation classes. This method should return an instance of
 `MappindDefinition` class which contains index field mappings described in an object oriented way.
 
@@ -76,11 +84,14 @@ Example:
   }
 ```
 
-Additionally, in Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
+This method needs to be explicitly implemented in every index plugin.
+
+#### getIndexDefinition()
+
+In Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
 method.
 
-In Elasticsearch Helper 7.x method `public function getIndexDefinition()` has been added to
-`ElasticsearchIndexInterface` to make it easier to configure the index settings.
+In Elasticsearch Helper 7.x method `getIndexDefinition()` makes it easier to configure index settings.
 
 Example:
 
@@ -89,31 +100,62 @@ Example:
  * {@inheritdoc}
  */
 public function getIndexDefinition(array $context = []) {
-// Get index definition.
-$index_definition = parent::getIndexDefinition($context);
+  // Get index definition.
+  $index_definition = parent::getIndexDefinition($context);
 
-// Add custom settings.
-$index_definition->getSettingsDefinition()->addOptions([
-  'analysis' => [
-    'analyzer' => [
-      'english' => [
-        'tokenizer' => 'standard',
+  // Add custom settings.
+  $index_definition->getSettingsDefinition()->addOptions([
+    'analysis' => [
+      'analyzer' => [
+        'english' => [
+          'tokenizer' => 'standard',
+        ],
       ],
     ],
-  ],
-]);
+  ]);
 
-return $index_definition;
+  return $index_definition;
 }
 ```
 
-By default, `ElasticsearchIndexBase` class provides the following
-default index settings which can be overridden in index plugins:
+By default `ElasticsearchIndexBase::getIndexDefinition()` provides the following
+default index settings which can be overridden in `getIndexDefinition()` method in extending index plugins:
 
 ```
 'number_of_shards' => 1,
 'number_of_replicas' => 0,
 ```
+
+Example:
+
+```
+/**
+ * {@inheritdoc}
+ */
+public function getIndexDefinition(array $context = []) {
+  // Get index definition.
+  $index_definition = parent::getIndexDefinition($context);
+
+  // Add custom settings.
+  $index_definition->getSettingsDefinition()->addOptions([
+    'number_of_shards' => 2,
+    'number_of_replicas' => 1,
+  ]);
+
+  return $index_definition;
+}
+```
+
+#### reindex()
+
+In Elasticsearch Helper 5.x and 6.x running `drush elasticsearch-helper-reindex` would only affect index plugins
+that index entities of type defined in `entityType` plugin definition.
+
+In Elasticsearch Helper 7.x index plugins can define their own reindex logic in `reindex()` method, allowing index
+plugins that manage non-entity content react when `drush elasticsearch-helper-reindex` command is run.
+
+By default `ElasticsearchIndexBase::reindex()` method re-indexes entities managed by index plugins that define entity
+type in `entityType` plugin definition.
 
 ### Changes in existing methods
 

@@ -11,6 +11,8 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperGenericEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
@@ -420,7 +422,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * {@inheritdoc}
    */
-  public function reindex() {
+  public function reindex(array $context = []) {
     if (isset($this->pluginDefinition['entityType'])) {
       $entity_type = $this->pluginDefinition['entityType'];
       $bundle = NULL;
@@ -429,14 +431,26 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $bundle = $this->pluginDefinition['bundle'];
       }
 
-      // Re-index entities that this plugin manages.
-      $this->getElasticsearchIndexPluginManager()->reindexEntities($entity_type, $bundle);
+      // Emit reindex event.
+      $callback = [$this->getElasticsearchIndexPluginManager(), 'reindexEntities'];
+      $params = [$entity_type, $bundle];
+      $request_event = new ElasticsearchHelperGenericEvent($callback, $params, $this);
+      $this->getEventDispatcher()->dispatch(ElasticsearchHelperEvents::REINDEX, $request_event);
+
+      return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
     }
   }
 
   /**
+   * Serializes the source object.
+   *
    * Transform the data from its native format (most likely a Drupal entity) to
    * the format that should be stored in the Elasticsearch index.
+   *
+   * @param mixed $source
+   * @param array $context
+   *
+   * @return array
    */
   public function serialize($source, $context = []) {
     if ($source instanceof EntityInterface) {

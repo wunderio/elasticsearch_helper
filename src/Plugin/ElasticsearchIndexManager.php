@@ -119,16 +119,17 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    * Re-indexes the content managed by Elasticsearch index plugins.
    *
    * @param array $indices
+   * @param array $context
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    * @throws \Exception
    */
-  public function reindex($indices = []) {
+  public function reindex($indices = [], array $context = []) {
     foreach ($this->getDefinitions() as $definition) {
       if (empty($indices) || in_array($definition['id'], $indices)) {
         /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin */
         $plugin = $this->createInstance($definition['id']);
-        $plugin->reindex();
+        $plugin->reindex($context);
       }
     }
   }
