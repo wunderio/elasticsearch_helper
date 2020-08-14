@@ -149,6 +149,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     // Create an index if index definition is provided by the index plugin.
     if ($index_definition = $this->getIndexDefinition()) {
       $index_name = $this->getIndexName([]);
+      $t_args = ['@index_name' => $index_name];
 
       if (!$this->client->indices()->exists(['index' => $index_name])) {
         $params = [
@@ -161,7 +162,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $request_event = new ElasticsearchOperationRequestEvent([$this->client->indices(), 'create'], [$params], $operation, $this);
         $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $request_event);
 
-        return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+
+        if (!empty($result['acknowledged'])) {
+          $this->logger->notice($this->t('Index "@index_name" has been created.', $t_args));
+        }
+      }
+      else {
+        $this->logger->notice($this->t('Index "@index_name" already exists.', $t_args));
       }
     }
   }
