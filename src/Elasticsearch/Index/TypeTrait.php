@@ -23,7 +23,7 @@ trait TypeTrait {
    * @param $type
    */
   public function setType($type) {
-    $this->type;
+    $this->type = $type;
   }
 
   /**

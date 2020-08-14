@@ -7,8 +7,6 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
-use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 
 /**
  * Tests elasticsearch_helper mapping functionality.
@@ -87,7 +85,7 @@ class IndexMappingTest extends EntityKernelTestBase {
       $properties = $response[$index_name]['mappings']['properties'];
     } else {
       // ES6 mapping structure with type name.
-      $properties = $response[$index_name]['mappings']['_doc']['properties'];
+      $properties = $response[$index_name]['mappings']['node']['properties'];
     }
 
     $this->assertEqual($properties['id']['type'], 'integer', 'ID field is found');
