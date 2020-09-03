@@ -12,17 +12,22 @@ The most notable changes in version 7.x:
 5. Simplified index plugin structure (no need to explicitly create an index in `setup()` method).
 6. Index plugins can define their own overall content reindex procedures in `reindex()` method.
 7. Sub-modules are split into their own separate projects:
-  * [Elasticsearch Helper AWS](https://drupal.org/project/elasticsearch_helper_aws)
-  * [Elasticsearch Helper Content](https://www.drupal.org/project/elasticsearch_helper_content)
-  * [Elasticsearch Helper Instant](https://www.drupal.org/project/elasticsearch_helper_instant)
-  * [Elasticsearch Helper Views](https://www.drupal.org/project/elasticsearch_helper_views)
+    * [Elasticsearch Helper AWS](https://drupal.org/project/elasticsearch_helper_aws)
+    * [Elasticsearch Helper Content](https://www.drupal.org/project/elasticsearch_helper_content)
+    * [Elasticsearch Helper Instant](https://www.drupal.org/project/elasticsearch_helper_instant)
+    * [Elasticsearch Helper Views](https://www.drupal.org/project/elasticsearch_helper_views)
+8. Typo in permission name changed (`configured elasticsearch helper => configure elasticsearch helper`).
 
 Minimal upgrade checklist:
 1. [ ] Add `getMappingDefinition()` method to index plugins to conform to the interface.
 2. [ ] Revise the necessity of `setup()` method in index plugins. Fields and index settings are
-already defined in `getMappingDefinition()` and `getIndexDefinition()` methods.
-3. [ ] Run `drush updb` to update the configuration structure.
-4. [ ] Export configuration of Elasticsearch Helper module.
+already defined in `getMappingDefinition()` and `getIndexDefinition()` methods. Consider defining
+index settings in `getIndexDefinition()` rather than in `setup()` method.
+3. [ ] Run `drush updb` to update the configuration.
+4. [ ] Run `drush cr` to clear caches (this is necessary to discover changed permission name).
+5. [ ] Run `drush cex` to export the configuration.
+6. [ ] Commit the changes in Export Elasticsearch Helper configuration and in role configuration
+with updated permission name.
 
 ## Changes in included sub-modules
 
@@ -211,6 +216,8 @@ hosts:
       password: ''
 defer_indexing: false
 ```
+
+Permission name `configured elasticsearch helper` has been changed to `configure elasticsearch helper`.
 
 ### settings.php
 
