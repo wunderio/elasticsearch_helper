@@ -6,6 +6,7 @@
  */
 
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Drupal\user\Entity\Role;
 
 /**
  * Implements hook_requirements.
@@ -98,6 +99,7 @@ function elasticsearch_helper_update_8002() {
  * Change module's configuration structure to allow defining multiple hosts.
  */
 function elasticsearch_helper_update_8003() {
+  // Update module configuration.
   $config_factory = \Drupal::configFactory();
   $config = $config_factory->getEditable('elasticsearch_helper.settings');
 
@@ -122,4 +124,18 @@ function elasticsearch_helper_update_8003() {
   $config->set('hosts', $hosts);
   $config->set('defer_indexing', (bool) $defer_indexing);
   $config->save();
+
+  // Update permission name.
+  $mistyped_permission = 'configured elasticsearch helper';
+  $permission = 'configure elasticsearch helper';
+
+  /** @var \Drupal\user\RoleInterface $role */
+  foreach (Role::loadMultiple() as $role) {
+    if ($role->hasPermission($mistyped_permission)) {
+      $role->revokePermission($mistyped_permission);
+      $role->grantPermission($permission);
+
+      $role->trustData()->save();
+    }
+  }
 }
