@@ -108,8 +108,6 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           $this->logger->error('Elasticsearch deletion failed: @message', [
             '@message' => $e->getMessage(),
           ]);
-
-          // TODO: queue for later indexing.
         }
       }
     }
