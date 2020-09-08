@@ -27,7 +27,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Put data into the Elasticsearch index.
    *
-   * @param array $source
+   * @param mixed $source
    *   The data to be indexed.
    *
    * @return array|null
@@ -37,7 +37,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Get record from Elasticsearch index.
    *
-   * @param array $source
+   * @param mixed $source
    *   The data to get.
    *
    * @return array|null
@@ -47,7 +47,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Delete an entry from the Elasticsearch index.
    *
-   * @param array $source
+   * @param mixed $source
    *   The data to be used to determine which entry should be deleted.
    *
    * @return array|null
