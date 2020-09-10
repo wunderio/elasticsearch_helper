@@ -27,4 +27,13 @@ class ElasticsearchEvents {
    */
   const OPERATION_REQUEST = 'elasticsearch_helper.operation_request';
 
+  /**
+   * Name of the event fired when exception is raised.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  const EXCEPTION = 'elasticsearch_helper.exception';
+
 }

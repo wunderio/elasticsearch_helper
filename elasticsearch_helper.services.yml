@@ -1,4 +1,8 @@
 services:
+  logger.channel.elasticsearch_helper:
+    parent: logger.channel_base
+    arguments: ['elasticsearch_helper']
+
   elasticsearch_helper.elasticsearch_client:
     class: Elasticsearch\Client
     factory: elasticsearch_helper.elasticsearch_client_builder:build
@@ -13,6 +17,17 @@ services:
 
   elasticsearch_helper.type_event_subscriber:
     class: Drupal\elasticsearch_helper\EventSubscriber\TypeEventSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  elasticsearch_helper.logging_event_subscriber:
+    class: Drupal\elasticsearch_helper\EventSubscriber\LoggingEventSubscriber
+    arguments: ['@logger.channel.elasticsearch_helper']
+    tags:
+      - { name: event_subscriber }
+
+  elasticsearch_helper.messaging_event_subscriber:
+    class: Drupal\elasticsearch_helper\EventSubscriber\MessagingEventSubscriber
     tags:
       - { name: event_subscriber }
 

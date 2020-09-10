@@ -6,6 +6,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
@@ -102,29 +103,41 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function setup() {
-    // Get index definition.
-    $index_definition = $this->getIndexDefinition();
+    $operation = ElasticsearchOperations::INDEX_CREATE;
 
     // Create one index per language, so that we can have different analyzers.
     foreach ($this->language_manager->getLanguages() as $langcode => $language) {
-      // Get index name.
-      $index_name = $this->getIndexName(['langcode' => $langcode]);
+      // Get index definition.
+      $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
 
-      // Get analyzer for the language.
-      $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+      try {
+        // Get index name.
+        $index_name = $this->getIndexName(['langcode' => $langcode]);
 
-      // Put analyzer parameter to all "text" fields in the mapping.
-      foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
-        if ($property->getDataType()->getType() == 'text') {
-          $property->addOption('analyzer', $analyzer);
+        // Get analyzer for the language.
+        $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+
+        // Put analyzer parameter to all "text" fields in the mapping.
+        foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
+          if ($property->getDataType()->getType() == 'text') {
+            $property->addOption('analyzer', $analyzer);
+          }
         }
-      }
 
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
-        $this->client->indices()->create([
-          'index' => $index_name,
-          'body' => $index_definition->toArray(),
-        ]);
+        if (!$this->client->indices()->exists(['index' => $index_name])) {
+          $request_params = [
+            'index' => $index_name,
+            'body' => $index_definition->toArray(),
+          ];
+
+          // Create the index.
+          $callback = [$this->client->indices(), 'create'];
+          $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+          call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        }
+      } catch (\Exception $e) {
+        $request_params = isset($request_params) ? $request_params : NULL;
+        $this->dispatchExceptionEvent($e, $operation, NULL, $request_params);
       }
     }
   }
@@ -136,11 +149,14 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
     // Get index definition.
     $index_definition = parent::getIndexDefinition($context);
 
+    // Get analyzer for the language.
+    $analyzer = ElasticsearchLanguageAnalyzer::get($context['langcode']);
+
     // Add custom settings.
     $index_definition->getSettingsDefinition()->addOptions([
       'analysis' => [
         'analyzer' => [
-          'english' => [
+          $analyzer => [
             'tokenizer' => 'standard',
           ],
         ],

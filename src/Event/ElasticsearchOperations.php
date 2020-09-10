@@ -43,6 +43,11 @@ class ElasticsearchOperations {
   const INDEX_CREATE = 'index.create';
 
   /**
+   * Defines index template creation operation.
+   */
+  const INDEX_TEMPLATE_CREATE = 'index_template.create';
+
+  /**
    * Defines index retrieval operation.
    */
   const INDEX_GET = 'index.get';

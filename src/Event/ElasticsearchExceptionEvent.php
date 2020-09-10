@@ -6,9 +6,16 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchOperationEvent
+ * Class ElasticsearchExceptionEvent
  */
-class ElasticsearchOperationEvent extends Event {
+class ElasticsearchExceptionEvent extends Event {
+
+  /**
+   * Exception that was caught.
+   *
+   * @var \Exception
+   */
+  protected $exception;
 
   /**
    * Elasticsearch operation.
@@ -20,9 +27,16 @@ class ElasticsearchOperationEvent extends Event {
   /**
    * Index-able object.
    *
-   * @var mixed
+   * @var mixed|null
    */
   protected $object;
+
+  /**
+   * Contains request parameters, if exception was related to request.
+   *
+   * @var array|null
+   */
+  protected $requestParameters;
 
   /**
    * Elasticsearch index plugin instance.
@@ -34,13 +48,17 @@ class ElasticsearchOperationEvent extends Event {
   /**
    * ElasticsearchOperationEvent constructor.
    *
+   * @param \Exception $exception
    * @param $operation
    * @param $object
+   * @param $request_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct($operation, $object, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct(\Exception $exception, $operation, $object, $request_parameters, ElasticsearchIndexInterface $plugin_instance) {
+    $this->exception = $exception;
     $this->operation = $operation;
     $this->object = $object;
+    $this->requestParameters = $request_parameters;
     $this->pluginInstance = $plugin_instance;
   }
 
@@ -54,12 +72,30 @@ class ElasticsearchOperationEvent extends Event {
   }
 
   /**
+   * Returns exception.
+   *
+   * @return \Exception
+   */
+  public function getException() {
+    return $this->exception;
+  }
+
+  /**
    * Returns index-able object.
    *
-   * @return mixed
+   * @return mixed|null
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns request parameters (if available).
+   *
+   * @return array|null
+   */
+  public function getRequestParameters() {
+    return $this->requestParameters;
   }
 
   /**

@@ -29,8 +29,6 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $source
    *   The data to be indexed.
-   *
-   * @return array|null
    */
   public function index($source);
 
@@ -40,7 +38,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * @param array $source
    *   The data to get.
    *
-   * @return array|null
+   * @return array
+   *
+   * @throws \Exception
    */
   public function get($source);
 
@@ -49,8 +49,6 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $source
    *   The data to be used to determine which entry should be deleted.
-   *
-   * @return array|null
    */
   public function delete($source);
 
@@ -83,6 +81,8 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * Get an array of index names for this plugin.
    *
    * @return array
+   *
+   * @throws \Exception
    */
   public function getExistingIndices();
 
@@ -96,7 +96,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $params
    *
-   * @return array|null
+   * @return array
+   *
+   * @throws \Exception
    */
   public function search($params);
 
@@ -105,7 +107,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $params
    *
-   * @return array|null
+   * @return array
+   *
+   * @throws \Exception
    */
   public function msearch($params);
 
@@ -114,8 +118,6 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $body
    *   The body of the bulk operation.
-   *
-   * @return array|null
    */
   public function bulk($body);
 
@@ -126,8 +128,6 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @param array $context
    *   Additional context parameters.
-   *
-   * @return mixed
    */
   public function reindex(array $context = []);
 
