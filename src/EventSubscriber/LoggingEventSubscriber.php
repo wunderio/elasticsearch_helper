@@ -77,14 +77,6 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
 
       $this->logger->notice('No Elasticsearch index matching "@index" could be dropped.', $context);
     }
-    elseif ($operation == ElasticsearchOperations::DOCUMENT_DELETE) {
-      $context = $this->getIdentifiedDocumentContext($event);
-      $message = $this->isIdentifiableDocument($event)
-        ? 'Could not delete document "@id" from "@index" Elasticsearch index.'
-        : 'Could not delete document.';
-
-      $this->logger->notice($message, $context);
-    }
     elseif ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
@@ -92,6 +84,14 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
         : 'Could not index document.';
 
       $this->logger->error($message, $context);
+    }
+    elseif ($operation == ElasticsearchOperations::DOCUMENT_DELETE) {
+      $context = $this->getIdentifiedDocumentContext($event);
+      $message = $this->isIdentifiableDocument($event)
+        ? 'Could not delete document "@id" from "@index" Elasticsearch index.'
+        : 'Could not delete document.';
+
+      $this->logger->notice($message, $context);
     }
     // Log the error otherwise.
     else {
