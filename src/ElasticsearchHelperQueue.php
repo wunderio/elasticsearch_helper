@@ -10,6 +10,11 @@ use Drupal\Core\Queue\DatabaseQueue;
 class ElasticsearchHelperQueue extends DatabaseQueue {
 
   /**
+   * The database table name for the ES helper queue.
+   */
+  const TABLE_NAME = 'queue_elasticsearch_helper';
+
+  /**
    * {@inheritDoc}
    */
   protected function doCreateItem($data) {
@@ -22,9 +27,30 @@ class ElasticsearchHelperQueue extends DatabaseQueue {
         'name' => $this->name,
         'data' => $serialized,
         'created' => time(),
+        'entity_type' => $data['entity_type'] ?: '',
       ]);
 
     return $query->execute();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function schemaDefinition() {
+
+    $schema = parent::schemaDefinition();
+
+    $schema['fields']['entity_type'] = [
+      'type' => 'varchar_ascii',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'The elasticsearch plugin index id.',
+    ];
+
+    $schema['indexes']['entity_type'] = ['entity_type'];
+
+    return $schema;
   }
 
 }
