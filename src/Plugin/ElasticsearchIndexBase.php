@@ -267,7 +267,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
         }
       }
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
     }
@@ -291,7 +291,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       return array_keys($result);
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
 
@@ -322,7 +322,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
     }
@@ -354,7 +354,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
@@ -384,7 +384,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         return $result;
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
 
@@ -420,7 +420,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
@@ -448,7 +448,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
@@ -472,7 +472,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       return $result;
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $params, $request_params);
 
@@ -498,7 +498,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       return $result;
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $params, $request_params);
 
@@ -528,7 +528,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $this->dispatchOperationResultEvent($result, $operation, $body, $request_params);
       }
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, $body, $request_params);
     }
@@ -557,7 +557,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
         call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
       }
-      catch (\Exception $e) {
+      catch (\Throwable $e) {
         $this->dispatchOperationExceptionEvent($e, $operation);
       }
     }

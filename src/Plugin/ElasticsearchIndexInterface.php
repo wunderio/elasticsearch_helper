@@ -82,7 +82,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @return array
    *
-   * @throws \Exception
+   * @throws \Throwable
    */
   public function getExistingIndices();
 
@@ -98,7 +98,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @return array
    *
-   * @throws \Exception
+   * @throws \Throwable
    */
   public function search($params);
 
@@ -109,7 +109,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @return array
    *
-   * @throws \Exception
+   * @throws \Throwable
    */
   public function msearch($params);
 
