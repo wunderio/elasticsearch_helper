@@ -249,24 +249,38 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function setup() {
     try {
-      $operation = ElasticsearchOperations::INDEX_CREATE;
-
       // Create an index if index definition is provided by the index plugin.
       if ($index_definition = $this->getIndexDefinition()) {
         $index_name = $this->getIndexName();
 
         if (!$this->client->indices()->exists(['index' => $index_name])) {
-          $request_params = [
-            'index' => $index_name,
-            'body' => $index_definition->toArray(),
-          ];
-
-          // Create the index.
-          $callback = [$this->client->indices(), 'create'];
-          $result = $this->executeCallback($operation, $callback, $request_params);
-          $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+          $this->createIndex($index_name, $index_definition);
         }
       }
+    } catch (\Throwable $e) {
+      $this->dispatchOperationExceptionEvent($e, ElasticsearchOperations::INDEX_CREATE);
+    }
+  }
+
+  /**
+   * Creates a single index.
+   *
+   * @param $index_name
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition $index_definition
+   */
+  public function createIndex($index_name, IndexDefinition $index_definition) {
+    try {
+      $operation = ElasticsearchOperations::INDEX_CREATE;
+
+      $request_params = [
+        'index' => $index_name,
+        'body' => $index_definition->toArray(),
+      ];
+
+      // Create the index.
+      $callback = [$this->client->indices(), 'create'];
+      $result = $this->executeCallback($operation, $callback, $request_params);
+      $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
     } catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
