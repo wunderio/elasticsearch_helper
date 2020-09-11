@@ -45,7 +45,7 @@ class ElasticsearchHelperQueue extends DatabaseQueue {
       'length' => 255,
       'not null' => TRUE,
       'default' => '',
-      'description' => 'The elasticsearch plugin index id.',
+      'description' => 'The entity type id.',
     ];
 
     $schema['indexes']['entity_type'] = ['entity_type'];
