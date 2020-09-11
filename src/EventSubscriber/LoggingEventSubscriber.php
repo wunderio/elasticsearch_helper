@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper\EventSubscriber;
 
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
-use Drupal\elasticsearch_helper\Event\ElasticsearchExceptionEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Psr\Log\LoggerInterface;
@@ -35,21 +35,21 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events = [];
-    $events[ElasticsearchEvents::EXCEPTION][] = ['onException'];
+    $events[ElasticsearchEvents::OPERATION_EXCEPTION][] = ['onOperationException'];
 
     return $events;
   }
 
   /**
-   * Logs an error when exception is thrown during Elasticsearch operation.
+   * Logs an error when if is thrown during Elasticsearch operation.
    *
-   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchExceptionEvent $event
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent $event
    */
-  public function onException(ElasticsearchExceptionEvent $event) {
+  public function onOperationException(ElasticsearchOperationExceptionEvent $event) {
     $operation = $event->getOperation();
     $exception = $event->getException();
 
-    // Log the notices in expected situations.
+    // Get request parameters.
     $request_params = $event->getRequestParameters();
 
     // Get exception message.
@@ -60,6 +60,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $this->logger->error($message);
     }
 
+    // Customise the message for certain expected exceptions.
     if ($operation == ElasticsearchOperations::INDEX_CREATE) {
       $context = $this->getIdentifiedIndexContext($event);
 
@@ -95,13 +96,11 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
     }
     // Log the error otherwise.
     else {
-      // Do not log no nodes available error twice.
+      // Do not log no-nodes-available error twice.
       if (!($exception instanceof NoNodesAvailableException)) {
         $this->logger->error($message);
       }
     }
   }
-
-
 
 }

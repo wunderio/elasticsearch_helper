@@ -8,6 +8,8 @@ namespace Drupal\elasticsearch_helper\Event;
 class ElasticsearchEvents {
 
   /**
+   * Generic Elasticsearch operation event.
+   *
    * Name of the event fired when Elasticsearch operation method is called
    * (e.g., index, update, delete).
    *
@@ -18,6 +20,8 @@ class ElasticsearchEvents {
   const OPERATION = 'elasticsearch_helper.operation';
 
   /**
+   * Elasticsearch operation request event.
+   *
    * Name of the event fired when Elasticsearch operation is about to be
    * handed to Elasticsearch client.
    *
@@ -28,12 +32,27 @@ class ElasticsearchEvents {
   const OPERATION_REQUEST = 'elasticsearch_helper.operation_request';
 
   /**
-   * Name of the event fired when exception is raised.
+   * Elasticsearch operation result event.
+   *
+   * Name of the event fired when Elasticsearch operation response result is
+   * received.
    *
    * @Event
    *
    * @var string
    */
-  const EXCEPTION = 'elasticsearch_helper.exception';
+  const OPERATION_RESULT = 'elasticsearch_helper.operation_result';
+
+  /**
+   * Elasticsearch operation exception event.
+   *
+   * Name of the event fired when exception is raised during Elasticsearch
+   * operation.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  const OPERATION_EXCEPTION = 'elasticsearch_helper.operation_exception';
 
 }

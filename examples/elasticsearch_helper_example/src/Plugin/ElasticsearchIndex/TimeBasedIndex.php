@@ -54,12 +54,12 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
 
       // Create the index.
       $callback = [$this->client->indices(), 'putTemplate'];
-      $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+      $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
       call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
     } catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, NULL, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
     }
   }
 

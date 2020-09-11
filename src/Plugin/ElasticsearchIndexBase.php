@@ -11,11 +11,12 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
-use Drupal\elasticsearch_helper\Event\ElasticsearchExceptionEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperGenericEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationResultEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -169,7 +170,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent
    */
-  protected function createOperationEvent($operation, $source = NULL) {
+  protected function dispatchOperationEvent($operation, $source = NULL) {
     $event = new ElasticsearchOperationEvent($operation, $source, $this);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION, $event);
 
@@ -186,7 +187,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent
    */
-  protected function createOperationRequestEvent($operation, $callback, $params, $source = NULL) {
+  protected function dispatchOperationRequestEvent($operation, $callback, $params, $source = NULL) {
     $event = new ElasticsearchOperationRequestEvent($operation, $callback, [$params], $this);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $event);
 
@@ -194,16 +195,37 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * Dispatches exception event.
+   * Dispatches Elasticsearch operation result event.
+   *
+   * @param array $result
+   * @param $operation
+   * @param null $source
+   * @param array $request_params
+   *
+   * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationResultEvent
+   */
+  protected function dispatchOperationResultEvent(array $result, $operation, $source = NULL, $request_params = []) {
+    $event = new ElasticsearchOperationResultEvent($result, $operation, $source, $request_params, $this);
+    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_RESULT, $event);
+
+    return $event;
+  }
+
+  /**
+   * Dispatches Elasticsearch operation exception event.
    *
    * @param \Exception $exception
    * @param $operation
    * @param null $source
    * @param array $request_params
+   *
+   * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent
    */
-  protected function dispatchExceptionEvent(\Exception $exception, $operation, $source = NULL, $request_params = []) {
-    $event = new ElasticsearchExceptionEvent($exception, $operation, $source, $request_params, $this);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::EXCEPTION, $event);
+  protected function dispatchOperationExceptionEvent(\Exception $exception, $operation, $source = NULL, $request_params = []) {
+    $event = new ElasticsearchOperationExceptionEvent($exception, $operation, $source, $request_params, $this);
+    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_EXCEPTION, $event);
+
+    return $event;
   }
 
   /**
@@ -225,14 +247,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
           // Create the index.
           $callback = [$this->client->indices(), 'create'];
-          $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+          $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
-          call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+          $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+          $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
         }
       }
     } catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, NULL, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
     }
   }
 
@@ -249,15 +272,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       // Get a list of indices.
       $callback = [$this->client->indices(), 'get'];
-      $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+      $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
       $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+      $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
 
       return array_keys($result);
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, NULL, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
 
       throw $e;
     }
@@ -282,14 +306,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
         // Delete matching indices.
         $callback = [$this->client->indices(), 'delete'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
-        call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, NULL, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);
     }
   }
 
@@ -299,7 +324,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function index($source) {
     try {
       $operation = ElasticsearchOperations::DOCUMENT_INDEX;
-      $operation_event = $this->createOperationEvent($operation, $source);
+      $operation_event = $this->dispatchOperationEvent($operation, $source);
 
       if ($source = $operation_event->getObject()) {
         $serialized_data = $this->serialize($source, ['method' => 'index']);
@@ -315,14 +340,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         }
 
         $callback = [$this->client, 'index'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params, $source);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params, $source);
 
-        call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $source, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
   }
 
@@ -332,7 +358,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function get($source) {
     try {
       $operation = ElasticsearchOperations::DOCUMENT_GET;
-      $operation_event = $this->createOperationEvent($operation, $source);
+      $operation_event = $this->dispatchOperationEvent($operation, $source);
 
       if ($source = $operation_event->getObject()) {
         $serialized_data = $this->serialize($source, ['method' => 'get']);
@@ -344,14 +370,17 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         ];
 
         $callback = [$this->client, 'get'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params, $source);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params, $source);
 
-        return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
+
+        return $result;
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $source, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
 
       throw $e;
     }
@@ -365,7 +394,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function upsert($source) {
     try {
       $operation = ElasticsearchOperations::DOCUMENT_UPSERT;
-      $operation_event = $this->createOperationEvent($operation, $source);
+      $operation_event = $this->dispatchOperationEvent($operation, $source);
 
       if ($source = $operation_event->getObject()) {
         $serialized_data = $this->serialize($source, ['method' => 'upsert']);
@@ -381,14 +410,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         ];
 
         $callback = [$this->client, 'update'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params, $source);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params, $source);
 
-        call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $source, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
   }
 
@@ -398,7 +428,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function delete($source) {
     try {
       $operation = ElasticsearchOperations::DOCUMENT_DELETE;
-      $operation_event = $this->createOperationEvent($operation, $source);
+      $operation_event = $this->dispatchOperationEvent($operation, $source);
 
       if ($source = $operation_event->getObject()) {
         $serialized_data = $this->serialize($source, ['method' => 'delete']);
@@ -410,14 +440,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         ];
 
         $callback = [$this->client, 'delete'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params, $source);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params, $source);
 
-        call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, $source, $request_params);
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $source, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $source, $request_params);
     }
   }
 
@@ -434,13 +465,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ] + $params;
 
       $callback = [$this->client, 'search'];
-      $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+      $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
-      return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+      $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+      $this->dispatchOperationResultEvent($result, $operation, $params, $request_params);
+
+      return $result;
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $params, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $params, $request_params);
 
       throw $e;
     }
@@ -459,13 +493,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ] + $params;
 
       $callback = [$this->client, 'msearch'];
-      $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params);
+      $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
 
-      return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+      $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+      $this->dispatchOperationResultEvent($result, $operation, $params, $request_params);
+
+      return $result;
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $params, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $params, $request_params);
 
       throw $e;
     }
@@ -477,7 +514,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function bulk($body) {
     try {
       $operation = ElasticsearchOperations::DOCUMENT_BULK;
-      $operation_event = $this->createOperationEvent($operation, $body);
+      $operation_event = $this->dispatchOperationEvent($operation, $body);
 
       if ($body = $operation_event->getObject()) {
         $serialized_data = $this->serialize($body, ['method' => 'bulk']);
@@ -489,14 +526,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         ];
 
         $callback = [$this->client, 'bulk'];
-        $request_event = $this->createOperationRequestEvent($operation, $callback, $request_params, $body);
+        $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params, $body);
 
-        call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+        $this->dispatchOperationResultEvent($result, $operation, $body, $request_params);
       }
     }
     catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
-      $this->dispatchExceptionEvent($e, $operation, $body, $request_params);
+      $this->dispatchOperationExceptionEvent($e, $operation, $body, $request_params);
     }
   }
 
@@ -506,6 +544,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function reindex(array $context = []) {
     if (isset($this->pluginDefinition['entityType'])) {
       try {
+        $operation = ElasticsearchHelperEvents::REINDEX;
+
         $entity_type = $this->pluginDefinition['entityType'];
         $bundle = NULL;
 
@@ -513,17 +553,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $bundle = $this->pluginDefinition['bundle'];
         }
 
-        // Emit reindex event.
-        $operation = ElasticsearchHelperEvents::REINDEX;
         $callback = [$this->getElasticsearchIndexPluginManager(), 'reindexEntities'];
         $params = [$entity_type, $bundle];
+
         $request_event = new ElasticsearchHelperGenericEvent($callback, $params, $this);
         $this->getEventDispatcher()->dispatch($operation, $request_event);
 
         call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
       }
       catch (\Exception $e) {
-        $this->dispatchExceptionEvent($e, $operation);
+        $this->dispatchOperationExceptionEvent($e, $operation);
       }
     }
   }

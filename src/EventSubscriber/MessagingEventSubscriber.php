@@ -5,7 +5,7 @@ namespace Drupal\elasticsearch_helper\EventSubscriber;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
-use Drupal\elasticsearch_helper\Event\ElasticsearchExceptionEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -23,19 +23,20 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events = [];
-    $events[ElasticsearchEvents::EXCEPTION][] = ['onException'];
+    $events[ElasticsearchEvents::OPERATION_EXCEPTION][] = ['onOperationException'];
 
     return $events;
   }
 
   /**
-   * Logs an error when exception is thrown during Elasticsearch operation.
+   * Displays a message if exception is thrown during Elasticsearch operation.
    *
-   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchExceptionEvent $event
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent $event
    */
-  public function onException(ElasticsearchExceptionEvent $event) {
+  public function onOperationException(ElasticsearchOperationExceptionEvent $event) {
     $operation = $event->getOperation();
 
+    // Customise the message for certain expected exceptions.
     if ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
