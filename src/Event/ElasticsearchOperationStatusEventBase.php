@@ -2,13 +2,12 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchOperationEvent
+ * Class ElasticsearchOperationStatusEventBase
  */
-class ElasticsearchOperationEvent extends Event {
+abstract class ElasticsearchOperationStatusEventBase extends Event {
 
   /**
    * Elasticsearch operation.
@@ -20,9 +19,16 @@ class ElasticsearchOperationEvent extends Event {
   /**
    * Index-able object.
    *
-   * @var mixed
+   * @var mixed|null
    */
   protected $object;
+
+  /**
+   * Contains request parameters.
+   *
+   * @var array|null
+   */
+  protected $requestParameters;
 
   /**
    * Elasticsearch index plugin instance.
@@ -30,19 +36,6 @@ class ElasticsearchOperationEvent extends Event {
    * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
    */
   protected $pluginInstance;
-
-  /**
-   * ElasticsearchOperationEvent constructor.
-   *
-   * @param $operation
-   * @param $object
-   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
-   */
-  public function __construct($operation, $object, ElasticsearchIndexInterface $plugin_instance) {
-    $this->operation = $operation;
-    $this->object = $object;
-    $this->pluginInstance = $plugin_instance;
-  }
 
   /**
    * Returns Elasticsearch operation.
@@ -56,10 +49,19 @@ class ElasticsearchOperationEvent extends Event {
   /**
    * Returns index-able object.
    *
-   * @return mixed
+   * @return mixed|null
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns request parameters (if available).
+   *
+   * @return array|null
+   */
+  public function getRequestParameters() {
+    return $this->requestParameters;
   }
 
   /**

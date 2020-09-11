@@ -7,6 +7,9 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Removes the "type" parameter from the request for Elasticsearch server >=7.
+ */
 class TypeEventSubscriber implements EventSubscriberInterface {
 
   /**
