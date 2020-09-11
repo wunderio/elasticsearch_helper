@@ -41,7 +41,7 @@ composer require drupal/elasticsearch_helper_instant
 composer require drupal/elasticsearch_helper_views
 ```
 
-## Changes in index plugins
+## Notable changes
 
 ### New methods
 
@@ -172,6 +172,9 @@ Before (Elasticsearch Helper 5.x and 6.x):
 protected function getIndexName($data)
 protected function getTypeName($data)
 public function getId($data)
+protected function indexNamePattern()
+protected function typeNamePattern()
+public function replacePlaceholders($haystack, array $data)
 ```
 
 After (Elasticsearch Helper 7.x):
@@ -180,6 +183,9 @@ After (Elasticsearch Helper 7.x):
 public function getIndexName(array $data = [])
 public function getTypeName(array $data = [])
 public function getId(array $data = [])
+public function indexNamePattern()
+public function typeNamePattern()
+public function replacePlaceholders($haystack, array $data)
 ```
 
 ## Changes in configuration
@@ -236,3 +242,24 @@ After (Elasticsearch Helper 7.x):
  $config['elasticsearch_helper.settings']['hosts'][0]['host'] = 'localhost';
  $config['elasticsearch_helper.settings']['hosts'][0]['port'] = '9200';
  ```
+
+### Event listening
+
+Events are emitted when certain Elasticsearch operations are about to be performed. Other
+modules can listen to these events and react.
+
+1. `ElasticsearchEvents::OPERATION` event is fired before operation is performed. Event
+listeners can block entity indexing if entity should not be indexed for certain reasons.
+
+2. `ElasticsearchEvents::OPERATION_REQUEST` event is fired before request is sent to
+Elasticsearch client. Event listeners can change the request callback or request parameters.
+
+3. `ElasticsearchEvents::OPERATION_RESULT` event is fired when request to Elasticsearch
+has been successfully completed without errors. Event listeners can log the event or perform
+other actions.
+
+4. `ElasticsearchEvents::OPERATION_ERROR` event is fired when Elasticsearch operation could
+not be completed (for example, call to `index()` throws an instance of `\Throwable` for any
+reason). Event listeners can log the error or perform other actions.
+
+See event listeners provided with the module for inspiration.
