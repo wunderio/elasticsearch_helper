@@ -133,7 +133,9 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
           // Create the index.
           $callback = [$this->client->indices(), 'create'];
           $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
-          call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+
+          $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+          $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
         }
       } catch (\Exception $e) {
         $request_params = isset($request_params) ? $request_params : NULL;
