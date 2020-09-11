@@ -66,6 +66,11 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
 
       $this->logger->error('Elasticsearch index "@index" could not bet created.', $context);
     }
+    elseif ($operation == ElasticsearchOperations::INDEX_GET) {
+      $context = $this->getIdentifiedIndexContext($event);
+
+      $this->logger->notice('Elasticsearch index "@index" could not bet retrieved.', $context);
+    }
     elseif ($operation == ElasticsearchOperations::INDEX_TEMPLATE_CREATE) {
       $context = [
         '@index_template' => isset($request_params['name']) ? $request_params['name'] : NULL,

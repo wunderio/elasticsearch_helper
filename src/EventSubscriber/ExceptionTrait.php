@@ -49,6 +49,7 @@ trait ExceptionTrait {
     ];
 
     return [
+      '@exception_message' => $event->getException()->getMessage(),
       '@index' => $request_params['index'],
       '@id' => $request_params['id'],
     ];
@@ -67,6 +68,7 @@ trait ExceptionTrait {
     ];
 
     return [
+      '@exception_message' => $event->getException()->getMessage(),
       '@index' => $request_params['index'],
     ];
   }
