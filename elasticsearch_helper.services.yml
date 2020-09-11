@@ -19,3 +19,8 @@ services:
   elasticsearch_helper.data_type_repository:
     class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
     arguments: ['@event_dispatcher']
+
+  elasticsearch_helper.queue_factory:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueFactory
+    parent: queue.database
+
