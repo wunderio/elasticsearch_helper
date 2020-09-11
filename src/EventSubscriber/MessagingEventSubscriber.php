@@ -5,35 +5,35 @@ namespace Drupal\elasticsearch_helper\EventSubscriber;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
-use Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Displays a message when exception is thrown during Elasticsearch operation.
+ * Displays a message when throwable is thrown during Elasticsearch operation.
  */
 class MessagingEventSubscriber implements EventSubscriberInterface {
 
   use MessengerTrait;
   use StringTranslationTrait;
-  use ExceptionTrait;
+  use OperationStatusTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
     $events = [];
-    $events[ElasticsearchEvents::OPERATION_EXCEPTION][] = ['onOperationException'];
+    $events[ElasticsearchEvents::OPERATION_ERROR][] = ['onOperationError'];
 
     return $events;
   }
 
   /**
-   * Displays a message if exception is thrown during Elasticsearch operation.
+   * Displays a message if throwable is thrown during Elasticsearch operation.
    *
-   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationExceptionEvent $event
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent $event
    */
-  public function onOperationException(ElasticsearchOperationExceptionEvent $event) {
+  public function onOperationError(ElasticsearchOperationErrorEvent $event) {
     $operation = $event->getOperation();
 
     // Customise the message for certain expected exceptions.

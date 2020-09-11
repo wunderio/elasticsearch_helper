@@ -44,15 +44,15 @@ class ElasticsearchEvents {
   const OPERATION_RESULT = 'elasticsearch_helper.operation_result';
 
   /**
-   * Elasticsearch operation exception event.
+   * Elasticsearch operation error event.
    *
-   * Name of the event fired when exception is raised during Elasticsearch
+   * Name of the event fired when throwable is thrown during Elasticsearch
    * operation.
    *
    * @Event
    *
    * @var string
    */
-  const OPERATION_EXCEPTION = 'elasticsearch_helper.operation_exception';
+  const OPERATION_ERROR = 'elasticsearch_helper.operation_error';
 
 }
