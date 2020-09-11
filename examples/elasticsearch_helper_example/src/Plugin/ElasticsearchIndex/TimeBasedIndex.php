@@ -43,21 +43,23 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
     try {
       $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
 
-      $request_params = [
-        'name' => $this->getPluginId(),
-        'body' => [
-          // Any index matching the pattern will get the given index configuration.
-          'template' => $this->indexNamePattern(),
-          'mappings' => $this->getMappingDefinition()->toArray(),
-        ],
-      ];
+      $template_name = $this->getPluginId();
 
-      // Create the index.
-      $callback = [$this->client->indices(), 'putTemplate'];
-      $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
+      if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
+        $request_params = [
+          'name' => $template_name,
+          'body' => [
+            // Any index matching the pattern will get the given index configuration.
+            'template' => $this->indexNamePattern(),
+            'mappings' => $this->getMappingDefinition()->toArray(),
+          ],
+        ];
 
-      $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
-      $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+        // Create the index.
+        $callback = [$this->client->indices(), 'putTemplate'];
+        $result = $this->executeCallback($operation, $callback, $request_params);
+        $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+      }
     } catch (\Exception $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationExceptionEvent($e, $operation, NULL, $request_params);

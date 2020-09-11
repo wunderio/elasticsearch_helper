@@ -107,24 +107,25 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
     // Create one index per language, so that we can have different analyzers.
     foreach ($this->language_manager->getLanguages() as $langcode => $language) {
-      // Get index definition.
-      $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
-
       try {
         // Get index name.
         $index_name = $this->getIndexName(['langcode' => $langcode]);
 
-        // Get analyzer for the language.
-        $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
-
-        // Put analyzer parameter to all "text" fields in the mapping.
-        foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
-          if ($property->getDataType()->getType() == 'text') {
-            $property->addOption('analyzer', $analyzer);
-          }
-        }
-
+        // Check if index exists.
         if (!$this->client->indices()->exists(['index' => $index_name])) {
+          // Get index definition.
+          $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
+
+          // Get analyzer for the language.
+          $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+
+          // Put analyzer parameter to all "text" fields in the mapping.
+          foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
+            if ($property->getDataType()->getType() == 'text') {
+              $property->addOption('analyzer', $analyzer);
+            }
+          }
+
           $request_params = [
             'index' => $index_name,
             'body' => $index_definition->toArray(),
@@ -132,9 +133,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
           // Create the index.
           $callback = [$this->client->indices(), 'create'];
-          $request_event = $this->dispatchOperationRequestEvent($operation, $callback, $request_params);
-
-          $result = call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+          $result = $this->executeCallback($operation, $callback, $request_params);
           $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
         }
       } catch (\Exception $e) {
