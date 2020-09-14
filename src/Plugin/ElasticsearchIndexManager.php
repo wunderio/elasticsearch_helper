@@ -157,16 +157,27 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
 
     $result = $query->execute();
 
+    // Queue entities for reindexing.
     foreach ($result as $entity_id) {
-      $this->queue->createItem([
-        'entity_type' => $entity_type,
-        'entity_id' => $entity_id,
-      ]);
+      $this->addToQueue($entity_type, $entity_id);
     }
 
     $t_args = ['@type' => $entity_type . ($bundle ? ':' . $bundle : '')];
 
     $this->logger->notice($this->t('Entities of type "@type" will be indexed on the next cron run.', $t_args));
+  }
+
+  /**
+   * Adds the entity to queue for indexing.
+   *
+   * @param $entity_type
+   * @param $entity_id
+   */
+  public function addToQueue($entity_type, $entity_id) {
+    $this->queue->createItem([
+      'entity_type' => $entity_type,
+      'entity_id' => $entity_id,
+    ]);
   }
 
 }

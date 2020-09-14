@@ -71,7 +71,6 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public function processItem($data) {
-
     $entity_type = $data['entity_type'];
     $entity_id = $data['entity_id'];
 

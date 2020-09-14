@@ -5,29 +5,35 @@ namespace Drupal\elasticsearch_helper;
 use Drupal\Core\Queue\DatabaseQueue;
 
 /**
- * Class ElasticsearchHelperQueue.
+ * Module's custom queue implementation.
  */
 class ElasticsearchHelperQueue extends DatabaseQueue {
 
   /**
-   * The database table name for the ES helper queue.
+   * The database table name for the Elasticsearch Helper custom queue.
    */
   const TABLE_NAME = 'queue_elasticsearch_helper';
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   protected function doCreateItem($data) {
+    // Serialize the data.
     $serialized = serialize($data);
 
     $query = $this->connection
       ->merge(static::TABLE_NAME)
-      ->keys(['name' => $this->name, 'data' => $serialized])
+      ->keys([
+        'name' => $this->name,
+        'entity_type' => $data['entity_type'],
+        'entity_id' => $data['entity_id'],
+      ])
       ->fields([
         'name' => $this->name,
         'data' => $serialized,
         'created' => time(),
-        'entity_type' => $data['entity_type'] ?: '',
+        'entity_type' => $data['entity_type'],
+        'entity_id' => $data['entity_id'],
       ]);
 
     return $query->execute();
@@ -37,7 +43,6 @@ class ElasticsearchHelperQueue extends DatabaseQueue {
    * {@inheritdoc}
    */
   public function schemaDefinition() {
-
     $schema = parent::schemaDefinition();
 
     $schema['fields']['entity_type'] = [
@@ -48,7 +53,15 @@ class ElasticsearchHelperQueue extends DatabaseQueue {
       'description' => 'The entity type id.',
     ];
 
-    $schema['indexes']['entity_type'] = ['entity_type'];
+    $schema['fields']['entity_id'] = [
+      'type' => 'varchar_ascii',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+      'description' => 'The entity id.',
+    ];
+
+    $schema['indexes']['entity'] = ['entity_type', 'entity_id'];
 
     return $schema;
   }

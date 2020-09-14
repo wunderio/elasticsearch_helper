@@ -39,9 +39,9 @@ services:
     class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueFactory
     parent: queue.database
 
-  elasticsearch_helper.queue_service_decorator:
-    class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueDecorator
+  elasticsearch_helper.queue_factory_decorator:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueFactoryDecorator
     public: false
     decorates: queue
-    arguments: ['@elasticsearch_helper.queue_service_decorator.inner', '@settings']
+    arguments: ['@elasticsearch_helper.queue_factory_decorator.inner', '@settings']
     decoration_priority: 3
