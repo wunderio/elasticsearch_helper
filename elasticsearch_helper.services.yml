@@ -34,3 +34,14 @@ services:
   elasticsearch_helper.data_type_repository:
     class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
     arguments: ['@event_dispatcher']
+
+  elasticsearch_helper.queue_factory:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueFactory
+    parent: queue.database
+
+  elasticsearch_helper.queue_factory_decorator:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperQueueFactoryDecorator
+    public: false
+    decorates: queue
+    arguments: ['@elasticsearch_helper.queue_factory_decorator.inner', '@settings']
+    decoration_priority: 3
