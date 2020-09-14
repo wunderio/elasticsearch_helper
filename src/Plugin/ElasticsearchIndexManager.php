@@ -44,6 +44,12 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   Entity type manager instance.
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
+   *   Queue factory.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   Logger factory.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, QueueFactory $queue_factory, LoggerChannelFactoryInterface $logger_factory) {
     parent::__construct('Plugin/ElasticsearchIndex', $namespaces, $module_handler, 'Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface', 'Drupal\elasticsearch_helper\Annotation\ElasticsearchIndex');
@@ -108,8 +114,6 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           $this->logger->error('Elasticsearch deletion failed: @message', [
             '@message' => $e->getMessage(),
           ]);
-
-          // TODO: queue for later indexing.
         }
       }
     }
@@ -137,8 +141,8 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   /**
    * Queues all entities of given entity type for re-indexing.
    *
-   * @param string $entity_type
-   * @param string null $bundle
+   * @param $entity_type
+   * @param $bundle
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException

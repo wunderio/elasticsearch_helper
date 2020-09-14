@@ -11,6 +11,13 @@ use Symfony\Component\EventDispatcher\Event;
 class ElasticsearchOperationRequestEvent extends Event {
 
   /**
+   * Elasticsearch operation.
+   *
+   * @var string
+   */
+  protected $operation;
+
+  /**
    * Elasticsearch operation request callable.
    *
    * @var callable
@@ -25,13 +32,6 @@ class ElasticsearchOperationRequestEvent extends Event {
   protected $callbackParameters = [];
 
   /**
-   * Elasticsearch operation.
-   *
-   * @var string
-   */
-  protected $operation;
-
-  /**
    * Elasticsearch index plugin instance.
    *
    * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
@@ -41,16 +41,25 @@ class ElasticsearchOperationRequestEvent extends Event {
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
+   * @param $operation
    * @param $callback
    * @param array $callback_parameters
-   * @param $operation
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct($callback, array $callback_parameters, $operation, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance) {
+    $this->operation = $operation;
     $this->callback = $callback;
     $this->callbackParameters = $callback_parameters;
-    $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
+  }
+
+  /**
+   * Returns Elasticsearch operation.
+   *
+   * @return string
+   */
+  public function getOperation() {
+    return $this->operation;
   }
 
   /**
@@ -69,15 +78,6 @@ class ElasticsearchOperationRequestEvent extends Event {
    */
   public function &getCallbackParameters() {
     return $this->callbackParameters;
-  }
-
-  /**
-   * Returns Elasticsearch operation.
-   *
-   * @return string
-   */
-  public function &getOperation() {
-    return $this->operation;
   }
 
   /**

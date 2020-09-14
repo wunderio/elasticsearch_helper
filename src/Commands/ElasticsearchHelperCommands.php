@@ -92,26 +92,34 @@ class ElasticsearchHelperCommands extends DrushCommands {
     }
 
     foreach ($this->elasticsearchPluginManager->getDefinitions() as $plugin) {
-      if (!$indices || in_array($plugin['id'], $indices)) {
+      $plugin_id = $plugin['id'];
 
-        $pluginInstance = $this->elasticsearchPluginManager->createInstance($plugin['id']);
+      if (!$indices || in_array($plugin_id, $indices)) {
+        /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin */
+        $plugin = $this->elasticsearchPluginManager->createInstance($plugin_id);
 
         $rows = [];
-        foreach ($pluginInstance->getExistingIndices() as $index) {
-          $rows[] = [$index];
+
+        try {
+          foreach ($plugin->getExistingIndices() as $index) {
+            $rows[] = [$index];
+          }
+        }
+        catch (\Throwable $e) {
         }
 
         if (count($rows)) {
-          $this->output()->writeln('The following indices exist in elasticsearch:');
+          $this->output()->writeln(dt('The following indices exist in Elasticsearch:'));
           $table = new Table($this->output());
           $table->addRows($rows);
           $table->render();
           if ($this->io()->confirm(dt('Are you sure you want to delete them?'))) {
-            $pluginInstance->drop();
+            $plugin->drop();
           }
         }
         else {
-          $this->output()->writeln('There are no indices to be deleted.');
+          $t_args = ['@plugin_id' => $plugin_id];
+          $this->output()->writeln(dt('There are no indices to be deleted for "@plugin_id" index plugin.', $t_args));
         }
       }
     }

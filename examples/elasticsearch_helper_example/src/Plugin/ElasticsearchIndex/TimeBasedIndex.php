@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
@@ -39,14 +40,30 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function setup() {
-    $this->client->indices()->putTemplate([
-      'name' => $this->pluginId,
-      'body' => [
-        // Any index matching the pattern will get the given index configuration.
-        'template' => $this->indexNamePattern(),
-        'mappings' => $this->getMappingDefinition()->toArray(),
-      ],
-    ]);
+    try {
+      $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
+
+      $template_name = $this->getPluginId();
+
+      if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
+        $request_params = [
+          'name' => $template_name,
+          'body' => [
+            // Any index matching the pattern will get the given index configuration.
+            'template' => $this->indexNamePattern(),
+            'mappings' => $this->getMappingDefinition()->toArray(),
+          ],
+        ];
+
+        // Create the index.
+        $callback = [$this->client->indices(), 'putTemplate'];
+        $result = $this->executeCallback($operation, $callback, $request_params);
+        $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+      }
+    } catch (\Throwable $e) {
+      $request_params = isset($request_params) ? $request_params : NULL;
+      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
+    }
   }
 
   /**
