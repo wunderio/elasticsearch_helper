@@ -10,6 +10,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
@@ -169,7 +170,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent
    */
-  protected function dispatchOperationEvent($operation, $source = NULL) {
+  protected function dispatchOperationEvent($operation, $source) {
     $event = new ElasticsearchOperationEvent($operation, $source, $this);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION, $event);
 
@@ -187,7 +188,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent
    */
   protected function dispatchOperationRequestEvent($operation, $callback, $params, $source = NULL) {
-    $event = new ElasticsearchOperationRequestEvent($operation, $callback, [$params], $this);
+    $event = new ElasticsearchOperationRequestEvent($operation, $callback, [$params], $this, $source);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $event);
 
     return $event;
@@ -233,15 +234,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param $operation
    * @param $callback
    * @param $params
-   * @param mixed $source
+   * @param mixed|null $source
    *
-   * @return mixed
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   *
+   * @throws \Throwable
    */
   protected function executeCallback($operation, $callback, $params, $source = NULL) {
-    $request_event = new ElasticsearchOperationRequestEvent($operation, $callback, [$params], $this);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $request_event);
+    $request_wrapper = new ElasticsearchRequestWrapper($operation, $callback, $params, $this, $source);
 
-    return call_user_func_array($request_event->getCallback(), $request_event->getCallbackParameters());
+    return $request_wrapper->execute();
   }
 
   /**

@@ -39,18 +39,27 @@ class ElasticsearchOperationRequestEvent extends Event {
   protected $pluginInstance;
 
   /**
+   * Index-able object.
+   *
+   * @var mixed|null
+   */
+  protected $object;
+
+  /**
    * ElasticsearchOperationRequestEvent constructor.
    *
    * @param $operation
    * @param $callback
    * @param array $callback_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
+   * @param mixed $object
    */
-  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
     $this->operation = $operation;
     $this->callback = $callback;
     $this->callbackParameters = $callback_parameters;
     $this->pluginInstance = $plugin_instance;
+    $this->object = $object;
   }
 
   /**
@@ -87,6 +96,15 @@ class ElasticsearchOperationRequestEvent extends Event {
    */
   public function getPluginInstance() {
     return $this->pluginInstance;
+  }
+
+  /**
+   * Returns index-able object.
+   *
+   * @return mixed|null
+   */
+  public function &getObject() {
+    return $this->object;
   }
 
 }
