@@ -41,7 +41,7 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
         ? 'Could not index document "@id" into "@index" Elasticsearch index.'
-        : 'Could not index document.';
+        : 'Could not index the document. Unexpected error occurred: @error';
 
       $this->messenger()->addError($this->t($message, $context));
     }

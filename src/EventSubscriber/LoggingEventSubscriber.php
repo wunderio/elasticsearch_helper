@@ -89,7 +89,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
         ? 'Could not index document "@id" into "@index" Elasticsearch index.'
-        : 'Could not index document.';
+        : '@error';
 
       $this->logger->error($message, $context);
     }
@@ -97,7 +97,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
         ? 'Could not delete document "@id" from "@index" Elasticsearch index.'
-        : 'Could not delete document.';
+        : '@error';
 
       $this->logger->notice($message, $context);
     }
