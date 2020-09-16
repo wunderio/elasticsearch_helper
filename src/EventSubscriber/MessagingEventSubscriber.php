@@ -34,6 +34,11 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent $event
    */
   public function onOperationError(ElasticsearchOperationErrorEvent $event) {
+    // Do not display messages when executed in the command line.
+    if (PHP_SAPI === 'cli') {
+      return;
+    }
+
     $operation = $event->getOperation();
 
     // Customise the message for certain expected exceptions.
