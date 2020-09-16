@@ -203,7 +203,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationResultEvent
    */
-  protected function dispatchOperationResultEvent(array $result, $operation, $source = NULL, $request_params = []) {
+  protected function dispatchOperationResultEvent(array $result, $operation, $source = NULL, array $request_params = []) {
     $event = new ElasticsearchOperationResultEvent($result, $operation, $source, $request_params, $this);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_RESULT, $event);
 
@@ -220,7 +220,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
-  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, $source = NULL, $request_params = []) {
+  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, $source = NULL, array $request_params = []) {
     $event = new ElasticsearchOperationErrorEvent($error, $operation, $source, $request_params, $this);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_ERROR, $event);
 
@@ -284,7 +284,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
     }
   }
@@ -308,7 +308,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       return array_keys($result);
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
 
       throw $e;
@@ -339,7 +339,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
     }
   }
@@ -371,7 +371,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $source, $request_params);
     }
   }
@@ -401,7 +401,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $source, $request_params);
 
       throw $e;
@@ -437,7 +437,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $source, $request_params);
     }
   }
@@ -465,7 +465,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $source, $request_params);
     }
   }
@@ -489,7 +489,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       return $result;
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $params, $request_params);
 
       throw $e;
@@ -515,7 +515,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       return $result;
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $params, $request_params);
 
       throw $e;
@@ -545,7 +545,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, $body, $request_params);
     }
   }

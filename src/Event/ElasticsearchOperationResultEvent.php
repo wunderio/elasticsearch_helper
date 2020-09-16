@@ -22,10 +22,10 @@ class ElasticsearchOperationResultEvent extends ElasticsearchOperationStatusEven
    * @param array $result
    * @param $operation
    * @param $object
-   * @param $request_parameters
+   * @param array $request_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct(array $result, $operation, $object, $request_parameters, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct(array $result, $operation, $object, array $request_parameters, ElasticsearchIndexInterface $plugin_instance) {
     $this->result = $result;
     $this->operation = $operation;
     $this->object = $object;
