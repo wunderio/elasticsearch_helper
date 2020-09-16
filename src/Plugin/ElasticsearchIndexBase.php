@@ -257,7 +257,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $this->createIndex($index_name, $index_definition);
         }
       }
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE);
     }
   }
@@ -281,7 +282,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $callback = [$this->client->indices(), 'create'];
       $result = $this->executeCallback($operation, $callback, $request_params);
       $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       $request_params = isset($request_params) ? $request_params : NULL;
       $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
     }
