@@ -34,6 +34,11 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent $event
    */
   public function onOperationError(ElasticsearchOperationErrorEvent $event) {
+    // Do not display messages when executed in the command line.
+    if (PHP_SAPI === 'cli') {
+      return;
+    }
+
     $operation = $event->getOperation();
 
     // Customise the message for certain expected exceptions.
@@ -41,7 +46,7 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
       $context = $this->getIdentifiedDocumentContext($event);
       $message = $this->isIdentifiableDocument($event)
         ? 'Could not index document "@id" into "@index" Elasticsearch index.'
-        : 'Could not index document.';
+        : 'Could not index the document. Unexpected error occurred: @error';
 
       $this->messenger()->addError($this->t($message, $context));
     }

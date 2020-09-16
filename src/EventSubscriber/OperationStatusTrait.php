@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\EventSubscriber;
 
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationStatusEventBase;
 
 /**
@@ -48,10 +49,16 @@ trait OperationStatusTrait {
       'id' => NULL,
     ];
 
-    return [
+    $result = [
       '@index' => $request_params['index'],
       '@id' => $request_params['id'],
     ];
+
+    if ($error = $this->getError($event)) {
+      $result['@error'] = $error->getMessage();
+    }
+
+    return $result;
   }
 
   /**
@@ -66,9 +73,30 @@ trait OperationStatusTrait {
       'index' => NULL,
     ];
 
-    return [
+    $result = [
       '@index' => $request_params['index'],
     ];
+
+    if ($error = $this->getError($event)) {
+      $result['@error'] = $error->getMessage();
+    }
+
+    return $result;
+  }
+
+  /**
+   * Returns an instance of throwable error (if available).
+   *
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationStatusEventBase $event
+   *
+   * @return \Throwable|null
+   */
+  protected function getError(ElasticsearchOperationStatusEventBase $event) {
+    if ($event instanceof ElasticsearchOperationErrorEvent) {
+      return $event->getError();
+    }
+
+    return NULL;
   }
 
 }

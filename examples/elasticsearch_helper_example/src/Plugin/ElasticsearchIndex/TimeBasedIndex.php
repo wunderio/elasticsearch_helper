@@ -60,8 +60,9 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
         $result = $this->executeCallback($operation, $callback, $request_params);
         $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
       }
-    } catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : NULL;
+    }
+    catch (\Throwable $e) {
+      $request_params = isset($request_params) ? $request_params : [];
       $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
     }
   }

@@ -22,10 +22,10 @@ class ElasticsearchOperationErrorEvent extends ElasticsearchOperationStatusEvent
    * @param \Throwable $error
    * @param $operation
    * @param $object
-   * @param $request_parameters
+   * @param array $request_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct(\Throwable $error, $operation, $object, $request_parameters, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct(\Throwable $error, $operation, $object, array $request_parameters, ElasticsearchIndexInterface $plugin_instance) {
     $this->error = $error;
     $this->operation = $operation;
     $this->object = $object;

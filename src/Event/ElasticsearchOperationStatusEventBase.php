@@ -26,7 +26,7 @@ abstract class ElasticsearchOperationStatusEventBase extends Event {
   /**
    * Contains request parameters.
    *
-   * @var array|null
+   * @var array
    */
   protected $requestParameters;
 
@@ -58,7 +58,7 @@ abstract class ElasticsearchOperationStatusEventBase extends Event {
   /**
    * Returns request parameters (if available).
    *
-   * @return array|null
+   * @return array
    */
   public function getRequestParameters() {
     return $this->requestParameters;
