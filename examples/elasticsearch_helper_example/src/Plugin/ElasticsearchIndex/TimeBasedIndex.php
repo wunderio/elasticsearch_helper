@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
@@ -46,14 +47,24 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
 
       if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
         $callback = [$this->client->indices(), 'putTemplate'];
+
         $request_params = [
           'name' => $template_name,
           'body' => [
-            // Any index matching the pattern will get the given index configuration.
-            'template' => $this->indexNamePattern(),
-            'mappings' => $this->getMappingDefinition()->toArray(),
+            'index_patterns' => $this->indexNamePattern(),
           ],
         ];
+
+        // In Elasticsearch 7 templated index definition is stored in
+        // "template" element of the request body.
+        if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+          $request_params['body']['template'] = $this->getIndexDefinition()->toArray();
+        }
+        // In Elasticsearch < 7 template index definition is part of the request
+        // body.
+        else {
+          $request_params['body'] += $this->getIndexDefinition()->toArray();
+        }
 
         // Create the template.
         $request_wrapper = $this->createRequest($operation, $callback, $request_params);
