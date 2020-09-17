@@ -35,4 +35,22 @@ class ElasticsearchOperationRequestEvent extends Event {
     return $this->requestWrapper;
   }
 
+  /**
+   * Returns request callback.
+   *
+   * @return callable
+   */
+  public function &getCallback() {
+    return $this->getRequestWrapper()->getCallback();
+  }
+
+  /**
+   * Returns callback parameters from Elasticsearch request wrapper.
+   *
+   * @return array
+   */
+  public function &getCallbackParameters() {
+    return $this->getRequestWrapper()->getCallbackParameters();
+  }
+
 }

@@ -198,31 +198,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @param $operation
    * @param $callback
-   * @param $request_params
+   * @param array $request_params
    * @param null $source
    *
    * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
    */
-  protected function createRequest($operation, $callback, $request_params, $source = NULL) {
-    return new ElasticsearchRequestWrapper($operation, $callback, $request_params, $this, $source);
-  }
-
-  /**
-   * Executes the request and returns result.
-   *
-   * @param $operation
-   * @param $callback
-   * @param $request_params
-   * @param null $source
-   *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResult
-   *
-   * @throws \Throwable
-   */
-  protected function executeRequest($operation, $callback, $request_params, $source = NULL) {
-    $request_wrapper = new ElasticsearchRequestWrapper($operation, $callback, $request_params, $this, $source);
-
-    return $request_wrapper->execute();
+  protected function createRequest($operation, $callback, array $request_params, $source = NULL) {
+    return new ElasticsearchRequestWrapper($operation, $callback, [$request_params], $this, $source);
   }
 
   /**
@@ -352,7 +334,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $request_params['id'] = $id;
         }
 
-        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params, $source);
         $request_wrapper->execute();
       }
     }
@@ -380,7 +362,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           'id' => $this->getId($serialized_data),
         ];
 
-        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params, $source);
         $request_result = $request_wrapper->execute();
 
         return $request_result->getResultBody();
@@ -418,7 +400,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           ],
         ];
 
-        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params, $source);
         $request_wrapper->execute();
       }
     }
@@ -446,7 +428,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           'id' => $this->getId($serialized_data),
         ];
 
-        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params, $source);
         $request_wrapper->execute();
       }
     }
@@ -469,7 +451,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         'type' => $this->typeNamePattern(),
       ] + $params;
 
-      $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+      $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
 
       return $request_result->getResultBody();
@@ -495,7 +477,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         'type' => $this->typeNamePattern(),
       ] + $params;
 
-      $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+      $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
 
       return $request_result->getResultBody();
@@ -526,7 +508,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           'body' => $serialized_data,
         ];
 
-        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params, $body);
         $request_wrapper->execute();
       }
     }
