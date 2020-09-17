@@ -4,7 +4,8 @@ namespace Drupal\elasticsearch_helper;
 
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
-use Drupal\elasticsearch_helper\Event\ElasticsearchOperationResultEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 
 /**
  * Class ElasticsearchRequestWrapper
@@ -17,30 +18,55 @@ class ElasticsearchRequestWrapper {
   protected $eventDispatcher;
 
   /**
-   * Request event
+   * Elasticsearch operation.
    *
-   * @var \Symfony\Component\EventDispatcher\Event
+   * @var string
    */
-  protected $event;
+  protected $operation;
 
   /**
-   * Request result.
+   * Elasticsearch operation request callable.
    *
-   * @var array|mixed
+   * @var callable
    */
-  protected $result;
+  protected $callback;
+
+  /**
+   * Elasticsearch operation request callable parameters.
+   *
+   * @var array
+   */
+  protected $callbackParameters = [];
+
+  /**
+   * Elasticsearch index plugin instance.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  protected $pluginInstance;
+
+  /**
+   * Index-able object.
+   *
+   * @var mixed|null
+   */
+  protected $object;
 
   /**
    * ElasticsearchRequestWrapper constructor.
    *
    * @param $operation
    * @param $callback
-   * @param $callback_parameters
-   * @param $plugin_instance
+   * @param array $callback_parameters
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param null $object
    */
-  public function __construct($operation, $callback, $callback_parameters, $plugin_instance, $object = NULL) {
-    $this->event = new ElasticsearchOperationRequestEvent($operation, $callback, [$callback_parameters], $plugin_instance, $object);
+  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
+    $this->operation = $operation;
+    $this->callback = $callback;
+    $this->callbackParameters = $callback_parameters;
+    $this->pluginInstance = $plugin_instance;
+    $this->object = $object;
   }
 
   /**
@@ -56,49 +82,103 @@ class ElasticsearchRequestWrapper {
     return $this->eventDispatcher;
   }
 
-  protected function dispatchOperationResultEvent(array $result, $operation, $source = NULL, array $request_params = []) {
-    $event = new ElasticsearchOperationResultEvent($result, $operation, $source, $request_params, $this);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_RESULT, $event);
-
-    return $event;
+  /**
+   * Returns Elasticsearch operation.
+   *
+   * @return string
+   */
+  public function getOperation() {
+    return $this->operation;
   }
 
   /**
-   * Executes the request.
+   * Returns request callback.
    *
-   * @return static
+   * @return callable
+   */
+  public function &getCallback() {
+    return $this->callback;
+  }
+
+  /**
+   * Returns request callback parameters.
+   *
+   * @return array
+   */
+  public function &getCallbackParameters() {
+    return $this->callbackParameters;
+  }
+
+  /**
+   * Returns Elasticsearch index plugin instance.
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  public function getPluginInstance() {
+    return $this->pluginInstance;
+  }
+
+  /**
+   * Returns index-able object.
+   *
+   * @return mixed|null
+   */
+  public function &getObject() {
+    return $this->object;
+  }
+
+  /**
+   * Executes the request and returns the request result instance.
+   *
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResult
    *
    * @throws \Throwable
    */
   public function execute() {
-    // Dispatch the event.
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $this->event);
+    // Create request event.
+    $request_event = new ElasticsearchOperationRequestEvent($this);
+    // Dispatch the request event.
+    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $request_event);
+
     // Execute the request.
-    $this->result = call_user_func_array($this->event->getCallback(), $this->event->getCallbackParameters());
+    $result = new ElasticsearchRequestResult($this, $this->executeCallback());
 
     // Dispatch the result event.
-    $event = new ElasticsearchOperationResultEvent($result, $operation, $source, $request_params, $this);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_RESULT, $event);
+    $result_event = new ElasticsearchOperationRequestResultEvent($result);
+    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST_RESULT, $result_event);
 
-    return $this;
+    return $result;
   }
 
   /**
-   * Returns request event.
+   * Executes the callback.
    *
-   * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent::__construct
+   * @return mixed
    */
-  public function getEvent() {
-    return $this->event;
+  protected function executeCallback() {
+    return call_user_func_array($this->getCallback(), $this->getCallbackParameters());
   }
 
   /**
-   * Returns request response result.
+   * Returns document ID from request callback parameters (if available).
    *
-   * @return array|mixed
+   * @return mixed|null
    */
-  public function getResult() {
-    return $this->result;
+  public function getDocumentId() {
+    $callback_params = $this->getCallbackParameters();
+
+    return isset($callback_params[0]['id']) ? $callback_params[0]['id'] : NULL;
+  }
+
+  /**
+   * Returns document index from request callback parameters (if available).
+   *
+   * @return mixed|null
+   */
+  public function getDocumentIndex() {
+    $callback_params = $this->getCallbackParameters();
+
+    return isset($callback_params[0]['index']) ? $callback_params[0]['index'] : NULL;
   }
 
 }

@@ -80,7 +80,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Get an array of index names for this plugin.
    *
-   * @return array
+   * @return string[]
    *
    * @throws \Throwable
    */

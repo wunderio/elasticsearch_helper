@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -11,100 +11,28 @@ use Symfony\Component\EventDispatcher\Event;
 class ElasticsearchOperationRequestEvent extends Event {
 
   /**
-   * Elasticsearch operation.
+   * Elasticsearch request wrapper instance.
    *
-   * @var string
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
    */
-  protected $operation;
-
-  /**
-   * Elasticsearch operation request callable.
-   *
-   * @var callable
-   */
-  protected $callback;
-
-  /**
-   * Elasticsearch operation request callable parameters.
-   *
-   * @var array
-   */
-  protected $callbackParameters = [];
-
-  /**
-   * Elasticsearch index plugin instance.
-   *
-   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
-   */
-  protected $pluginInstance;
-
-  /**
-   * Index-able object.
-   *
-   * @var mixed|null
-   */
-  protected $object;
+  protected $requestWrapper;
 
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
-   * @param $operation
-   * @param $callback
-   * @param array $callback_parameters
-   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
-   * @param mixed $object
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper $request_wrapper
    */
-  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
-    $this->operation = $operation;
-    $this->callback = $callback;
-    $this->callbackParameters = $callback_parameters;
-    $this->pluginInstance = $plugin_instance;
-    $this->object = $object;
+  public function __construct(ElasticsearchRequestWrapper $request_wrapper) {
+    $this->requestWrapper = $request_wrapper;
   }
 
   /**
-   * Returns Elasticsearch operation.
+   * Returns Elasticsearch request wrapper instance.
    *
-   * @return string
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
    */
-  public function getOperation() {
-    return $this->operation;
-  }
-
-  /**
-   * Returns request callback.
-   *
-   * @return callable
-   */
-  public function &getCallback() {
-    return $this->callback;
-  }
-
-  /**
-   * Returns request callback parameters.
-   *
-   * @return array
-   */
-  public function &getCallbackParameters() {
-    return $this->callbackParameters;
-  }
-
-  /**
-   * Returns Elasticsearch index plugin instance.
-   *
-   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
-   */
-  public function getPluginInstance() {
-    return $this->pluginInstance;
-  }
-
-  /**
-   * Returns index-able object.
-   *
-   * @return mixed|null
-   */
-  public function &getObject() {
-    return $this->object;
+  public function getRequestWrapper() {
+    return $this->requestWrapper;
   }
 
 }

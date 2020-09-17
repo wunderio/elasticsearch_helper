@@ -42,10 +42,10 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   public function setup() {
     try {
       $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
-
       $template_name = $this->getPluginId();
 
       if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
+        $callback = [$this->client->indices(), 'putTemplate'];
         $request_params = [
           'name' => $template_name,
           'body' => [
@@ -55,15 +55,14 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
           ],
         ];
 
-        // Create the index.
-        $callback = [$this->client->indices(), 'putTemplate'];
-        $result = $this->executeCallback($operation, $callback, $request_params);
-        $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+        // Create the template.
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper->execute();
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : [];
-      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
+      $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
+      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
     }
   }
 

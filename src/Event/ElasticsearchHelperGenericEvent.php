@@ -11,14 +11,21 @@ use Symfony\Component\EventDispatcher\Event;
 class ElasticsearchHelperGenericEvent extends Event {
 
   /**
-   * Elasticsearch operation request callable.
+   * Elasticsearch operation.
+   *
+   * @var string
+   */
+  protected $operation;
+
+  /**
+   * Elasticsearch operation callable.
    *
    * @var callable
    */
   protected $callback;
 
   /**
-   * Elasticsearch operation request callable parameters.
+   * Elasticsearch operation callable parameters.
    *
    * @var array
    */
@@ -34,18 +41,29 @@ class ElasticsearchHelperGenericEvent extends Event {
   /**
    * ElasticsearchHelperGenericEvent constructor.
    *
+   * @param $operation
    * @param $callback
    * @param array $callback_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    */
-  public function __construct($callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance) {
+  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance) {
+    $this->operation = $operation;
     $this->callback = $callback;
     $this->callbackParameters = $callback_parameters;
     $this->pluginInstance = $plugin_instance;
   }
 
   /**
-   * Returns request callback.
+   * Returns Elasticsearch operation.
+   *
+   * @return string
+   */
+  public function getOperation() {
+    return $this->operation;
+  }
+
+  /**
+   * Returns callback.
    *
    * @return callable
    */
@@ -54,7 +72,7 @@ class ElasticsearchHelperGenericEvent extends Event {
   }
 
   /**
-   * Returns request callback parameters.
+   * Returns callback parameters.
    *
    * @return array
    */

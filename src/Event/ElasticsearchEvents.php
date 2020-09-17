@@ -34,14 +34,14 @@ class ElasticsearchEvents {
   /**
    * Elasticsearch operation result event.
    *
-   * Name of the event fired when Elasticsearch operation response result is
+   * Name of the event fired when Elasticsearch operation request result is
    * received.
    *
    * @Event
    *
    * @var string
    */
-  const OPERATION_RESULT = 'elasticsearch_helper.operation_result';
+  const OPERATION_REQUEST_RESULT = 'elasticsearch_helper.operation_request_result';
 
   /**
    * Elasticsearch operation error event.
