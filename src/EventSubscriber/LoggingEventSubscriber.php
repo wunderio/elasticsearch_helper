@@ -119,13 +119,11 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent $event
    */
   public function onRequestResult(ElasticsearchOperationRequestResultEvent $event) {
-    // Get request wrapper.
-    $request_wrapper = $event->getRequestWrapper();
+    // Get request result body.
+    $result = $event->getResult()->getResultBody();
 
-    // Get request result.
-    $result = $event->getResult();
-
-    $operation = $request_wrapper->getOperation();
+    // Get operation.
+    $operation = $event->getRequestWrapper()->getOperation();
 
     // Customise the message for certain expected operations.
     if ($operation == ElasticsearchOperations::INDEX_CREATE && !empty($result['acknowledged'])) {
