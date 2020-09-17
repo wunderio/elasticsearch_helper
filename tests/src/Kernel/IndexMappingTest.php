@@ -76,14 +76,15 @@ class IndexMappingTest extends EntityKernelTestBase {
     $index_name = 'node_index';
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $host->getHost() . ':9200/'. $index_name .'/_mapping';
+    $uri = 'http://' . $host->getHost() . ':9200/' . $index_name . '/_mapping';
 
     $response = $this->httpRequest($uri);
 
     if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
       // ES7 mapping structure with no type name.
       $properties = $response[$index_name]['mappings']['properties'];
-    } else {
+    }
+    else {
       // ES6 mapping structure with type name.
       $properties = $response[$index_name]['mappings']['node']['properties'];
     }
