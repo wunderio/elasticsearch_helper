@@ -27,7 +27,10 @@ class ElasticsearchOperationErrorEvent extends Event {
   /**
    * Elasticsearch request wrapper instance.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * Request wrapper instance will only be available for errors that were
+   * thrown after request wrapper object has been created.
+   *
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper|null
    */
   protected $requestWrapper;
 
@@ -65,7 +68,7 @@ class ElasticsearchOperationErrorEvent extends Event {
   /**
    * Returns Elasticsearch request wrapper instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper|null
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;
@@ -90,13 +93,14 @@ class ElasticsearchOperationErrorEvent extends Event {
    * @return array
    */
   public function getMessageContextArguments() {
-    $request_wrapper = $this->getRequestWrapper();
-
     $result = [
-      '@index' => $request_wrapper->getDocumentIndex(),
-      '@id' => $request_wrapper->getDocumentId(),
       '@error' => $this->getError()->getMessage(),
     ];
+
+    if ($request_wrapper = $this->getRequestWrapper()) {
+      $result['@index'] = $request_wrapper->getDocumentIndex();
+      $result['@id'] = $request_wrapper->getDocumentId();
+    }
 
     return $result;
   }
