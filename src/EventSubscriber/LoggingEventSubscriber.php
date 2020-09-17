@@ -69,22 +69,23 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
 
       $this->logger->error('Elasticsearch index "@index" could not be created due to the following error: @error.', $t_args);
     }
-    elseif ($operation == ElasticsearchOperations::INDEX_GET) {
-      $t_args = $event->getMessageContextArguments();
-
-      $this->logger->notice('Elasticsearch index "@index" could not be retrieved due to the following error: @error.', $t_args);
-    }
     elseif ($operation == ElasticsearchOperations::INDEX_TEMPLATE_CREATE) {
       $t_args = [
+        '@error' => $event->getError()->getMessage(),
         '@index_template' => isset($callback_params[0]['name']) ? $callback_params[0]['name'] : NULL,
       ];
 
       $this->logger->error('Elasticsearch index template "@index_template" could not be created due to the following error: @error.', $t_args);
     }
+    elseif ($operation == ElasticsearchOperations::INDEX_GET) {
+      $t_args = $event->getMessageContextArguments();
+
+      $this->logger->notice('Elasticsearch index "@index" could not be retrieved due to the following error: @error.', $t_args);
+    }
     elseif ($operation == ElasticsearchOperations::INDEX_DROP) {
       $t_args = $event->getMessageContextArguments();
 
-      $this->logger->notice('No Elasticsearch index matching "@index" could be dropped due to the following error: @error. ', $t_args);
+      $this->logger->notice('Elasticsearch index matching "@index" could not be deleted due to the following error: @error. ', $t_args);
     }
     elseif ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
       $t_args = $event->getMessageContextArguments();
