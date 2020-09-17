@@ -87,6 +87,14 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
 
       $this->logger->notice('Elasticsearch index matching "@index" could not be deleted due to the following error: @error. ', $t_args);
     }
+    elseif ($operation == ElasticsearchOperations::INDEX_TEMPLATE_DROP) {
+      $t_args = [
+        '@error' => $event->getError()->getMessage(),
+        '@index_template' => isset($callback_params[0]['name']) ? $callback_params[0]['name'] : NULL,
+      ];
+
+      $this->logger->notice('Elasticsearch index template matching "@index_template" could not be deleted due to the following error: @error. ', $t_args);
+    }
     elseif ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
       $t_args = $event->getMessageContextArguments();
 
@@ -131,6 +139,13 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $t_args = $event->getMessageContextArguments();
 
       $this->logger->notice('Elasticsearch index "@index" has been created.', $t_args);
+    }
+    elseif ($operation == ElasticsearchOperations::INDEX_TEMPLATE_DROP && !empty($result['acknowledged'])) {
+      $t_args = [
+        '@index_template' => isset($callback_params[0]['name']) ? $callback_params[0]['name'] : NULL,
+      ];
+
+      $this->logger->notice('Elasticsearch index template "@index_template" has been deleted.', $t_args);
     }
   }
 

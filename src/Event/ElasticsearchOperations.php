@@ -63,6 +63,11 @@ class ElasticsearchOperations {
   const INDEX_DROP = 'index.drop';
 
   /**
+   * Defines index template removal operation.
+   */
+  const INDEX_TEMPLATE_DROP = 'index_template.drop';
+
+  /**
    * Defines query search operation.
    */
   const QUERY_SEARCH = 'query.search';
