@@ -67,30 +67,30 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
     if ($operation == ElasticsearchOperations::INDEX_CREATE) {
       $t_args = $event->getMessageContextArguments();
 
-      $this->logger->error('Elasticsearch index "@index" could not be created.', $t_args);
+      $this->logger->error('Elasticsearch index "@index" could not be created due to the following error: @error.', $t_args);
     }
     elseif ($operation == ElasticsearchOperations::INDEX_GET) {
       $t_args = $event->getMessageContextArguments();
 
-      $this->logger->notice('Elasticsearch index "@index" could not be retrieved.', $t_args);
+      $this->logger->notice('Elasticsearch index "@index" could not be retrieved due to the following error: @error.', $t_args);
     }
     elseif ($operation == ElasticsearchOperations::INDEX_TEMPLATE_CREATE) {
       $t_args = [
         '@index_template' => isset($callback_params[0]['name']) ? $callback_params[0]['name'] : NULL,
       ];
 
-      $this->logger->error('Elasticsearch index template "@index_template" could not be created.', $t_args);
+      $this->logger->error('Elasticsearch index template "@index_template" could not be created due to the following error: @error.', $t_args);
     }
     elseif ($operation == ElasticsearchOperations::INDEX_DROP) {
       $t_args = $event->getMessageContextArguments();
 
-      $this->logger->notice('No Elasticsearch index matching "@index" could be dropped.', $t_args);
+      $this->logger->notice('No Elasticsearch index matching "@index" could be dropped due to the following error: @error. ', $t_args);
     }
     elseif ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
       $t_args = $event->getMessageContextArguments();
 
       $error_message = $request_wrapper && $request_wrapper->getDocumentId()
-        ? 'Could not index document "@id" into "@index" Elasticsearch index.'
+        ? 'Could not index document "@id" into "@index" Elasticsearch index due to the following error: @error'
         : '@error';
 
       $this->logger->error($error_message, $t_args);
@@ -99,7 +99,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $t_args = $event->getMessageContextArguments();
 
       $error_message = $request_wrapper && $request_wrapper->getDocumentId()
-        ? 'Could not delete document "@id" from "@index" Elasticsearch index.'
+        ? 'Could not delete document "@id" from "@index" Elasticsearch index due to the following error: @error'
         : '@error';
 
       $this->logger->notice($error_message, $t_args);

@@ -49,7 +49,9 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
 
       $error_message = $request_wrapper && $request_wrapper->getDocumentId()
         ? 'Could not index document "@id" into "@index" Elasticsearch index.'
-        : 'Could not index the document. Unexpected error occurred: @error';
+        : 'Could not index the document.';
+
+      $error_message .= ' Please see the log messages for details.';
 
       $this->messenger()->addError($this->t($error_message, $t_args));
     }
