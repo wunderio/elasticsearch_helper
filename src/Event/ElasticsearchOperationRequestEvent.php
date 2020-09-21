@@ -6,7 +6,12 @@ use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchOperationRequestEvent
+ * Elasticsearch operation request event.
+ *
+ * This event should be used for Elasticsearch operation where request to
+ * Elasticsearch is about to be performed via callback.
+ *
+ * @see \Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent
  */
 class ElasticsearchOperationRequestEvent extends Event {
 

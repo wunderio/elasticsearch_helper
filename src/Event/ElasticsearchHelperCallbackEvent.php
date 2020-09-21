@@ -6,9 +6,14 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchHelperGenericEvent
+ * Elasticsearch Helper callback event.
+ *
+ * This event should be used for Elasticsearch Helper related operations
+ * where internal callback is invoked instead of a request to Elasticsearch.
+ *
+ * @see \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent
  */
-class ElasticsearchHelperGenericEvent extends Event {
+class ElasticsearchHelperCallbackEvent extends Event {
 
   /**
    * Elasticsearch operation.
@@ -39,7 +44,7 @@ class ElasticsearchHelperGenericEvent extends Event {
   protected $pluginInstance;
 
   /**
-   * ElasticsearchHelperGenericEvent constructor.
+   * ElasticsearchHelperCallbackEvent constructor.
    *
    * @param $operation
    * @param $callback

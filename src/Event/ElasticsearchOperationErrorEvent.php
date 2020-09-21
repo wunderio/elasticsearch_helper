@@ -6,7 +6,17 @@ use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchOperationErrorEvent
+ * Elasticsearch operation error event.
+ *
+ * This event should be used when a throwable object is caught in methods
+ * defined in ElasticsearchIndexInterface.
+ *
+ * If error is caught during request to Elasticsearch, an instance of
+ * ElasticsearchRequestWrapperInterface should be present in the event. If
+ * error occurred before request wrapper object has been made (e.g., during
+ * content serialization), request wrapper object will not be available.
+ *
+ * @see \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
  */
 class ElasticsearchOperationErrorEvent extends Event {
 
