@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -13,23 +13,23 @@ class ElasticsearchOperationRequestEvent extends Event {
   /**
    * Elasticsearch request wrapper instance.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   protected $requestWrapper;
 
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper $request_wrapper
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    */
-  public function __construct(ElasticsearchRequestWrapper $request_wrapper) {
+  public function __construct(ElasticsearchRequestWrapperInterface $request_wrapper) {
     $this->requestWrapper = $request_wrapper;
   }
 
   /**
    * Returns Elasticsearch request wrapper instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;

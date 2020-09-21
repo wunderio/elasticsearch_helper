@@ -6,11 +6,12 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class ElasticsearchRequestWrapper
+ * Elasticsearch request wrapper class.
  */
-class ElasticsearchRequestWrapper {
+class ElasticsearchRequestWrapper implements ElasticsearchRequestWrapperInterface {
 
   /**
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -55,13 +56,15 @@ class ElasticsearchRequestWrapper {
   /**
    * ElasticsearchRequestWrapper constructor.
    *
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    * @param $operation
    * @param $callback
    * @param array $callback_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param null $object
    */
-  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
+  public function __construct(EventDispatcherInterface $event_dispatcher, $operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
+    $this->eventDispatcher = $event_dispatcher;
     $this->operation = $operation;
     $this->callback = $callback;
     $this->callbackParameters = $callback_parameters;
@@ -75,64 +78,46 @@ class ElasticsearchRequestWrapper {
    * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
   protected function getEventDispatcher() {
-    if (!$this->eventDispatcher) {
-      $this->eventDispatcher = \Drupal::service('event_dispatcher');
-    }
-
     return $this->eventDispatcher;
   }
 
   /**
-   * Returns Elasticsearch operation.
-   *
-   * @return string
+   * {@inheritdoc}
    */
   public function getOperation() {
     return $this->operation;
   }
 
   /**
-   * Returns request callback.
-   *
-   * @return callable
+   * {@inheritdoc}
    */
   public function &getCallback() {
     return $this->callback;
   }
 
   /**
-   * Returns request callback parameters.
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function &getCallbackParameters() {
     return $this->callbackParameters;
   }
 
   /**
-   * Returns Elasticsearch index plugin instance.
-   *
-   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   * {@inheritdoc}
    */
   public function getPluginInstance() {
     return $this->pluginInstance;
   }
 
   /**
-   * Returns index-able object.
-   *
-   * @return mixed|null
+   * {@inheritdoc}
    */
   public function &getObject() {
     return $this->object;
   }
 
   /**
-   * Executes the request and returns the request result instance.
-   *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResult
-   *
-   * @throws \Throwable
+   * {@inheritdoc}
    */
   public function execute() {
     // Create request event.
@@ -160,9 +145,7 @@ class ElasticsearchRequestWrapper {
   }
 
   /**
-   * Returns document ID from request callback parameters (if available).
-   *
-   * @return mixed|null
+   * {@inheritdoc}
    */
   public function getDocumentId() {
     $callback_params = $this->getCallbackParameters();
@@ -171,9 +154,7 @@ class ElasticsearchRequestWrapper {
   }
 
   /**
-   * Returns document index from request callback parameters (if available).
-   *
-   * @return mixed|null
+   * {@inheritdoc}
    */
   public function getDocumentIndex() {
     $callback_params = $this->getCallbackParameters();

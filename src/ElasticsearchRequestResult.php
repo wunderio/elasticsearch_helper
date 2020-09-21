@@ -10,7 +10,7 @@ class ElasticsearchRequestResult {
   /**
    * Elasticsearch request wrapper instance.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   protected $requestWrapper;
 
@@ -24,10 +24,10 @@ class ElasticsearchRequestResult {
   /**
    * ElasticsearchRequestResult constructor.
    *
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper $request_wrapper
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    * @param $result_body
    */
-  public function __construct(ElasticsearchRequestWrapper $request_wrapper, $result_body) {
+  public function __construct(ElasticsearchRequestWrapperInterface $request_wrapper, $result_body) {
     $this->requestWrapper = $request_wrapper;
     $this->resultBody = $result_body;
   }
@@ -35,7 +35,7 @@ class ElasticsearchRequestResult {
   /**
    * Returns Elasticsearch request wrapper instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;

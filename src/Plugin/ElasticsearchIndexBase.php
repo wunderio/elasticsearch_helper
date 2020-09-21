@@ -11,13 +11,12 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperGenericEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
-use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestEvent;
-use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -182,11 +181,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @param \Throwable $error
    * @param $operation
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper|null $request_wrapper
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null $request_wrapper
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
-  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapper $request_wrapper = NULL) {
+  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
     $event = new ElasticsearchOperationErrorEvent($error, $operation, $request_wrapper);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_ERROR, $event);
 
@@ -194,17 +193,19 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * Returns request wrapper instance.
+   * Returns Elasticsearch request wrapper instance.
    *
    * @param $operation
    * @param $callback
    * @param array $request_params
    * @param null $source
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   protected function createRequest($operation, $callback, array $request_params, $source = NULL) {
-    return new ElasticsearchRequestWrapper($operation, $callback, [$request_params], $this, $source);
+    $event_dispatcher = $this->getEventDispatcher();
+
+    return new ElasticsearchRequestWrapper($event_dispatcher, $operation, $callback, [$request_params], $this, $source);
   }
 
   /**

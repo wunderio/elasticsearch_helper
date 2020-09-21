@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -30,7 +30,7 @@ class ElasticsearchOperationErrorEvent extends Event {
    * Request wrapper instance will only be available for errors that were
    * thrown after request wrapper object has been created.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper|null
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null
    */
   protected $requestWrapper;
 
@@ -39,9 +39,9 @@ class ElasticsearchOperationErrorEvent extends Event {
    *
    * @param \Throwable $error
    * @param $operation
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper $request_wrapper
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchRequestWrapper $request_wrapper = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
     $this->error = $error;
     $this->operation = $operation;
     $this->requestWrapper = $request_wrapper;
@@ -68,7 +68,7 @@ class ElasticsearchOperationErrorEvent extends Event {
   /**
    * Returns Elasticsearch request wrapper instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper|null
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;

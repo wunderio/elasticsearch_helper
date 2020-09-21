@@ -38,7 +38,7 @@ class ElasticsearchOperationRequestResultEvent extends Event {
   /**
    * Returns Elasticsearch request wrapper instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapper
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
   public function getRequestWrapper() {
     return $this->getResult()->getRequestWrapper();
