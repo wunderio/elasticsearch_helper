@@ -53,9 +53,19 @@ class ElasticsearchOperations {
   const INDEX_GET = 'index.get';
 
   /**
+   * Defines index exists operation.
+   */
+  const INDEX_EXISTS = 'index.exists';
+
+  /**
    * Defines index removal operation.
    */
   const INDEX_DROP = 'index.drop';
+
+  /**
+   * Defines index template removal operation.
+   */
+  const INDEX_TEMPLATE_DROP = 'index_template.drop';
 
   /**
    * Defines query search operation.

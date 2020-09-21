@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
+use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -11,55 +11,28 @@ use Symfony\Component\EventDispatcher\Event;
 class ElasticsearchOperationRequestEvent extends Event {
 
   /**
-   * Elasticsearch operation.
+   * Elasticsearch request wrapper instance.
    *
-   * @var string
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
-  protected $operation;
-
-  /**
-   * Elasticsearch operation request callable.
-   *
-   * @var callable
-   */
-  protected $callback;
-
-  /**
-   * Elasticsearch operation request callable parameters.
-   *
-   * @var array
-   */
-  protected $callbackParameters = [];
-
-  /**
-   * Elasticsearch index plugin instance.
-   *
-   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
-   */
-  protected $pluginInstance;
+  protected $requestWrapper;
 
   /**
    * ElasticsearchOperationRequestEvent constructor.
    *
-   * @param $operation
-   * @param $callback
-   * @param array $callback_parameters
-   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    */
-  public function __construct($operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance) {
-    $this->operation = $operation;
-    $this->callback = $callback;
-    $this->callbackParameters = $callback_parameters;
-    $this->pluginInstance = $plugin_instance;
+  public function __construct(ElasticsearchRequestWrapperInterface $request_wrapper) {
+    $this->requestWrapper = $request_wrapper;
   }
 
   /**
-   * Returns Elasticsearch operation.
+   * Returns Elasticsearch request wrapper instance.
    *
-   * @return string
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
-  public function getOperation() {
-    return $this->operation;
+  public function getRequestWrapper() {
+    return $this->requestWrapper;
   }
 
   /**
@@ -68,25 +41,16 @@ class ElasticsearchOperationRequestEvent extends Event {
    * @return callable
    */
   public function &getCallback() {
-    return $this->callback;
+    return $this->getRequestWrapper()->getCallback();
   }
 
   /**
-   * Returns request callback parameters.
+   * Returns callback parameters from Elasticsearch request wrapper.
    *
    * @return array
    */
   public function &getCallbackParameters() {
-    return $this->callbackParameters;
-  }
-
-  /**
-   * Returns Elasticsearch index plugin instance.
-   *
-   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
-   */
-  public function getPluginInstance() {
-    return $this->pluginInstance;
+    return $this->getRequestWrapper()->getCallbackParameters();
   }
 
 }

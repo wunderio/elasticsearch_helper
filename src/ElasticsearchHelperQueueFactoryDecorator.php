@@ -5,7 +5,6 @@ namespace Drupal\elasticsearch_helper;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * QueueFactory decorator.

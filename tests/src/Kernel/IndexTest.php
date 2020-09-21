@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
-use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\node\Entity\Node;

@@ -16,7 +16,6 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
 
   use MessengerTrait;
   use StringTranslationTrait;
-  use OperationStatusTrait;
 
   /**
    * {@inheritdoc}
@@ -39,16 +38,22 @@ class MessagingEventSubscriber implements EventSubscriberInterface {
       return;
     }
 
+    // Get request wrapper.
+    $request_wrapper = $event->getRequestWrapper();
+
     $operation = $event->getOperation();
 
     // Customise the message for certain expected exceptions.
     if ($operation == ElasticsearchOperations::DOCUMENT_INDEX) {
-      $context = $this->getIdentifiedDocumentContext($event);
-      $message = $this->isIdentifiableDocument($event)
-        ? 'Could not index document "@id" into "@index" Elasticsearch index.'
-        : 'Could not index the document. Unexpected error occurred: @error';
+      $t_args = $event->getMessageContextArguments();
 
-      $this->messenger()->addError($this->t($message, $context));
+      $error_message = $request_wrapper && $request_wrapper->getDocumentId()
+        ? 'Could not index document "@id" into "@index" Elasticsearch index.'
+        : 'Could not index the document.';
+
+      $error_message .= ' Please see the log messages for details.';
+
+      $this->messenger()->addError($this->t($error_message, $t_args));
     }
   }
 

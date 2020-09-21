@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
+use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
@@ -42,28 +43,37 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
   public function setup() {
     try {
       $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
-
       $template_name = $this->getPluginId();
 
       if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
+        $callback = [$this->client->indices(), 'putTemplate'];
+
         $request_params = [
           'name' => $template_name,
           'body' => [
-            // Any index matching the pattern will get the given index configuration.
-            'template' => $this->indexNamePattern(),
-            'mappings' => $this->getMappingDefinition()->toArray(),
+            'index_patterns' => $this->indexNamePattern(),
           ],
         ];
 
-        // Create the index.
-        $callback = [$this->client->indices(), 'putTemplate'];
-        $result = $this->executeCallback($operation, $callback, $request_params);
-        $this->dispatchOperationResultEvent($result, $operation, NULL, $request_params);
+        // In Elasticsearch 7 templated index definition is stored in
+        // "template" element of the request body.
+        if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+          $request_params['body']['template'] = $this->getIndexDefinition()->toArray();
+        }
+        // In Elasticsearch < 7 template index definition is part of the request
+        // body.
+        else {
+          $request_params['body'] += $this->getIndexDefinition()->toArray();
+        }
+
+        // Create the template.
+        $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+        $request_wrapper->execute();
       }
     }
     catch (\Throwable $e) {
-      $request_params = isset($request_params) ? $request_params : [];
-      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_params);
+      $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
+      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
     }
   }
 
