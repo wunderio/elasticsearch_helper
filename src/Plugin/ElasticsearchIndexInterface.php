@@ -40,7 +40,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    *
    * @return array
    *
-   * @throws \Exception
+   * @throws \Throwable
    */
   public function get($source);
 

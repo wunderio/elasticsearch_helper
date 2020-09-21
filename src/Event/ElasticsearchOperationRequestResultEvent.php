@@ -6,7 +6,10 @@ use Drupal\elasticsearch_helper\ElasticsearchRequestResult;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ElasticsearchOperationRequestResultEvent
+ * Elasticsearch operation request result event.
+ *
+ * This event should be used after resulting response is received from
+ * Elasticsearch.
  */
 class ElasticsearchOperationRequestResultEvent extends Event {
 

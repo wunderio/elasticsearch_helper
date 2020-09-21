@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper_example\EventSubscriber;
 
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
-use Drupal\elasticsearch_helper\Event\ElasticsearchHelperGenericEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -29,9 +29,9 @@ class ReindexEventSubscriber implements EventSubscriberInterface {
   /**
    * Replaces the callback to dummy callback.
    *
-   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchHelperGenericEvent $event
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent $event
    */
-  public function onReindex(ElasticsearchHelperGenericEvent $event) {
+  public function onReindex(ElasticsearchHelperCallbackEvent $event) {
     $plugin = $event->getPluginInstance();
 
     // Change the reindex callback for "time_based_index" index plugin.
