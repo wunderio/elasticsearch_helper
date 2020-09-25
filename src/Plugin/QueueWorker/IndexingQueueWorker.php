@@ -20,6 +20,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Name of the static global variable.
+   *
+   * @var string
+   */
+  public const QUEUE_INDEXING_VAR_NAME = 'ElasticsearchHelperQueueIndexing';
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -77,7 +84,12 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
     $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
 
     if ($entity) {
+      // Set a global static variable which could be used by other modules to
+      // identify that the indexing is happening from the queue worker operation.
+      $indexWithQueue = &drupal_static(self::QUEUE_INDEXING_VAR_NAME);
+      $indexWithQueue = TRUE;
       $this->elasticsearchIndexManager->indexEntity($entity);
+      drupal_static_reset(self::QUEUE_INDEXING_VAR_NAME);
     }
   }
 
