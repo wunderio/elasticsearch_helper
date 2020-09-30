@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper\Event;
 
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -35,6 +36,13 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $operation;
 
   /**
+   * Elasticsearch index plugin instance.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
+   */
+  protected $pluginInstance;
+
+  /**
    * Elasticsearch request wrapper instance.
    *
    * Request wrapper instance will only be available for errors that were
@@ -49,11 +57,13 @@ class ElasticsearchOperationErrorEvent extends Event {
    *
    * @param \Throwable $error
    * @param $operation
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
     $this->error = $error;
     $this->operation = $operation;
+    $this->pluginInstance = $plugin_instance;
     $this->requestWrapper = $request_wrapper;
   }
 
@@ -73,6 +83,13 @@ class ElasticsearchOperationErrorEvent extends Event {
    */
   public function getOperation() {
     return $this->operation;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPluginInstance() {
+    return $this->pluginInstance;
   }
 
   /**

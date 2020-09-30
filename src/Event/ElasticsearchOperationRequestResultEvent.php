@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Event;
 
-use Drupal\elasticsearch_helper\ElasticsearchRequestResult;
+use Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -16,23 +16,23 @@ class ElasticsearchOperationRequestResultEvent extends Event {
   /**
    * Elasticsearch request result.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestResult
+   * @var \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface
    */
   protected $requestResult;
 
   /**
    * ElasticsearchOperationRequestResultEvent constructor.
    *
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestResult $result
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface $result
    */
-  public function __construct(ElasticsearchRequestResult $result) {
+  public function __construct(ElasticsearchRequestResultInterface $result) {
     $this->requestResult = $result;
   }
 
   /**
    * Returns Elasticsearch request result body.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResult
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface
    */
   public function getResult() {
     return $this->requestResult;

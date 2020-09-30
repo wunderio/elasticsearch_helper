@@ -186,7 +186,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
   protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
-    $event = new ElasticsearchOperationErrorEvent($error, $operation, $request_wrapper);
+    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_ERROR, $event);
 
     return $event;
