@@ -3,9 +3,9 @@
 namespace Drupal\elasticsearch_helper;
 
 /**
- * Class ElasticsearchRequestResult
+ * Elasticsearch request result class.
  */
-class ElasticsearchRequestResult {
+class ElasticsearchRequestResult implements ElasticsearchRequestResultInterface {
 
   /**
    * Elasticsearch request wrapper instance.
@@ -33,18 +33,14 @@ class ElasticsearchRequestResult {
   }
 
   /**
-   * Returns Elasticsearch request wrapper instance.
-   *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
+   * {@inheritdoc}
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;
   }
 
   /**
-   * Returns Elasticsearch request result contents.
-   *
-   * @return mixed
+   * {@inheritdoc}
    */
   public function getResultBody() {
     return $this->resultBody;

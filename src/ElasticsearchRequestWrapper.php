@@ -126,22 +126,33 @@ class ElasticsearchRequestWrapper implements ElasticsearchRequestWrapperInterfac
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $request_event);
 
     // Execute the request.
-    $result = new ElasticsearchRequestResult($this, $this->executeCallback());
+    $result = $this->executeCallback();
 
     // Dispatch the result event.
-    $result_event = new ElasticsearchOperationRequestResultEvent($result);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST_RESULT, $result_event);
+    $this->dispatchRequestResultEvent($result);
 
     return $result;
   }
 
   /**
-   * Executes the callback.
+   * Executes the callback and returns an instance of request result.
    *
-   * @return mixed
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface
    */
   protected function executeCallback() {
-    return call_user_func_array($this->getCallback(), $this->getCallbackParameters());
+    $result = call_user_func_array($this->getCallback(), $this->getCallbackParameters());
+
+    return new ElasticsearchRequestResult($this, $result);
+  }
+
+  /**
+   * Dispatches request result event.
+   *
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface $result
+   */
+  protected function dispatchRequestResultEvent(ElasticsearchRequestResultInterface $result) {
+    $result_event = new ElasticsearchOperationRequestResultEvent($result);
+    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST_RESULT, $result_event);
   }
 
   /**

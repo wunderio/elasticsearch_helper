@@ -47,7 +47,7 @@ interface ElasticsearchRequestWrapperInterface {
   /**
    * Executes the request and returns the request result instance.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResult
+   * @return \Drupal\elasticsearch_helper\ElasticsearchRequestResultInterface
    *
    * @throws \Throwable
    */
