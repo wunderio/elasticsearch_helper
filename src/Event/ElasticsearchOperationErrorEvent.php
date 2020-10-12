@@ -43,6 +43,13 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $pluginInstance;
 
   /**
+   * Index-able object.
+   *
+   * @var mixed|null
+   */
+  protected $object;
+
+  /**
    * Elasticsearch request wrapper instance.
    *
    * Request wrapper instance will only be available for errors that were
@@ -58,12 +65,14 @@ class ElasticsearchOperationErrorEvent extends Event {
    * @param \Throwable $error
    * @param $operation
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
+   * @param mixed|null $object
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, $object = NULL, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
     $this->error = $error;
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
+    $this->object = $object;
     $this->requestWrapper = $request_wrapper;
   }
 
@@ -90,6 +99,13 @@ class ElasticsearchOperationErrorEvent extends Event {
    */
   public function getPluginInstance() {
     return $this->pluginInstance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function &getObject() {
+    return $this->object;
   }
 
   /**

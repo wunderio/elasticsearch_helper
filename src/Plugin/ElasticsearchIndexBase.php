@@ -181,12 +181,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    *
    * @param \Throwable $error
    * @param $operation
+   * @param mixed|null $source
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null $request_wrapper
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
-  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
-    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper);
+  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, $source = NULL, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
+    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $source, $request_wrapper);
     $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_ERROR, $event);
 
     return $event;
@@ -198,7 +199,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param $operation
    * @param $callback
    * @param array $request_params
-   * @param null $source
+   * @param mixed|null $source
    *
    * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface
    */
@@ -224,7 +225,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE, NULL, $request_wrapper);
     }
   }
 
@@ -253,7 +254,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_wrapper);
     }
   }
 
@@ -275,7 +276,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_wrapper);
 
       throw $e;
     }
@@ -317,7 +318,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, NULL, $request_wrapper);
     }
   }
 
@@ -350,7 +351,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $source, $request_wrapper);
     }
   }
 
@@ -376,7 +377,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $source, $request_wrapper);
 
       throw $e;
     }
@@ -413,7 +414,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $source, $request_wrapper);
     }
   }
 
@@ -442,7 +443,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $source, $request_wrapper);
     }
   }
 
@@ -466,7 +467,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $params, $request_wrapper);
 
       throw $e;
     }
@@ -492,7 +493,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $params, $request_wrapper);
 
       throw $e;
     }
@@ -523,7 +524,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
-      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
+      $this->dispatchOperationErrorEvent($e, $operation, $body, $request_wrapper);
     }
   }
 
