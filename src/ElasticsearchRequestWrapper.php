@@ -61,7 +61,7 @@ class ElasticsearchRequestWrapper implements ElasticsearchRequestWrapperInterfac
    * @param $callback
    * @param array $callback_parameters
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
-   * @param null $object
+   * @param mixed|null $object
    */
   public function __construct(EventDispatcherInterface $event_dispatcher, $operation, $callback, array $callback_parameters, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
     $this->eventDispatcher = $event_dispatcher;

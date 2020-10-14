@@ -53,18 +53,27 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $requestWrapper;
 
   /**
+   * Index-able object.
+   *
+   * @var mixed|null
+   */
+  protected $object;
+
+  /**
    * ElasticsearchOperationErrorEvent constructor.
    *
    * @param \Throwable $error
    * @param $operation
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
+   * @param mixed|null $object
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL) {
     $this->error = $error;
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
     $this->requestWrapper = $request_wrapper;
+    $this->object = $object;
   }
 
   /**
@@ -99,6 +108,17 @@ class ElasticsearchOperationErrorEvent extends Event {
    */
   public function getRequestWrapper() {
     return $this->requestWrapper;
+  }
+
+  /**
+   * Returns the actionable object.
+   *
+   * Value is returned by reference as actionable object can be of any type.
+   *
+   * @return mixed|null
+   */
+  public function &getObject() {
+    return $this->object;
   }
 
   /**
