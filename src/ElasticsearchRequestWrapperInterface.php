@@ -36,9 +36,9 @@ interface ElasticsearchRequestWrapperInterface {
   public function getPluginInstance();
 
   /**
-   * Returns index-able object.
+   * Returns the actionable object.
    *
-   * Value is returned by reference as index-able object can be of any type.
+   * Value is returned by reference as actionable object can be of any type.
    *
    * @return mixed|null
    */

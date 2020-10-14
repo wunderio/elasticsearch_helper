@@ -72,6 +72,8 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
   /**
    * Returns the actionable object.
    *
+   * Value is returned by reference as actionable object can be of any type.
+   *
    * @return mixed|null
    */
   public function &getObject() {
