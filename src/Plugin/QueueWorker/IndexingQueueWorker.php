@@ -86,9 +86,13 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
     if ($entity) {
       // Set a global static variable which could be used by other modules to
       // identify that the indexing is happening from the queue worker operation.
-      $indexWithQueue = &drupal_static(self::QUEUE_INDEXING_VAR_NAME);
-      $indexWithQueue = TRUE;
+      $index_with_queue = &drupal_static(self::QUEUE_INDEXING_VAR_NAME);
+      $index_with_queue = TRUE;
+
+      // Index the entity.
       $this->elasticsearchIndexManager->indexEntity($entity);
+
+      // Reset global static.
       drupal_static_reset(self::QUEUE_INDEXING_VAR_NAME);
     }
   }

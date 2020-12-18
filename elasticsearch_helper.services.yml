@@ -31,6 +31,11 @@ services:
     tags:
       - { name: event_subscriber }
 
+  elasticsearch_helper.queue_index_event_subscriber:
+    class: Drupal\elasticsearch_helper\EventSubscriber\QueueIndexEventSubscriber
+    tags:
+      - { name: event_subscriber }
+
   elasticsearch_helper.data_type_repository:
     class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
     arguments: ['@event_dispatcher']
