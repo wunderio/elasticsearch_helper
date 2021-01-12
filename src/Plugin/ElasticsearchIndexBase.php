@@ -600,7 +600,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   public function getIndexName(array $data = []) {
-    return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
+    $suffix = '';
+
+    // Append the version suffix if the index plugin is versioned.
+    // Check if index management module and version service is enabled.
+    if (isset($this->pluginDefinition['versioned']) && $this->pluginDefinition['versioned'] && \Drupal::hasService('elasticsearch_helper_index_management.index_version_manager')) {
+      /** @var \Drupal\elasticsearch_helper_index_management\IndexVersionManagerInterface $version_manager */
+      $version_manager = \Drupal::service('elasticsearch_helper_index_management.index_version_manager');
+
+      if ($current_version = $version_manager->getCurrentVersion($this->pluginDefinition['id'])) {
+        $suffix = '__version__' . $current_version;
+      }
+    }
+
+    return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data) . $suffix;
   }
 
   /**
