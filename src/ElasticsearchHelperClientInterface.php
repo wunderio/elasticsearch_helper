@@ -61,6 +61,22 @@ interface ElasticsearchHelperClientInterface {
   public function indices();
 
   /**
+   * Create index operation.
+   *
+   * @param array $parameters
+   *   The array of request parameters.
+   */
+  public function createIndex(array $parameters);
+
+  /**
+   * Delete index operation.
+   *
+   * @param array $parameters
+   *   The array of request parameters.
+   */
+  public function deleteIndex(array $parameters);
+
+  /**
    * Get cluster health.
    */
   public function health();

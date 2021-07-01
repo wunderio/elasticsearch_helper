@@ -126,6 +126,20 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function createIndex(array $parameters) {
+    $this->client->indices()->create($parameters);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteIndex(array $parameters) {
+    $this->client->indices()->delete($parameters);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function health() {
     return $this->client->cluster()->health();
 
