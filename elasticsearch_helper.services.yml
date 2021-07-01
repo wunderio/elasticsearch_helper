@@ -50,3 +50,7 @@ services:
     decorates: queue
     arguments: ['@elasticsearch_helper.queue_factory_decorator.inner', '@settings']
     decoration_priority: 3
+
+  elasticsearch_helper.client.default:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperClient
+    arguments: ['@config.factory']
