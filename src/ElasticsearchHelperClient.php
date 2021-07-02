@@ -119,7 +119,7 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function indices(array $parameters) {
+  public function indices(array $parameters = []) {
     return $this->client->indices()->get($parameters);
   }
 

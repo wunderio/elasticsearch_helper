@@ -61,7 +61,7 @@ interface ElasticsearchHelperClientInterface {
    * @param array $parameters
    *   The array of request parameters.
    */
-  public function indices(array $parameters);
+  public function indices(array $parameters = []);
 
   /**
    * Create index operation.
