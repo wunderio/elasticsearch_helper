@@ -102,7 +102,7 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
    * {@inheritdoc}
    */
   public function delete(array $parameters) {
-    return $this->client->update($parameters);
+    return $this->client->delete($parameters);
   }
 
   /**
