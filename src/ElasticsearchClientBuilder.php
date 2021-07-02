@@ -9,6 +9,8 @@ use Elasticsearch\ClientBuilder;
 /**
  * Class ElasticsearchClientBuilder.
  *
+ * @deprecated
+ *
  * @package Drupal\elasticsearch_helper
  */
 class ElasticsearchClientBuilder {
