@@ -44,7 +44,7 @@ class IndexTest extends EntityKernelTestBase {
     // @TODO, Setup mapping.
     try {
       $client = \Drupal::service('elasticsearch_helper.client.default');
-      $client->indices()->delete(['index' => 'simple']);
+      $client->deleteIndex(['index' => 'simple']);
     }
     catch (\Exception $e) {
       // Do nothing.
