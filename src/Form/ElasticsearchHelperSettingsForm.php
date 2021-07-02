@@ -5,7 +5,7 @@ namespace Drupal\elasticsearch_helper\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\elasticsearch_helper\ElasticsearchHelperClientInterface;
+use Drupal\elasticsearch_helper\ClientInterface;
 use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
@@ -19,7 +19,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   /**
    * The Elasticsearch client.
    *
-   * @var \Drupal\elasticsearch_helper\ElasticsearchHelperClientInterface
+   * @var \Drupal\elasticsearch_helper\ClientInterface
    */
   protected $client;
 
@@ -35,10 +35,10 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\elasticsearch_helper\ElasticsearchHelperClientInterface $elasticsearch_client
+   * @param \Drupal\elasticsearch_helper\ClientInterface $elasticsearch_client
    *   The Elasticsearch client.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ElasticsearchHelperClientInterface $elasticsearch_client) {
+  public function __construct(ConfigFactoryInterface $config_factory, ClientInterface $elasticsearch_client) {
     parent::__construct($config_factory);
 
     $this->client = $elasticsearch_client;

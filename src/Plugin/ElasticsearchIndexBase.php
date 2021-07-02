@@ -10,7 +10,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
-use Drupal\elasticsearch_helper\ElasticsearchHelperClientInterface;
+use Drupal\elasticsearch_helper\ClientInterface;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
@@ -80,11 +80,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param \Drupal\elasticsearch_helper\ElasticsearchHelperClientInterface $client
+   * @param \Drupal\elasticsearch_helper\ClientInterface $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ElasticsearchHelperClientInterface $client, Serializer $serializer, LoggerInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ClientInterface $client, Serializer $serializer, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->client = $client;

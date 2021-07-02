@@ -3,9 +3,9 @@
 namespace Drupal\elasticsearch_helper;
 
 /**
- * Interface for Elasticsearch Helper Client.
+ * Interface for classes that implements a client service.
  */
-interface ElasticsearchHelperClientInterface {
+interface ClientInterface {
 
   /**
    * Index operation.

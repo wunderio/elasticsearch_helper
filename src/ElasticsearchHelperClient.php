@@ -9,7 +9,7 @@ use Elasticsearch\ClientBuilder;
 /**
  * Elasticsearch Helper Default Client.
  */
-class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
+class ElasticsearchHelperClient implements ClientInterface {
 
   /**
    * Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig definition.
