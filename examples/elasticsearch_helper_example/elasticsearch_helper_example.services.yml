@@ -8,3 +8,7 @@ services:
     class: Drupal\elasticsearch_helper_example\EventSubscriber\ReindexEventSubscriber
     tags:
       - { name: event_subscriber }
+
+  elasticsearch_helper.client.custom:
+    class: Drupal\elasticsearch_helper_example\CustomClient
+    arguments: []
