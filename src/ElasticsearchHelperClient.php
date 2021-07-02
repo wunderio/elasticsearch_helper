@@ -12,11 +12,11 @@ use Elasticsearch\ClientBuilder;
 class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
 
   /**
-   * Drupal\Core\Config\ConfigFactoryInterface definition.
+   * Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig definition.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   * @var \Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig
    */
-  protected $configFactory;
+  protected $config;
 
   /**
    * Elasticsearch\Client definition.
@@ -36,8 +36,7 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
    * Constructs a new ElasticsearchHelperClient object.
    */
   public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
-    $this->configFactory = $config_factory;
-
+    $this->config = $config_factory->get('elasticsearch_helper.settings');
     $this->moduleHandler = $module_handler;
     $this->client = $this->build();
   }
@@ -64,7 +63,7 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
   protected function getHosts() {
     $hosts = [];
 
-    foreach ($this->configFactory->get('hosts') as $host_config) {
+    foreach ($this->config->get('hosts') as $host_config) {
       $host = ElasticsearchHost::createFromArray($host_config);
 
       $host_entry = [
