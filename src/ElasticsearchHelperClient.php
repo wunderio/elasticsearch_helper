@@ -29,6 +29,8 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
     $this->configFactory = $config_factory;
+
+    $this->client = $this->build();
   }
 
   /**
