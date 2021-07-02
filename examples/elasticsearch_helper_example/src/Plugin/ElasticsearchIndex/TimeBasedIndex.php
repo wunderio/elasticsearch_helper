@@ -45,8 +45,8 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
       $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
       $template_name = $this->getPluginId();
 
-      if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
-        $callback = [$this->client->indices(), 'putTemplate'];
+      if (!$this->client->templateExists($template_name)) {
+        $callback = [$this->client, 'putTemplate'];
 
         $request_params = [
           'name' => $template_name,
