@@ -45,4 +45,4 @@ services:
 
   elasticsearch_helper.client.default:
     class: Drupal\elasticsearch_helper\ElasticsearchHelperClient
-    arguments: ['@config.factory']
+    arguments: ['@config.factory', '@module_handler']

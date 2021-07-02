@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Elasticsearch\ClientBuilder;
 
 /**
@@ -25,11 +26,19 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
   protected $client;
 
   /**
+   * Drupal\Core\Extension\ModuleHandler definition.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
    * Constructs a new ElasticsearchHelperClient object.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
     $this->configFactory = $config_factory;
 
+    $this->moduleHandler = $module_handler;
     $this->client = $this->build();
   }
 
@@ -55,7 +64,7 @@ class ElasticsearchHelperClient implements ElasticsearchHelperClientInterface {
   protected function getHosts() {
     $hosts = [];
 
-    foreach ($this->config->get('hosts') as $host_config) {
+    foreach ($this->configFactory->get('hosts') as $host_config) {
       $host = ElasticsearchHost::createFromArray($host_config);
 
       $host_entry = [
