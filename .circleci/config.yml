@@ -55,6 +55,11 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^<< parameters.drupal_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^<< parameters.drush_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
+      - when:
+          condition:
+            equal: [ "9", << parameters.drupal_version >>]
+          steps:
+            - run: cd drupal && COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:^2
       - save_cache:
           paths:
             - ~/project/drupal
