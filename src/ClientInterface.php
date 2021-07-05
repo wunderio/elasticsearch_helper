@@ -81,6 +81,9 @@ interface ClientInterface {
 
   /**
    * Get cluster health.
+   *
+   * @return array
+   *   An array containing information about cluster health.
    */
   public function health();
 
@@ -89,6 +92,9 @@ interface ClientInterface {
    *
    * @param string $name
    *   The name of the index.
+   *
+   * @return bool
+   *   Return TRUE if the index exists.
    */
   public function indexExists($name);
 
@@ -97,6 +103,9 @@ interface ClientInterface {
    *
    * @param string $name
    *   The template name.
+   *
+   * @return bool
+   *   Return TRUE if the template exists.
    */
   public function templateExists($name);
 
