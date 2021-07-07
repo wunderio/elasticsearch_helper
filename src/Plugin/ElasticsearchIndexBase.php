@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -30,6 +31,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   use StringTranslationTrait;
   use MessengerTrait;
+
+  /**
+   * Cache ID prefix.
+   *
+   * @var string
+   */
+  const CID_PREFIX = 'elasticsearch_helper_cache:';
 
   /**
    * @var \Elasticsearch\Client
@@ -332,6 +340,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       if ($operation_event->isOperationAllowed()) {
         $source = $operation_event->getObject();
+
         $serialized_data = $this->serialize($source, ['method' => 'index']);
 
         $callback = [$this->client, 'index'];
@@ -569,6 +578,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function serialize($source, $context = []) {
     if ($source instanceof EntityInterface) {
+      // Get index's cache configuration.
+      $cached = isset($this->pluginDefinition['cache']) ? $this->pluginDefinition['cache'] : FALSE;
+
+      // Set the cache id from entity attributes.
+      $cache_id = static::CID_PREFIX . 'entity:' . $source->getEntityTypeId() . ':' . $source->language()->getId() . ':' . $source->id();
+
+      // Load a cached version of the data if it exists.
+      // Cache should only be used when indexing content.
+      if ($cached && $context['method'] == 'index') {
+        if ($cache = \Drupal::cache()->get($cache_id)) {
+          return $cache->data;
+        }
+      }
+
       if (isset($this->pluginDefinition['normalizerFormat'])) {
         // Use custom normalizerFormat if it's defined in plugin.
         $format = $this->pluginDefinition['normalizerFormat'];
@@ -583,6 +606,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       // Set the 'id' field to be the entity id,
       // it will be use by the getID() method.
       $data['id'] = $source->id();
+
+      // Store data to cache after serialization.
+      if ($cached && $context['method'] == 'index') {
+        \Drupal::cache()->set($cache_id, $data, Cache::PERMANENT, [
+          'elasticsearch_cache',
+          $source->getEntityTypeId() . ':' . $source->id(),
+        ]);
+      }
 
       return $data;
     }
