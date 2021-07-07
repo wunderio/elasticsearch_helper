@@ -582,7 +582,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $cached = isset($this->pluginDefinition['cache']) ? $this->pluginDefinition['cache'] : FALSE;
 
       // Set the cache id from entity attributes.
-      $cache_id = static::CID_PREFIX . 'entity:' . $source->getEntityTypeId() . ':' . $source->language()->getId() . ':' . $source->id();
+      $cache_id = $this->getCacheId($source);
 
       // Load a cached version of the data if it exists.
       // Cache should only be used when indexing content.
@@ -621,6 +621,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       // Non-entities are simply kept as they are.
       return $source;
     }
+  }
+
+  /**
+   * Determine the cache id for the entity.
+   *
+   * @param Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to be cached.
+   *
+   * @return string
+   *   The cache id.
+   */
+  public function getCacheId(EntityInterface $entity) {
+    $index_id = $this->pluginDefinition['id'];
+    return static::CID_PREFIX . 'entity:' . $index_id . ':' . $entity->getEntityTypeId() . ':' . $entity->language()->getId() . ':' . $entity->id();
   }
 
   /**
