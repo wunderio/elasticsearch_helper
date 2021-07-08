@@ -626,6 +626,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
+   * Delete the entity's cached serialized data.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to be processed.
+   */
+  public function clearEntityCache(EntityInterface $entity) {
+    if ($entity instanceof EntityInterface) {
+      $cid = $this->getCacheId($entity);
+
+      \Drupal::cache()->delete($cid);
+    }
+  }
+
+  /**
    * Determine the cache id for the entity.
    *
    * @param Drupal\Core\Entity\EntityInterface $entity
