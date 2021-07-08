@@ -8,6 +8,7 @@
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
+use Drupal\Core\Entity\Query\QueryInterface;
 
 /**
  * Implements hook_entity_insert().
@@ -84,4 +85,16 @@ function elasticsearch_helper_module_preuninstall($module) {
       $index_plugin_manager->createInstance($plugin['id'])->drop();
     }
   }
+}
+
+/**
+ * Implements hook_elasticsearch_helper_reindex_entity_query_alter().
+ */
+function elasticsearch_helper_elasticsearch_helper_reindex_entity_query_alter(QueryInterface $query, $entity_type, $bundle = NULL) {
+  // Do not restrict entity query based on user's permissions or node grants.
+  // Generally all entities are considered to be re-indexed when
+  // "drush elasticsearch-helper-reindex" command is run or
+  // \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager::reindexEntities()
+  // is executed.
+  $query->accessCheck(FALSE);
 }

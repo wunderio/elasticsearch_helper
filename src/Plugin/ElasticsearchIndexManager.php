@@ -179,6 +179,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
       $query->condition($entity_type_instance->getKey('bundle'), $bundle);
     }
 
+    // Allow other modules to alter the entity query prior to execution.
+    $this->moduleHandler->alter('elasticsearch_helper_reindex_entity_query', $query, $entity_type, $bundle);
+
+    // Execute the entity query.
     $result = $query->execute();
 
     // Queue entities for reindexing.
