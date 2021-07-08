@@ -609,10 +609,12 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       // Store data to cache after serialization.
       if ($cached && $context['method'] == 'index') {
-        \Drupal::cache()->set($cache_id, $data, Cache::PERMANENT, [
-          'elasticsearch_cache',
-          $source->getEntityTypeId() . ':' . $source->id(),
-        ]);
+        $tags = [
+          'elasticsearch_helper_cache',
+          'elasticsearch_helper_cache:' . $source->getEntityTypeId() . ':' . $source->id(),
+        ];
+
+        \Drupal::cache()->set($cache_id, $data, Cache::PERMANENT, $tags);
       }
 
       return $data;
