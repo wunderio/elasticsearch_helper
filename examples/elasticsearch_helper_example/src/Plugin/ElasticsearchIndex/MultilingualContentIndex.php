@@ -18,6 +18,7 @@ use Symfony\Component\Serializer\Serializer;
  *   label = @Translation("Multilingual content index"),
  *   indexName = "multilingual-{langcode}",
  *   typeName = "node",
+ *   serializationCache = TRUE,
  *   entityType = "node"
  * )
  */

@@ -3,7 +3,6 @@
 namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -19,6 +18,7 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
+use Drupal\elasticsearch_helper\Event\ElasticsearchSerializeEvent;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -31,13 +31,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   use StringTranslationTrait;
   use MessengerTrait;
-
-  /**
-   * Cache ID prefix.
-   *
-   * @var string
-   */
-  const CID_PREFIX = 'elasticsearch_helper_cache:';
 
   /**
    * @var \Elasticsearch\Client
@@ -578,18 +571,12 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function serialize($source, $context = []) {
     if ($source instanceof EntityInterface) {
-      // Get index's cache configuration.
-      $cached = isset($this->pluginDefinition['cache']) ? $this->pluginDefinition['cache'] : FALSE;
+      $event = new ElasticsearchSerializeEvent($this, $source, $context);
+      $this->getEventDispatcher()->dispatch(ElasticsearchHelperEvents::PRE_SERIALIZE, $event);
 
-      // Set the cache id from entity attributes.
-      $cache_id = $this->getCacheId($source);
-
-      // Load a cached version of the data if it exists.
-      // Cache should only be used when indexing content.
-      if ($cached && $context['method'] == 'index') {
-        if ($cache = \Drupal::cache()->get($cache_id)) {
-          return $cache->data;
-        }
+      // Get serialized data from event (if available).
+      if ($serialized_data = $event->serializedData()) {
+        return $serialized_data;
       }
 
       if (isset($this->pluginDefinition['normalizerFormat'])) {
@@ -600,22 +587,15 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         // Use the default normalizer format.
         $format = 'elasticsearch_helper';
       }
-      // If we have a Drupal entity, use the serializer.
+
       $data = $this->serializer->normalize($source, $format, $context);
 
       // Set the 'id' field to be the entity id,
-      // it will be use by the getID() method.
+      // it will be used by the getID() method.
       $data['id'] = $source->id();
 
-      // Store data to cache after serialization.
-      if ($cached && $context['method'] == 'index') {
-        $tags = [
-          'elasticsearch_helper_cache',
-          'elasticsearch_helper_cache:' . $source->getEntityTypeId() . ':' . $source->id(),
-        ];
-
-        \Drupal::cache()->set($cache_id, $data, Cache::PERMANENT, $tags);
-      }
+      $event = new ElasticsearchSerializeEvent($this, $source, $context, $data);
+      $this->getEventDispatcher()->dispatch(ElasticsearchHelperEvents::POST_SERIALIZE, $event);
 
       return $data;
     }
@@ -623,34 +603,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       // Non-entities are simply kept as they are.
       return $source;
     }
-  }
-
-  /**
-   * Delete the entity's cached serialized data.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity to be processed.
-   */
-  public function clearEntityCache(EntityInterface $entity) {
-    if ($entity instanceof EntityInterface) {
-      $cid = $this->getCacheId($entity);
-
-      \Drupal::cache()->delete($cid);
-    }
-  }
-
-  /**
-   * Determine the cache id for the entity.
-   *
-   * @param Drupal\Core\Entity\EntityInterface $entity
-   *   The entity to be cached.
-   *
-   * @return string
-   *   The cache id.
-   */
-  public function getCacheId(EntityInterface $entity) {
-    $index_id = $this->pluginDefinition['id'];
-    return static::CID_PREFIX . 'entity:' . $index_id . ':' . $entity->getEntityTypeId() . ':' . $entity->language()->getId() . ':' . $entity->id();
   }
 
   /**

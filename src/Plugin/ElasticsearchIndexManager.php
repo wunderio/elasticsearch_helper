@@ -62,21 +62,21 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   }
 
   /**
-   * Clear the serialized data cache of the entity.
+   * Clear the entity's serialized data cache.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function clearEntityCache(EntityInterface $entity) {
-    foreach ($this->getDefinitions() as $plugin) {
-      if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType'] && (isset($plugin['cache']) && (bool) $plugin['cache'])) {
+    /** @var \Drupal\elasticsearch_helper\ElasticsearchHelperCache $cache_handler */
+    $cache_handler = \Drupal::service('elasticsearch_helper.cache');
+
+    foreach ($this->getDefinitions() as $plugin_id => $definition) {
+      if ($entity->getEntityTypeId() == ($definition['entityType'] ?? NULL) && !empty($definition['serializationCache'])) {
         try {
-          $this->createInstance($plugin['id'])->clearEntityCache($entity);
+          $cache_handler->clearEntitySerializationCache($entity, $plugin_id);
         }
-        catch (ElasticsearchException $e) {
-          $this->logger->error('Elasticsearch failed to clear entity cache: @message', [
+        catch (\Exception $e) {
+          $this->logger->error('Elasticsearch failed to clear entity serialization cache: @message', [
             '@message' => $e->getMessage(),
           ]);
         }

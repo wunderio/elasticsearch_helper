@@ -36,6 +36,12 @@ services:
     tags:
       - { name: event_subscriber }
 
+  elasticsearch_helper.entity_serialization_cache_event_subscriber:
+    class: Drupal\elasticsearch_helper\EventSubscriber\EntitySerializationCacheEventSubscriber
+    arguments: [ '@elasticsearch_helper.cache' ]
+    tags:
+      - { name: event_subscriber }
+
   elasticsearch_helper.data_type_repository:
     class: Drupal\elasticsearch_helper\Elasticsearch\DataType\DataTypeRepository
     arguments: ['@event_dispatcher']
@@ -50,3 +56,7 @@ services:
     decorates: queue
     arguments: ['@elasticsearch_helper.queue_factory_decorator.inner', '@settings']
     decoration_priority: 3
+
+  elasticsearch_helper.cache:
+    class: Drupal\elasticsearch_helper\ElasticsearchHelperCache
+    arguments: ['@cache.default']

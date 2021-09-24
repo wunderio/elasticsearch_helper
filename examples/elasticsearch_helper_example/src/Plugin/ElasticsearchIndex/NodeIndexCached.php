@@ -15,7 +15,7 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "cached_node_index",
  *   label = @Translation("Cached node index"),
  *   indexName = "cached",
- *   cache = TRUE,
+ *   serializationCache = TRUE,
  *   typeName = "node",
  *   entityType = "node"
  * )
