@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Plugin;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -59,6 +60,19 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
     $this->entityTypeManager = $entity_type_manager;
     $this->queue = $queue_factory->get('elasticsearch_helper_indexing');
     $this->logger = $logger_factory->get('elasticsearch_helper');
+  }
+
+  /**
+   * Invalidates entity serialization cache.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   */
+  public function invalidateEntityCache(EntityInterface $entity) {
+    /** @var \Drupal\elasticsearch_helper\ElasticsearchHelperCache $cache_handler */
+    $cache_handler = \Drupal::service('elasticsearch_helper.cache');
+
+    // Invalidate serialization cache.
+    $cache_handler->getEntitySerializationCacheId($entity);
   }
 
   /**

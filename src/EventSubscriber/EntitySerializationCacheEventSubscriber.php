@@ -2,13 +2,16 @@
 
 namespace Drupal\elasticsearch_helper\EventSubscriber;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEntityOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Event\ElasticsearchSerializeEvent;
 use Drupal\elasticsearch_helper\ElasticsearchHelperCache;
+use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -25,12 +28,30 @@ class EntitySerializationCacheEventSubscriber implements EventSubscriberInterfac
   protected $elasticsearchHelperCache;
 
   /**
-   * SerializeCacheEventSubscriber constructor.
+   * Elasticsearch Helper config entity.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+
+  /**
+   * Elasticsearch index manager.
+   *
+   * @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
+   */
+  protected $elasticsearchIndexManager;
+
+  /**
+   * EntitySerializationCacheEventSubscriber constructor.
    *
    * @param \Drupal\elasticsearch_helper\ElasticsearchHelperCache $serialization_cache
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearch_index_manager
    */
-  public function __construct(ElasticsearchHelperCache $serialization_cache) {
+  public function __construct(ElasticsearchHelperCache $serialization_cache, ConfigFactoryInterface $config_factory, ElasticsearchIndexManager $elasticsearch_index_manager) {
     $this->elasticsearchHelperCache = $serialization_cache;
+    $this->config = $config_factory->get('elasticsearch_helper.settings');
+    $this->elasticsearchIndexManager = $elasticsearch_index_manager;
   }
 
   /**
@@ -39,6 +60,7 @@ class EntitySerializationCacheEventSubscriber implements EventSubscriberInterfac
   public static function getSubscribedEvents() {
     $events = [];
     $events[ElasticsearchEvents::OPERATION][] = ['onDocumentDelete'];
+    $events[ElasticsearchHelperEvents::ENTITY_INSERT][] = ['onEntityInsert'];
     $events[ElasticsearchHelperEvents::PRE_SERIALIZE][] = ['onPreSerialize'];
     $events[ElasticsearchHelperEvents::POST_SERIALIZE][] = ['onPostSerialize'];
 
@@ -46,7 +68,24 @@ class EntitySerializationCacheEventSubscriber implements EventSubscriberInterfac
   }
 
   /**
-   * Clears serialized cache on Elasticsearch document removal.
+   * Invalidates or clears entity serialization cache.
+   *
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchHelperEntityOperationEvent $event
+   */
+  public function onEntityInsert(ElasticsearchHelperEntityOperationEvent $event) {
+    $entity = $event->getEntity();
+
+    if ($this->config->get('defer_indexing')) {
+      // Invalidate the serialized data cache.
+      $this->elasticsearchHelperCache->invalidateEntityCache($entity);
+    }
+    else {
+      $this->elasticsearchIndexManager->clearEntityCache($entity);
+    }
+  }
+
+  /**
+   * Clears serialization cache on Elasticsearch document removal.
    *
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent $event
    */
@@ -61,7 +100,7 @@ class EntitySerializationCacheEventSubscriber implements EventSubscriberInterfac
           $plugin_instance = $event->getPluginInstance();
 
           // Clear entity serialization cache.
-          // $this->elasticsearchHelperCache->clearEntitySerializationCache($object, $plugin_instance->getPluginId());
+          $this->elasticsearchHelperCache->clearEntitySerializationCache($object, $plugin_instance->getPluginId());
         }
       }
     }

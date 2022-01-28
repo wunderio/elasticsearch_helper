@@ -8,6 +8,15 @@ namespace Drupal\elasticsearch_helper\Event;
 class ElasticsearchHelperEvents {
 
   /**
+   * Name of the event fired when entity is inserted.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  const ENTITY_INSERT = 'elasticsearch_helper.entity_insert';
+
+  /**
    * Name of the event fired when content is re-indexed.
    *
    * @Event

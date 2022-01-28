@@ -38,7 +38,7 @@ services:
 
   elasticsearch_helper.entity_serialization_cache_event_subscriber:
     class: Drupal\elasticsearch_helper\EventSubscriber\EntitySerializationCacheEventSubscriber
-    arguments: [ '@elasticsearch_helper.cache' ]
+    arguments: ['@elasticsearch_helper.cache', '@config.factory', '@plugin.manager.elasticsearch_index.processor']
     tags:
       - { name: event_subscriber }
 
