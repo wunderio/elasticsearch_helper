@@ -10,6 +10,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
+use Drupal\elasticsearch_helper\ClientInterface;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
@@ -18,7 +19,6 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
@@ -32,7 +32,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   use MessengerTrait;
 
   /**
-   * @var \Elasticsearch\Client
+   * @var \Drupal\elasticsearch_helper\ElasticsearchHelperClient
    */
   protected $client;
 
@@ -80,11 +80,11 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param \Elasticsearch\Client $client
+   * @param \Drupal\elasticsearch_helper\ClientInterface $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ClientInterface $client, Serializer $serializer, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->client = $client;
@@ -104,7 +104,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('elasticsearch_helper.elasticsearch_client'),
+      $container->get('elasticsearch_helper.client.default'),
       $container->get('serializer'),
       $container->get('logger.factory')->get('elasticsearch_helper')
     );
@@ -218,7 +218,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       if ($index_definition = $this->getIndexDefinition()) {
         $index_name = $this->getIndexName();
 
-        if (!$this->client->indices()->exists(['index' => $index_name])) {
+        if (!$this->client->indexExists($index_name)) {
           $this->createIndex($index_name, $index_definition);
         }
       }
@@ -241,7 +241,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $operation_event = $this->dispatchOperationEvent($operation, $index_name);
 
       if ($operation_event->isOperationAllowed()) {
-        $callback = [$this->client->indices(), 'create'];
+        $callback = [$this->client, 'createIndex'];
         $request_params = [
           'index' => $index_name,
           'body' => $index_definition->toArray(),
@@ -265,7 +265,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     try {
       $operation = ElasticsearchOperations::INDEX_GET;
 
-      $callback = [$this->client->indices(), 'get'];
+      $callback = [$this->client, 'indices'];
       $request_params = ['index' => $this->indexNamePattern()];
 
       // Get a list of indices.
@@ -308,7 +308,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           }
 
           // Delete matching indices.
-          $callback = [$this->client->indices(), 'delete'];
+          $callback = [$this->client, 'deleteIndex'];
           $request_params = ['index' => $index];
 
           $request_wrapper = $this->createRequest($operation, $callback, $request_params);

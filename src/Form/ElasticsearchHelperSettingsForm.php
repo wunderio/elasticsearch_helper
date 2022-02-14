@@ -5,6 +5,7 @@ namespace Drupal\elasticsearch_helper\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\elasticsearch_helper\ClientInterface;
 use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
@@ -18,7 +19,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   /**
    * The Elasticsearch client.
    *
-   * @var \Elasticsearch\Client
+   * @var \Drupal\elasticsearch_helper\ClientInterface
    */
   protected $client;
 
@@ -34,10 +35,10 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Elasticsearch\Client $elasticsearch_client
+   * @param \Drupal\elasticsearch_helper\ClientInterface $elasticsearch_client
    *   The Elasticsearch client.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, Client $elasticsearch_client) {
+  public function __construct(ConfigFactoryInterface $config_factory, ClientInterface $elasticsearch_client) {
     parent::__construct($config_factory);
 
     $this->client = $elasticsearch_client;
@@ -50,7 +51,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('elasticsearch_helper.elasticsearch_client')
+      $container->get('elasticsearch_helper.client.default')
     );
   }
 
@@ -95,7 +96,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * @throws \Exception
    */
   protected function getServerHealthStatus() {
-    $result = $this->client->cluster()->health();
+    $result = $this->client->health();
 
     return $result['status'];
   }

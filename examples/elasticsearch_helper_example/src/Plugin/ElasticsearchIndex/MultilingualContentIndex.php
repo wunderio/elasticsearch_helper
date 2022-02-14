@@ -5,9 +5,9 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
+use Drupal\elasticsearch_helper\ClientInterface;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
-use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -34,12 +34,12 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * @param array $configuration
    * @param $plugin_id
    * @param $plugin_definition
-   * @param \Elasticsearch\Client $client
+   * @param \Drupal\elasticsearch_helper\ClientInterface $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $language_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ClientInterface $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
     $this->language_manager = $language_manager;
@@ -53,7 +53,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('elasticsearch_helper.elasticsearch_client'),
+      $container->get('elasticsearch_helper.client.default'),
       $container->get('serializer'),
       $container->get('logger.factory')->get('elasticsearch_helper'),
       $container->get('language_manager')
@@ -106,7 +106,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
       $index_name = $this->getIndexName(['langcode' => $langcode]);
 
       // Check if index exists.
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
+      if (!$this->client->indexExists($index_name)) {
         // Get index definition.
         $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
 

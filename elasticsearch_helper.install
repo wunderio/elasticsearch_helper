@@ -36,10 +36,10 @@ function elasticsearch_helper_requirements($phase) {
     else {
       // Check Elasticsearch status.
       /** @var \Elasticsearch\Client $client */
-      $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
+      $client = \Drupal::service('elasticsearch_helper.client.default');
 
       try {
-        $health = $client->cluster()->health();
+        $health = $client->health();
 
         $color_states = [
           'green' => REQUIREMENT_OK,
