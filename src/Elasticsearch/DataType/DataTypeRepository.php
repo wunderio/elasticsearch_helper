@@ -34,6 +34,7 @@ class DataTypeRepository implements DataTypeRepositoryInterface {
     // Text data types.
     'text' => [],
     'keyword' => [],
+    'wildcard' => [],
     // Numeric data types.
     'long' => [],
     'integer' => [],
