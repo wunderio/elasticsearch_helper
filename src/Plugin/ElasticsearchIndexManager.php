@@ -215,7 +215,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    *   Whether the index should be considered enabled.
    */
   public function indexIsEnabled($index) {
-    $index_statuses = $this->config->get('elasticsearch_helper.index_statuses');
+    $index_statuses = $this->config->get('index_statuses');
 
     // When an index is not yet known in configuration, we default to enabling
     // it.
