@@ -1,7 +1,0 @@
-name: Elasticsearch Helper Example
-type: module
-description: Example plugin implementation for the Elasticsearch Helper module.
-core: 8.x
-hidden: true
-dependencies:
-- elasticsearch_helper

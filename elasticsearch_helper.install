@@ -6,6 +6,7 @@
  */
 
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Drupal\user\Entity\Role;
 
 /**
  * Implements hook_requirements.
@@ -17,37 +18,48 @@ function elasticsearch_helper_requirements($phase) {
     // Check that the Elasticsearch PHP library is available.
     if (!class_exists('\Elasticsearch\Client')) {
       $requirements['elasticsearch_library'] = [
-        'description' => t("Elasticsearch Helper requires the Elasticsearch PHP library."),
+        'description' => t('Elasticsearch Helper requires Elasticsearch PHP library to be installed. See README.md for further details.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     }
   }
 
   if ($phase == 'runtime') {
-    /** @var \Elasticsearch\Client $client */
-    $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
-
-    try {
-      $health = $client->cluster()->health();
-
-      $color_states = [
-        'green' => REQUIREMENT_OK,
-        'yellow' => REQUIREMENT_WARNING,
-        'red' => REQUIREMENT_ERROR,
-      ];
-
-      $requirements['elasticsearch_health'] = [
-        'title' => t('Elasticsearch status'),
-        'description' => t('Elasticsearch cluster status is @status.', ['@status' => $health['status']]),
-        'severity' => $color_states[$health['status']],
-      ];
-    }
-    catch (NoNodesAvailableException $e) {
-      $requirements['elasticsearch_health'] = [
-        'title' => t('Elasticsearch status'),
-        'description' => t('Could not connect to Elasticsearch'),
+    // Check that the Elasticsearch PHP library is available.
+    if (!class_exists('\Elasticsearch\Client')) {
+      $requirements['elasticsearch_library'] = [
+        'title' => t('Elasticsearch PHP library missing'),
+        'description' => t("Elasticsearch Helper requires the Elasticsearch PHP library. See README.md for further details."),
         'severity' => REQUIREMENT_ERROR,
       ];
+    }
+    else {
+      // Check Elasticsearch status.
+      /** @var \Elasticsearch\Client $client */
+      $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
+
+      try {
+        $health = $client->cluster()->health();
+
+        $color_states = [
+          'green' => REQUIREMENT_OK,
+          'yellow' => REQUIREMENT_WARNING,
+          'red' => REQUIREMENT_ERROR,
+        ];
+
+        $requirements['elasticsearch_health'] = [
+          'title' => t('Elasticsearch status'),
+          'description' => t('Elasticsearch cluster status is @status.', ['@status' => $health['status']]),
+          'severity' => $color_states[$health['status']],
+        ];
+      }
+      catch (NoNodesAvailableException $e) {
+        $requirements['elasticsearch_health'] = [
+          'title' => t('Elasticsearch status'),
+          'description' => t('Could not connect to Elasticsearch'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
     }
   }
 
@@ -77,7 +89,53 @@ function elasticsearch_helper_update_8001() {
  */
 function elasticsearch_helper_update_8002() {
   $config = \Drupal::service('config.factory')->getEditable('elasticsearch_helper.settings');
+
   if ($config->get('elasticsearch_helper.scheme')) {
     $config->set('elasticsearch_helper.scheme', 'http');
+  }
+}
+
+/**
+ * Change module's configuration structure to allow defining multiple hosts.
+ */
+function elasticsearch_helper_update_8003() {
+  // Update module configuration.
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('elasticsearch_helper.settings');
+
+  $hosts = [
+    [
+      'scheme' => $config->get('elasticsearch_helper.scheme'),
+      'host' => $config->get('elasticsearch_helper.host'),
+      'port' => $config->get('elasticsearch_helper.port'),
+      'authentication' => [
+        'enabled' => (bool) $config->get('elasticsearch_helper.authentication'),
+        'user' => $config->get('elasticsearch_helper.user'),
+        'password' => $config->get('elasticsearch_helper.password'),
+      ],
+    ]
+  ];
+  $defer_indexing = $config->get('elasticsearch_helper.defer_indexing');
+
+  // Delete the configuration object altogether.
+  $config->delete();
+
+  // Reinstate the configuration.
+  $config->set('hosts', $hosts);
+  $config->set('defer_indexing', (bool) $defer_indexing);
+  $config->save();
+
+  // Update permission name.
+  $mistyped_permission = 'configured elasticsearch helper';
+  $permission = 'configure elasticsearch helper';
+
+  /** @var \Drupal\user\RoleInterface $role */
+  foreach (Role::loadMultiple() as $role) {
+    if ($role->hasPermission($mistyped_permission)) {
+      $role->revokePermission($mistyped_permission);
+      $role->grantPermission($permission);
+
+      $role->trustData()->save();
+    }
   }
 }

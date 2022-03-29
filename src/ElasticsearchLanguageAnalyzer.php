@@ -4,10 +4,13 @@ namespace Drupal\elasticsearch_helper;
 
 /**
  * Class ElasticsearchLanguageAnalyzer.
- *
- * @package Drupal\elasticsearch_helper
  */
 class ElasticsearchLanguageAnalyzer {
+
+  /**
+   * Defines default analyzer.
+   */
+  const DEFAULT_ANALYZER = 'standard';
 
   /**
    * Get the name of a language analyzer for a given language code.
@@ -21,6 +24,8 @@ class ElasticsearchLanguageAnalyzer {
   public static function get($langcode) {
     // Map language codes to the built-in language analysers documented here:
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
+    // Standard list of languages can be found in
+    // \Drupal\Core\Language\LanguageManager::getStandardLanguageList().
     $language_analyzers = [
       'ar' => 'arabic',
       'hy' => 'armenian',
@@ -52,7 +57,7 @@ class ElasticsearchLanguageAnalyzer {
       'ru' => 'russian',
       'ku' => 'sorani',
       'es' => 'spanish',
-      'se' => 'swedish',
+      'sv' => 'swedish',
       'tr' => 'turkish',
       'th' => 'thai',
 
@@ -61,18 +66,21 @@ class ElasticsearchLanguageAnalyzer {
       'ja' => 'cjk',
       'ko' => 'cjk',
 
-      // For improved chinese support install the analysis-smartcn
-      // elasticsearch plugin with the 'smartcn' analyzer.
-      // For improved japanese support install the analysis-kuromoji
-      // elasticsearch plugin with the 'kuromoji' analyzer.
+      // For improved Chinese support install the analysis-smartcn
+      // Elasticsearch plugin with the 'smartcn' analyzer.
+      // For improved Japanese support install the analysis-kuromoji
+      // Elasticsearch plugin with the 'kuromoji' analyzer.
     ];
+
+    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
+      $language_analyzers['et'] = 'estonian';
+    }
 
     if (isset($language_analyzers[$langcode])) {
       return $language_analyzers[$langcode];
     }
-    else {
-      return 'standard';
-    }
+
+    return self::DEFAULT_ANALYZER;
   }
 
 }
