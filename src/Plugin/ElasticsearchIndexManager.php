@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper\Plugin;
 
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -32,6 +33,11 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   protected $logger;
 
   /**
+   * @var \Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+
+  /**
    * Constructor for ElasticsearchIndexManager objects.
    *
    * @param \Traversable $namespaces
@@ -41,8 +47,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   Config factory service.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, QueueFactory $queue_factory, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, QueueFactory $queue_factory, LoggerChannelFactoryInterface $logger_factory, ConfigFactory $config_factory) {
     parent::__construct('Plugin/ElasticsearchIndex', $namespaces, $module_handler, 'Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface', 'Drupal\elasticsearch_helper\Annotation\ElasticsearchIndex');
 
     $this->alterInfo('elasticsearch_helper_elasticsearch_index_info');
@@ -50,6 +58,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
     $this->entityTypeManager = $entity_type_manager;
     $this->queue = $queue_factory->get('elasticsearch_helper_indexing');
     $this->logger = $logger_factory->get('elasticsearch_helper');
+    $this->config = $config_factory->get('elasticsearch_helper.settings');
   }
 
   /**
@@ -59,6 +68,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    */
   public function indexEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
+      if (!$this->indexIsEnabled($plugin['id'])) {
+        continue;
+      }
+
       if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
           // Do not index if defined plugin bundle differs from entity bundle.
@@ -87,6 +100,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
    */
   public function deleteEntity(EntityInterface $entity) {
     foreach ($this->getDefinitions() as $plugin) {
+      if (!$this->indexIsEnabled($plugin['id'])) {
+        continue;
+      }
+
       if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType']) {
         if (!empty($plugin['bundle']) && $plugin['bundle'] != $entity->bundle()) {
           // Do not delete if defined plugin bundle differs from entity bundle.
@@ -116,6 +133,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   public function reindex($indices = []) {
 
     foreach ($this->getDefinitions() as $plugin) {
+      if (!$this->indexIsEnabled($plugin['id'])) {
+        continue;
+      }
+
       if (empty($indices) || in_array($plugin['id'], $indices)) {
 
         if ($plugin['entityType']) {
@@ -139,6 +160,23 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
         }
       }
     }
+  }
+
+  /**
+   * Check whether an index is enabled according to configuration.
+   *
+   * @param string $index
+   *   Id of the index to check.
+   *
+   * @return bool
+   *   Whether the index should be considered enabled.
+   */
+  public function indexIsEnabled($index) {
+    $index_statuses = $this->config->get('elasticsearch_helper.index_statuses');
+
+    // When an index is not yet known in configuration, we default to enabling
+    // it.
+    return isset($index_statuses[$index]) ? $index_statuses[$index] : TRUE;
   }
 
 }
