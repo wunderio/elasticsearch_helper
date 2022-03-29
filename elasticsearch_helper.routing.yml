@@ -5,6 +5,6 @@ elasticsearch_helper.elasticsearch_helper_settings_form:
     _form: '\Drupal\elasticsearch_helper\Form\ElasticsearchHelperSettingsForm'
     _title: 'Elasticsearch Helper Settings'
   requirements:
-    _permission: 'configured elasticsearch helper'
+    _permission: 'configure elasticsearch helper'
   options:
     _admin_route: TRUE

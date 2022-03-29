@@ -52,30 +52,27 @@ class ElasticsearchClientBuilder {
    * Get the hosts based on the site configuration.
    */
   protected function getHosts() {
-    $host = implode(':', [
-      $this->config->get('elasticsearch_helper.host'),
-      $this->config->get('elasticsearch_helper.port'),
-    ]);
+    $hosts = [];
 
-    if ($this->config->get('elasticsearch_helper.user')) {
-      $credentials = implode(':', [
-        $this->config->get('elasticsearch_helper.user'),
-        $this->config->get('elasticsearch_helper.password'),
-      ]);
+    foreach ($this->config->get('hosts') as $host_config) {
+      $host = ElasticsearchHost::createFromArray($host_config);
 
-      if (!empty($credentials)) {
-        $host = implode('@', [$credentials, $host]);
+      $host_entry = [
+        'host' => $host->getHost(),
+        'port' => $host->getPort(),
+        'scheme' => $host->getScheme(),
+      ];
+
+      if ($host->isAuthEnabled()) {
+        $host_entry['user'] = $host->getAuthUsername();
+        $host_entry['pass'] = $host->getAuthPassword();
       }
+
+      // Use only explicitly defined configuration.
+      $hosts[] = array_filter($host_entry);
     }
 
-    if ($scheme = $this->config->get('elasticsearch_helper.scheme')) {
-      $host = implode('://', [
-        $scheme,
-        $host,
-      ]);
-    }
-
-    return [$host];
+    return $hosts;
   }
 
 }

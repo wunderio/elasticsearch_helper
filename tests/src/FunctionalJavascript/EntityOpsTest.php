@@ -3,14 +3,19 @@
 namespace Drupal\Tests\elasticsearch_helper\FunctionalJavascript;
 
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
  * Test basic functionality.
  *
  * @group elasticsearch_helper
  */
-class EntityOpsTest extends JavascriptTestBase {
+class EntityOpsTest extends WebDriverTestBase {
+
+  /**
+   * @var string
+   */
+  protected $defaultTheme = 'stable';
 
   /**
    * {@inheritdoc}
@@ -27,7 +32,7 @@ class EntityOpsTest extends JavascriptTestBase {
     $this->assertEquals($queue->numberOfItems(), 0);
     \Drupal::configFactory()
       ->getEditable('elasticsearch_helper.settings')
-      ->set('elasticsearch_helper.defer_indexing', 1)
+      ->set('defer_indexing', TRUE)
       ->save();
     elasticsearch_helper_entity_insert($entity);
     $this->assertEquals($queue->numberOfItems(), 1);

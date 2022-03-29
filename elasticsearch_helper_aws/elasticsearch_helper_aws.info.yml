@@ -1,7 +1,0 @@
-name: AWS Elasticsearch Service for Elasticsearch Helper
-description: Connect to the AWS hosted Elasticsearch service with Elasticsearch Helper
-type: module
-core: 8.x
-configure: elasticsearch_helper_aws.settings_form
-dependencies:
-- elasticsearch_helper

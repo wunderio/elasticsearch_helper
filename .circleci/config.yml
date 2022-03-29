@@ -1,0 +1,110 @@
+version: 2.1
+
+commands:
+  start-drupal-test:
+    steps:
+      - run:
+          name: Install Dependencies
+          command: |
+            cd drupal && COMPOSER_MEMORY_LIMIT=-1 composer install -n --prefer-dist --ignore-platform-reqs
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: Install Drupal
+          command: |
+            cd drupal && drush si --db-url=mysql://root:dbpassword@127.0.0.1:3306/drupal --account-pass=admin -y
+      - run:
+          name: Enable scannning of test module directory
+          command: |
+            chmod ug+w drupal/web/sites/default/settings.php
+            echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
+      - run:
+          name: Install Elasticsearch Helper
+          command: |
+            cd drupal && drush pm-enable elasticsearch_helper -y
+      - run:
+          name: Clear cache
+          command: cd drupal && drush cr
+      - run:
+          name: Install Elasticsearch Helper Test module
+          command: |
+            cd drupal && drush pm-enable elasticsearch_helper_test -y
+      - run:
+          name: Run Tests
+          command: |
+            cd drupal/web && php core/scripts/run-tests.sh --verbose --sqlite --module elasticsearch_helper
+
+jobs:
+  build:
+    parameters:
+      version:
+        type: string
+    docker:
+      - image: wunderio/circleci-codeception-base
+    steps:
+      - run:
+          name: Create Drupal
+          command: |
+            composer create-project drupal/recommended-project:8.8.6 drupal
+            cd drupal
+            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^8
+            COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:9
+            COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
+      - save_cache:
+          paths:
+            - ~/project/drupal
+          key: v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
+
+  test-es:
+    parameters:
+      version:
+        type: string
+      image_version:
+        type: string
+    docker:
+      - image: wunderio/circleci-codeception-base
+      - image: circleci/mariadb:10.2
+        environment:
+          MYSQL_DATABASE: drupal
+          MYSQL_ROOT_PASSWORD: dbpassword
+          MYSQL_ROOT_HOST: "%"
+      - image: docker.elastic.co/elasticsearch/elasticsearch:<< parameters.image_version >>
+        environment:
+          - discovery.type=single-node
+          - http.host=0.0.0.0
+          - transport.host=127.0.0.1
+          - xpack.security.enabled=false
+          - cluster.name=docker-cluster
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+    steps:
+      - checkout:
+          path: ~/project/drupal/web/modules/elasticsearch_helper
+      - restore_cache:
+          keys:
+            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
+      - start-drupal-test
+
+workflows:
+  build_and_test:
+    jobs:
+      - build:
+          name: build-es-6
+          version: "6"
+      - build:
+          name: build-es-7
+          version: "7"
+      - test-es:
+          name: test-es-6
+          version: "6"
+          image_version: "6.8.10"
+          requires:
+            - build-es-6
+      - test-es:
+          name: test-es-7
+          version: "7"
+          image_version: "7.7.0"
+          requires:
+            - build-es-7
