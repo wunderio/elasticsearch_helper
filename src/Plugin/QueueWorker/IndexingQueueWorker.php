@@ -2,6 +2,9 @@
 
 namespace Drupal\elasticsearch_helper\Plugin\QueueWorker;
 
+use Drupal\Component\Utility\Bytes;
+use Drupal\Component\Utility\Environment;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -41,6 +44,13 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
   private $elasticsearchIndexManager;
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private $configFactory;
+
+  /**
    * IndexingQueueWorker constructor.
    *
    * @param array $configuration
@@ -54,11 +64,12 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $elasticsearch_index_manager
    *   The plugin manager for our ElasticsearchIndex plugins.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ElasticsearchIndexManager $elasticsearch_index_manager) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ElasticsearchIndexManager $elasticsearch_index_manager, ConfigFactoryInterface $configFactory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $entity_type_manager;
     $this->elasticsearchIndexManager = $elasticsearch_index_manager;
+    $this->configFactory = $configFactory;
   }
 
   /**
@@ -70,7 +81,8 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('plugin.manager.elasticsearch_index.processor')
+      $container->get('plugin.manager.elasticsearch_index.processor'),
+      $container->get('config.factory'),
     );
   }
 
@@ -81,7 +93,13 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
     $entity_type = $data['entity_type'];
     $entity_id = $data['entity_id'];
 
-    $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
+    $entity_storage = $this->entityTypeManager->getStorage($entity_type);
+
+    if ($this->memoryConstrained()) {
+      $entity_storage->resetCache();
+    }
+
+    $entity = $entity_storage->load($entity_id);
 
     if ($entity) {
       // Set a global static variable which could be used by other modules to
@@ -95,6 +113,20 @@ class IndexingQueueWorker extends QueueWorkerBase implements ContainerFactoryPlu
       // Reset global static.
       drupal_static_reset(self::QUEUE_INDEXING_VAR_NAME);
     }
+  }
+
+  /**
+   * Return whether memory is constrained based on a configurable safety margin.
+   *
+   * @return bool
+   *   Whether the memory should be considered constrained.
+   */
+  private function memoryConstrained() {
+    $margin = $this->configFactory->get('elasticsearch_helper')->get('memory_safety_margin');
+    $margin = $margin ?: '16M';
+    $current_usage = memory_get_usage();
+
+    return !Environment::checkMemoryLimit($current_usage + Bytes::toNumber($margin));
   }
 
 }

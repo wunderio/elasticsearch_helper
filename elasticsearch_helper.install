@@ -139,3 +139,14 @@ function elasticsearch_helper_update_8003() {
     }
   }
 }
+
+/**
+ * Set default value for memory safety limit to 16M if it doesn't exist yet.
+ */
+function elasticsearch_helper_update_8004() {
+  $config = \Drupal::service('config.factory')->getEditable('elasticsearch_helper.settings');
+  if (is_null($config->get('memory_safety_margin'))) {
+    $config->set('memory_safety_margin', '16M');
+    $config->save();
+  }
+}
