@@ -8,3 +8,4 @@ hosts:
       user: ''
       password: ''
 defer_indexing: false
+memory_safety_margin: '16M'
