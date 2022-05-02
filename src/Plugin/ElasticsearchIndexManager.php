@@ -184,4 +184,40 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
     ]);
   }
 
+  /**
+   * Checks if defined index mapping is consistent with existing index mapping.
+   *
+   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin
+   * @param array $existing_mapping
+   *
+   * @return bool
+   */
+  public function isIndexMappingConsistent(ElasticsearchIndexInterface $plugin, array $existing_mapping) {
+    $mapping_definition = $plugin->getMappingDefinition()->toArray();
+
+    $errors = [];
+
+    $compare = function ($properties, $existing_properties) use (&$compare, &$errors) {
+      foreach ($properties as $property => $value) {
+        if (isset($existing_properties[$property])) {
+          if (is_array($value)) {
+            $compare($value, $existing_properties[$property], $errors);
+          }
+          else {
+            if ($value != $existing_properties[$property]) {
+              $errors[] = $property;
+            }
+          }
+        }
+        else {
+          $errors[] = $property;
+        }
+      }
+    };
+
+    $compare($mapping_definition, $existing_mapping);
+
+    return empty($errors);
+  }
+
 }

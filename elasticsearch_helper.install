@@ -39,6 +39,7 @@ function elasticsearch_helper_requirements($phase) {
       $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
 
       try {
+        // Check health.
         $health = $client->cluster()->health();
 
         $color_states = [
@@ -52,6 +53,42 @@ function elasticsearch_helper_requirements($phase) {
           'description' => t('Elasticsearch cluster status is @status.', ['@status' => $health['status']]),
           'severity' => $color_states[$health['status']],
         ];
+
+        // Check index consistency.
+        try {
+          $inconsistent_indices = [];
+
+          /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $index_plugin_manager */
+          $index_plugin_manager = \Drupal::service('plugin.manager.elasticsearch_index.processor');
+
+          foreach ($index_plugin_manager->getDefinitions() as $plugin_id => $plugin_definition) {
+            /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance */
+            $plugin_instance = $index_plugin_manager->createInstance($plugin_id);
+
+            // Get a list of existing indices.
+            if ($existing_indices = $plugin_instance->getExistingIndices()) {
+              $existing_mappings = $client->indices()->getMapping(['index' => $existing_indices]);
+
+              foreach ($existing_mappings as $existing_mapping_index => $existing_mapping) {
+                if (in_array($existing_mapping_index, $existing_indices)) {
+                  if (!$index_plugin_manager->isIndexMappingConsistent($plugin_instance, $existing_mapping['mappings'])) {
+                    $inconsistent_indices[] = $existing_mapping_index;
+                  }
+                }
+              }
+
+              if ($inconsistent_indices) {
+                $requirements['elasticsearch_helper_index'] = [
+                  'title' => t('Elasticsearch index consistency'),
+                  'description' => t('Some existing Elasticsearch indices might not be consistent with defined index settings.'),
+                  'severity' => REQUIREMENT_ERROR,
+                  'value' => t('Index mapping is inconsistent.'),
+                ];
+              }
+            }
+          }
+        } catch (\Exception $e) {
+        }
       }
       catch (NoNodesAvailableException $e) {
         $requirements['elasticsearch_health'] = [
