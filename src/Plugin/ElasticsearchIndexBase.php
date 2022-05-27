@@ -4,6 +4,7 @@ namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Elasticsearch\Client;
@@ -18,6 +19,7 @@ use Psr\Log\LoggerInterface;
 abstract class ElasticsearchIndexBase extends PluginBase implements ElasticsearchIndexInterface, ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;
+  use MessengerTrait;
 
   /**
    * @var \Elasticsearch\Client
@@ -119,7 +121,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       if ($indices = $this->client->indices()->get($params)) {
         // Notify user that indices have been deleted.
         foreach ($indices as $indexName => $index) {
-          drupal_set_message($this->t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
+          $this->messenger()->addStatus($this->t('Index @indexName has been deleted.', ['@indexName' => $indexName]));
         }
 
         // Delete matching indices.
@@ -127,7 +129,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       }
     }
     catch (Missing404Exception $e) {
-      drupal_set_message($this->t('No Elasticsearch index matching @pattern could be dropped.', [
+      $this->messenger()->addStatus($this->t('No Elasticsearch index matching @pattern could be dropped.', [
         '@pattern' => $this->indexNamePattern(),
       ]));
     }

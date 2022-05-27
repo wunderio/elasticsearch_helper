@@ -72,7 +72,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     try {
       $health = $this->client->cluster()->health();
 
-      drupal_set_message($this->t('Connected to Elasticsearch'));
+      $this->messenger()->addStatus($this->t('Connected to Elasticsearch'));
 
       $color_states = [
         'green' => 'status',
@@ -80,15 +80,15 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         'red' => 'error',
       ];
 
-      drupal_set_message($this->t('Elasticsearch cluster status is @status', [
+      $this->messenger()->addMessage($this->t('Elasticsearch cluster status is @status', [
         '@status' => $health['status'],
       ]), $color_states[$health['status']]);
     }
     catch (NoNodesAvailableException $e) {
-      drupal_set_message($this->t('Could not connect to Elasticsearch'), 'error');
+      $this->messenger()->addError($this->t('Could not connect to Elasticsearch'));
     }
     catch (\Exception $e) {
-      drupal_set_message($e->getMessage(), 'error');
+      $this->messenger()->addError($e->getMessage());
     }
 
     $form['scheme'] = [
