@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Create Drupal
           command: |
-            composer create-project drupal-composer/drupal-project:9.x-dev drupal
+            composer create-project create-project drupal/core:^9 drupal
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^9 --dev
             COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
