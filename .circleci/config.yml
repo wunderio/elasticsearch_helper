@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Create Drupal
           command: |
-            composer create-project create-project drupal/core:^9 drupal -n
+            composer create-project create-project drupal/core drupal "^9" -n
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^9 --dev -n
