@@ -96,15 +96,24 @@ workflows:
       - build:
           name: build-es-7
           version: "7"
+      - build:
+          name: build-es-8
+          version: "8"
       - test-es:
           name: test-es-6
           version: "6"
-          image_version: "6.8.10"
+          image_version: "6.8.23"
           requires:
             - build-es-6
       - test-es:
           name: test-es-7
           version: "7"
-          image_version: "7.7.0"
+          image_version: "7.17.6"
           requires:
             - build-es-7
+      - test-es:
+          name: test-es-8
+          version: "8"
+          image_version: "8.4.3"
+          requires:
+            - build-es-8
