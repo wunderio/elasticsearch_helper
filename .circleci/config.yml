@@ -46,8 +46,10 @@ jobs:
       - run:
           name: Create Drupal
           command: |
-            COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/core drupal "^9" -n
+            COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project drupal "^9" -n
             cd drupal
+            COMPOSER_MEMORY_LIMIT=-1 composer remove --no-update drupal/core-recommended -n
+            COMPOSER_MEMORY_LIMIT=-1 composer require --update-with-all-dependencies drupal/core -n
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^9 --dev -n
             COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
       - save_cache:
