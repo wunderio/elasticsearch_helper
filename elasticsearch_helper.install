@@ -16,7 +16,7 @@ function elasticsearch_helper_requirements($phase) {
 
   if ($phase == 'install') {
     // Check that the Elasticsearch PHP library is available.
-    if (!class_exists('\Elasticsearch\Client')) {
+    if (!(class_exists('\Elasticsearch\Client') xor class_exists('\Elastic\Elasticsearch\Client'))) {
       $requirements['elasticsearch_library'] = [
         'description' => t('Elasticsearch Helper requires Elasticsearch PHP library to be installed. See README.md for further details.'),
         'severity' => REQUIREMENT_ERROR,
@@ -26,7 +26,7 @@ function elasticsearch_helper_requirements($phase) {
 
   if ($phase == 'runtime') {
     // Check that the Elasticsearch PHP library is available.
-    if (!class_exists('\Elasticsearch\Client')) {
+    if (!(class_exists('\Elasticsearch\Client') xor class_exists('\Elastic\Elasticsearch\Client'))) {
       $requirements['elasticsearch_library'] = [
         'title' => t('Elasticsearch PHP library missing'),
         'description' => t("Elasticsearch Helper requires the Elasticsearch PHP library. See README.md for further details."),
@@ -35,7 +35,7 @@ function elasticsearch_helper_requirements($phase) {
     }
     else {
       // Check Elasticsearch status.
-      /** @var \Elasticsearch\Client $client */
+      /** @var \Elastic\Elasticsearch\ClientInterface|\Elasticsearch\Client $client */
       $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
 
       try {
@@ -53,7 +53,14 @@ function elasticsearch_helper_requirements($phase) {
           'severity' => $color_states[$health['status']],
         ];
       }
-      catch (NoNodesAvailableException $e) {
+      catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e) {
+        $requirements['elasticsearch_health'] = [
+          'title' => t('Elasticsearch status'),
+          'description' => t('Could not connect to Elasticsearch'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+      catch (\Elastic\Transport\Exception\NoNodeAvailableException $e) {
         $requirements['elasticsearch_health'] = [
           'title' => t('Elasticsearch status'),
           'description' => t('Could not connect to Elasticsearch'),
