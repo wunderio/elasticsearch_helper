@@ -54,6 +54,8 @@ jobs:
       - image: wunderio/circleci-codeception-base
       - image: cimg/php:<< parameters.php_version >>
     steps:
+      - checkout
+      - run: php --version
       - run:
           name: Create Drupal
           command: |
