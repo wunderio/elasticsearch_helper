@@ -38,6 +38,8 @@ commands:
 jobs:
   build:
     parameters:
+      cache_name:
+        type: string
       es_lib_version:
         type: string
       core_version:
@@ -100,37 +102,40 @@ workflows:
     jobs:
       - build:
           name: build-drupal-8-es-6
+          cache_name: drupal-8-es-6
           es_lib_version: "6"
           core_version: "8.8.6"
           core_dev_version: "8"
           drush_version: "9"
       - build:
           name: build-drupal-8-es-7
+          cache_name: drupal-8-es-7
           es_lib_version: "7"
           core_version: "8.8.6"
           core_dev_version: "8"
           drush_version: "9"
       - build:
           name: build-drupal-9-es-7
+          cache_name: drupal-9-es-7
           es_lib_version: "7"
           core_version: "9.4.8"
           core_dev_version: "9"
           drush_version: "11"
       - test-es:
           name: test-drupal-8-es-6
-          cache_name: build-drupal-8-es-6
+          cache_name: drupal-8-es-6
           es_version: "6.8.10"
           requires:
             - build-drupal-8-es-6
       - test-es:
           name: test-drupal-8-es-7
-          cache_name: build-drupal-8-es-7
+          cache_name: drupal-8-es-7
           es_version: "7.17.0"
           requires:
             - build-drupal-8-es-7
       - test-es:
           name: test-drupal-9-es-7
-          cache_name: build-drupal-9-es-7
+          cache_name: drupal-9-es-7
           es_version: "7.17.0"
           requires:
             - build-drupal-9-es-7
