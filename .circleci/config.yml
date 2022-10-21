@@ -40,6 +40,8 @@ jobs:
     parameters:
       cache_name:
         type: string
+      php_version:
+        type: string
       es_lib_version:
         type: string
       core_version:
@@ -50,6 +52,7 @@ jobs:
         type: string
     docker:
       - image: wunderio/circleci-codeception-base
+      - image: cimg/php:<< parameters.php_version >>
     steps:
       - run:
           name: Create Drupal
@@ -104,6 +107,7 @@ workflows:
       - build:
           name: build-drupal-8-es-6
           cache_name: drupal-8-es-6
+          php_version: "7.4"
           es_lib_version: "6"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -111,6 +115,7 @@ workflows:
       - build:
           name: build-drupal-8-es-7
           cache_name: drupal-8-es-7
+          php_version: "7.4"
           es_lib_version: "7"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -118,6 +123,7 @@ workflows:
       - build:
           name: build-drupal-9-es-7
           cache_name: drupal-9-es-7
+          php_version: "8.1"
           es_lib_version: "7"
           core_version: "9.4.8"
           core_dev_version: "9"
