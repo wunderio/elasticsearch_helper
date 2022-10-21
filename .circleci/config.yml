@@ -57,7 +57,7 @@ jobs:
     steps:
       - checkout
       - php/install-php:
-          - version: << parameters.php_version >>
+        - version: << parameters.php_version >>
       - run: php --version
       - run:
           name: Create Drupal
