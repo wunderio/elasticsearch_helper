@@ -112,7 +112,7 @@ workflows:
           name: build-drupal-8-es-6
           cache_name: drupal-8-es-6
           php_version: "7.4"
-          composer_version: 1
+          composer_version: "1"
           es_lib_version: "6"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -121,7 +121,7 @@ workflows:
           name: build-drupal-8-es-7
           cache_name: drupal-8-es-7
           php_version: "7.4"
-          composer_version: 1
+          composer_version: "1"
           es_lib_version: "7"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -130,7 +130,7 @@ workflows:
           name: build-drupal-9-es-7
           cache_name: drupal-9-es-7
           php_version: "8.1"
-          composer_version: 2
+          composer_version: "2"
           es_lib_version: "7"
           core_version: "9.4.8"
           core_dev_version: "9"
