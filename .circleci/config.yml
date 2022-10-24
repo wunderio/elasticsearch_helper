@@ -113,7 +113,7 @@ workflows:
           cache_name: drupal-8-es-6
           php_version: "7.4.11"
           es_lib_version: "6"
-          core_version: "8.8.6"
+          core_version: "8.9.20"
           core_dev_version: "8"
           drush_version: "10"
           prophecy_version: "1"
@@ -122,7 +122,7 @@ workflows:
           cache_name: drupal-8-es-7
           php_version: "7.4.11"
           es_lib_version: "7"
-          core_version: "8.8.6"
+          core_version: "8.9.20"
           core_dev_version: "8"
           drush_version: "10"
           prophecy_version: "1"
