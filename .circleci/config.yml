@@ -42,8 +42,6 @@ jobs:
         type: string
       php_version:
         type: string
-      composer_version:
-        type: string
       es_lib_version:
         type: string
       core_version:
@@ -62,7 +60,6 @@ jobs:
           command: |
             composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
-            COMPOSER_MEMORY_LIMIT=-1 composer self-update --<< parameters.composer_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^<< parameters.core_dev_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:^2
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
@@ -111,8 +108,7 @@ workflows:
       - build:
           name: build-drupal-8-es-6
           cache_name: drupal-8-es-6
-          php_version: "7.4"
-          composer_version: "1"
+          php_version: "7.4.11"
           es_lib_version: "6"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -120,8 +116,7 @@ workflows:
       - build:
           name: build-drupal-8-es-7
           cache_name: drupal-8-es-7
-          php_version: "7.4"
-          composer_version: "1"
+          php_version: "7.4.11"
           es_lib_version: "7"
           core_version: "8.8.6"
           core_dev_version: "8"
@@ -130,7 +125,6 @@ workflows:
           name: build-drupal-9-es-7
           cache_name: drupal-9-es-7
           php_version: "8.1"
-          composer_version: "2"
           es_lib_version: "7"
           core_version: "9.4.8"
           core_dev_version: "9"
