@@ -20,7 +20,7 @@ class EntityOpsTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['elasticsearch_helper'];
+  protected static $modules = ['elasticsearch_helper'];
 
   /**
    * Test what happens when creating an entity.
