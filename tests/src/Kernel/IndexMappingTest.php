@@ -20,7 +20,7 @@ class IndexMappingTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node',
     'user',
     'system',

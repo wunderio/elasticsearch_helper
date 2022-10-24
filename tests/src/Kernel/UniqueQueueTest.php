@@ -17,7 +17,7 @@ class UniqueQueueTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'serialization',
     'elasticsearch_helper',
