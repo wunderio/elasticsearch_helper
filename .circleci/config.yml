@@ -50,6 +50,8 @@ jobs:
         type: string
       drush_version:
         type: string
+      prophecy_version:
+        type: string
     docker:
       - image: cimg/php:<< parameters.php_version >>
       - image: wunderio/circleci-codeception-base
@@ -61,7 +63,7 @@ jobs:
             composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^<< parameters.core_dev_version >>
-            COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:^2
+            COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:^<< parameters.prophecy_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.es_lib_version >>.0
       - save_cache:
@@ -113,6 +115,7 @@ workflows:
           core_version: "8.8.6"
           core_dev_version: "8"
           drush_version: "9"
+          prophecy_version: "1"
       - build:
           name: build-drupal-8-es-7
           cache_name: drupal-8-es-7
@@ -121,6 +124,7 @@ workflows:
           core_version: "8.8.6"
           core_dev_version: "8"
           drush_version: "9"
+          prophecy_version: "1"
       - build:
           name: build-drupal-9-es-7
           cache_name: drupal-9-es-7
@@ -129,6 +133,7 @@ workflows:
           core_version: "9.4.8"
           core_dev_version: "9"
           drush_version: "11"
+          prophecy_version: "2"
       - test-es:
           name: test-drupal-8-es-6
           cache_name: drupal-8-es-6
