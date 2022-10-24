@@ -80,7 +80,6 @@ jobs:
         type: string
     docker:
       - image: wunderio/circleci-codeception-base
-      - image: cimg/go:1.17
       - image: cimg/mariadb:10.6
         environment:
           MYSQL_DATABASE: drupal
