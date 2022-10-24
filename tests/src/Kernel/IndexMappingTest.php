@@ -89,10 +89,10 @@ class IndexMappingTest extends EntityKernelTestBase {
       $properties = $response[$index_name]['mappings']['node']['properties'];
     }
 
-    $this->assertEqual($properties['id']['type'], 'integer', 'ID field is found');
-    $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
-    $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
-    $this->assertEqual($properties['uuid']['type'], 'keyword', 'UUID field is found');
+    $this->assertEquals($properties['id']['type'], 'integer', 'ID field is found');
+    $this->assertEquals($properties['status']['type'], 'boolean', 'Status field is found');
+    $this->assertEquals($properties['title']['type'], 'text', 'Title field is found');
+    $this->assertEquals($properties['uuid']['type'], 'keyword', 'UUID field is found');
   }
 
   /**
@@ -114,7 +114,7 @@ class IndexMappingTest extends EntityKernelTestBase {
       ]
     ];
 
-    $this->assertEqual($mapping_definition->toArray(), $expected);
+    $this->assertEquals($mapping_definition->toArray(), $expected);
   }
 
 }

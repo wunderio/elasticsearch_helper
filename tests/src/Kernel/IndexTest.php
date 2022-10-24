@@ -121,8 +121,8 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = $this->queryIndex($this->node->id());
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
-    $this->assertEqual($response['hits']['hits'][0]['_source']['status'], TRUE, 'Status field is found in document');
+    $this->assertEquals($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+    $this->assertEquals($response['hits']['hits'][0]['_source']['status'], TRUE, 'Status field is found in document');
   }
 
   /**
@@ -137,7 +137,7 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = $this->queryIndex($this->node->id());
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+    $this->assertEquals($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
 
     // Update the node title.
     $new_title = $this->randomMachineName();
@@ -149,7 +149,7 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = $this->queryIndex($this->node->id());
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
+    $this->assertEquals($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
   }
 
   /**
@@ -164,7 +164,7 @@ class IndexTest extends EntityKernelTestBase {
 
     $response = $this->queryIndex($this->node->id());
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+    $this->assertEquals($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
 
     // Delete node.
     $this->node->delete();

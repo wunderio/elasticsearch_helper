@@ -79,12 +79,12 @@ class QueueWorkerTest extends KernelTestBase {
 
     // Process the queue items and ensure that index was updated too.
     $item = $queue->claimItem();
-    $this->assertEqual($node1->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
+    $this->assertEquals($node1->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
     $queue_worker->processItem($item->data);
     $queue->deleteItem($item);
 
     $item = $queue->claimItem();
-    $this->assertEqual($node2->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
+    $this->assertEquals($node2->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
     $queue_worker->processItem($item->data);
     $queue->deleteItem($item);
 
