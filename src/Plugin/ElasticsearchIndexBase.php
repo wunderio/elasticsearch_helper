@@ -622,15 +622,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
-   * Define a pattern that will match all types.
-   *
-   * @return string
-   */
-  public function typeNamePattern() {
-    return preg_replace($this->placeholder_regex, '*', $this->pluginDefinition['typeName']);
-  }
-
-  /**
    * Replace any placeholders of the form {name} in the given string.
    *
    * @param $haystack
