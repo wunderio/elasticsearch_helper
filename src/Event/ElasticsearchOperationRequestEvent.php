@@ -3,7 +3,7 @@
 namespace Drupal\elasticsearch_helper\Event;
 
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Drupal\Component\EventDispatcher\Event;
 
 /**
  * Elasticsearch operation request event.

@@ -123,7 +123,7 @@ class ElasticsearchRequestWrapper implements ElasticsearchRequestWrapperInterfac
     // Create request event.
     $request_event = new ElasticsearchOperationRequestEvent($this);
     // Dispatch the request event.
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST, $request_event);
+    $this->getEventDispatcher()->dispatch($request_event, ElasticsearchEvents::OPERATION_REQUEST);
 
     // Execute the request.
     $result = $this->executeCallback();
@@ -152,7 +152,7 @@ class ElasticsearchRequestWrapper implements ElasticsearchRequestWrapperInterfac
    */
   protected function dispatchRequestResultEvent(ElasticsearchRequestResultInterface $result) {
     $result_event = new ElasticsearchOperationRequestResultEvent($result);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_REQUEST_RESULT, $result_event);
+    $this->getEventDispatcher()->dispatch($result_event, ElasticsearchEvents::OPERATION_REQUEST_RESULT);
   }
 
   /**

@@ -171,7 +171,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   protected function dispatchOperationEvent($operation, $source = NULL) {
     $event = new ElasticsearchOperationEvent($operation, $this, $source);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION, $event);
+    $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION);
 
     return $event;
   }
@@ -188,7 +188,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $source = NULL) {
     $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper, $source);
-    $this->getEventDispatcher()->dispatch(ElasticsearchEvents::OPERATION_ERROR, $event);
+    $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION_ERROR);
 
     return $event;
   }
@@ -545,7 +545,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $params = [$entity_type, $bundle];
 
           $event = new ElasticsearchHelperCallbackEvent($operation, $callback, $params, $this);
-          $this->getEventDispatcher()->dispatch($operation, $event);
+          $this->getEventDispatcher()->dispatch($event, $operation);
 
           call_user_func_array($event->getCallback(), $event->getCallbackParameters());
         }

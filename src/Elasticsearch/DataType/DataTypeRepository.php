@@ -98,7 +98,7 @@ class DataTypeRepository implements DataTypeRepositoryInterface {
 
         // Allow modules to alter the definitions.
         $event = new DataTypeDefinitionBuildEvent($definitions);
-        $this->eventDispatcher->dispatch(DataTypeEvents::BUILD, $event);
+        $this->eventDispatcher->dispatch($event, DataTypeEvents::BUILD);
 
         // Store in cache.
         $this->cacheSet($this->cacheId, $event->getDataTypeDefinitions(), Cache::PERMANENT, $this->getCacheTags());

@@ -4,7 +4,7 @@ namespace Drupal\elasticsearch_helper\Event;
 
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Drupal\Component\EventDispatcher\Event;
 
 /**
  * Elasticsearch operation error event.
