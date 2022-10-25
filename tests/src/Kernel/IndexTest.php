@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
-use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
+use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 
@@ -14,12 +14,21 @@ use Drupal\node\Entity\NodeType;
  */
 class IndexTest extends EntityKernelTestBase {
 
+  use IndexOperationTrait;
+
+  /**
+   * Node entity.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
+  protected $node;
+
   /**
    * The modules to load to run the test.
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node',
     'user',
     'system',
@@ -27,6 +36,8 @@ class IndexTest extends EntityKernelTestBase {
     'text',
     'filter',
     'serialization',
+    'language',
+    'content_translation',
     'elasticsearch_helper',
     'elasticsearch_helper_test',
   ];
@@ -34,81 +45,63 @@ class IndexTest extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installConfig(['elasticsearch_helper']);
     $this->installSchema('node', 'node_access');
 
-    // Delete any pre-existing indices.
-    // @TODO, Setup mapping.
-    try {
-      $client = \Drupal::service('elasticsearch_helper.elasticsearch_client');
-      $client->indices()->delete(['index' => 'simple']);
-    }
-    catch (\Exception $e) {
-      // Do nothing.
-    }
+    // Recreate indices.
+    $this->removeIndices();
+    $this->createIndices();
+
+    // Add new language.
+    ConfigurableLanguage::createFromLangcode('lv')->save();
 
     // Create the node bundles required for testing.
     $type = NodeType::create([
       'type' => 'page',
-      'name' => 'page',
+      'name' => 'Page',
     ]);
 
     $type->save();
 
     // Create a test page to be indexed.
+    $node_title = $this->randomMachineName();
+
+    // Create node.
     $this->node = Node::create([
       'type' => 'page',
-      'title' => $this->randomMachineName(),
+      'title' => $node_title,
       'uid' => 1,
+    ]);
+
+    // Add translation to the node.
+    $this->node->addTranslation('lv', [
+      'title' => $node_title . '-lv'
     ]);
 
     // Entity save will index the page.
     $this->node->save();
+
+    sleep(1);
   }
-
-  /**
-   * HTTP request with curl.
-   *
-   * @param string $uri
-   *   The request uri
-   *
-   * @return array
-   *   The decoded response.
-   */
-  protected function httpRequest($uri) {
-    // Query elasticsearch.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
-
-    return json_decode($json, TRUE);
-  }
-
 
   /**
    * Query the test index.
    *
-   * @param int $docId
+   * @param int $document_id
    *   The document id to query.
+   * @param string $index_name
+   *   The index to query.
    *
    * @return array
    *   The response.
    */
-  protected function queryIndex($docId) {
-    $host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('hosts')[0];
-    $host = ElasticsearchHost::createFromArray($host);
-
+  protected function queryIndex($document_id, $index_name) {
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $host->getHost() . ':9200/simple/_search?q=id:' . $docId;
+    $uri = sprintf('%s/_search?q=id:%s', $index_name, $document_id);
+
     return $this->httpRequest($uri);
   }
 
@@ -116,40 +109,37 @@ class IndexTest extends EntityKernelTestBase {
    * Test node insert.
    */
   public function testNodeInsert() {
-    // Wait for elasticsearch indexing to complete.
-    sleep(1);
+    // Get main translation from Elasticsearch index.
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
 
-    $response = $this->queryIndex($this->node->id());
+    $this->assertEquals($this->node->getTitle(), $response['hits']['hits'][0]['_source']['title'], 'Title field is found in the document');
+    $this->assertEquals(TRUE, $response['hits']['hits'][0]['_source']['status'], 'Status field is found in the document');
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
-    $this->assertEqual($response['hits']['hits'][0]['_source']['status'], TRUE, 'Status field is found in document');
+    // Get translation document from Elasticsearch index.
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('lv'));
+
+    $this->assertEquals($this->node->getTranslation('lv')->getTitle(), $response['hits']['hits'][0]['_source']['title'], 'Title field is found in the translation document');
   }
 
   /**
    * Test node update.
    */
   public function testNodeUpdate() {
-    // Entity save will index the page.
-    $this->node->save();
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
 
-    // Wait for elasticsearch indexing to complete.
-    sleep(1);
-
-    $response = $this->queryIndex($this->node->id());
-
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+    $this->assertEquals($this->node->getTitle(), $response['hits']['hits'][0]['_source']['title'], 'Title field is found in document');
 
     // Update the node title.
     $new_title = $this->randomMachineName();
     $this->node->setTitle($new_title);
     $this->node->save();
 
-    // Wait for elasticsearch indexing to complete.
+    // Wait for Elasticsearch indexing to complete.
     sleep(1);
 
-    $response = $this->queryIndex($this->node->id());
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $new_title, 'Title field is found in document');
+    $this->assertEquals($new_title, $response['hits']['hits'][0]['_source']['title'], 'Title field is found in document');
   }
 
   /**
@@ -159,20 +149,20 @@ class IndexTest extends EntityKernelTestBase {
     // Entity save will index the page.
     $this->node->save();
 
-    // Wait for elasticsearch indexing to complete.
+    // Wait for Elasticsearch indexing to complete.
     sleep(1);
 
-    $response = $this->queryIndex($this->node->id());
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
 
-    $this->assertEqual($response['hits']['hits'][0]['_source']['title'], $this->node->getTitle(), 'Title field is found in document');
+    $this->assertEquals($this->node->getTitle(), $response['hits']['hits'][0]['_source']['title'], 'Title field is found in document');
 
     // Delete node.
     $this->node->delete();
 
-    // Wait for elasticsearch indexing to complete.
+    // Wait for Elasticsearch indexing to complete.
     sleep(1);
 
-    $response = $this->queryIndex($this->node->id());
+    $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
 
     $this->assertEmpty($response['hits']['hits'], 'Document not found');
   }

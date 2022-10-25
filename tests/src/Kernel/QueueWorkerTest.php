@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
-use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -14,12 +13,14 @@ use Drupal\node\Entity\NodeType;
  */
 class QueueWorkerTest extends KernelTestBase {
 
+  use IndexOperationTrait;
+
   /**
    * The modules to load to run the test.
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node',
     'user',
     'system',
@@ -31,19 +32,26 @@ class QueueWorkerTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
+
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installConfig(['elasticsearch_helper']);
     $this->installSchema('node', 'node_access');
 
+    // Remove testing Elasticsearch indices.
+    $this->removeIndices();
+
     // Create the node bundles required for testing.
     $content_type = NodeType::create([
       'type' => 'page',
-      'name' => 'page',
+      'name' => 'Page',
     ]);
+
     $content_type->save();
+
+    sleep(1);
   }
 
   /**
@@ -79,16 +87,16 @@ class QueueWorkerTest extends KernelTestBase {
 
     // Process the queue items and ensure that index was updated too.
     $item = $queue->claimItem();
-    $this->assertEqual($node1->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
+    $this->assertEquals($node1->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
     $queue_worker->processItem($item->data);
     $queue->deleteItem($item);
 
     $item = $queue->claimItem();
-    $this->assertEqual($node2->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
+    $this->assertEquals($node2->id(), $item->data['entity_id'], 'Item in the queue is not same as created node entity');
     $queue_worker->processItem($item->data);
     $queue->deleteItem($item);
 
-    // Wait for elasticsearch indexing to complete.
+    // Wait for Elasticsearch indexing to complete.
     sleep(1);
 
     // Check number of items in the queue.
@@ -99,30 +107,19 @@ class QueueWorkerTest extends KernelTestBase {
   }
 
   /**
-   * Query the index count.
+   * Query the index document count.
    *
    * @return int
-   *   The index count.
+   *   The index document count.
    */
   protected function queryIndexCount() {
-    $host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('hosts')[0];
-    $host = ElasticsearchHost::createFromArray($host);
+    $index_name = $this->getSimpleNodeIndexName();
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $host->getHost() . ':9200/simple/_count';
+    $uri = sprintf('%s/_count', $index_name);
 
-    // Query index total count.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
-
-    $response = json_decode($json, TRUE);
+    // Get existing mapping.
+    $response = $this->httpRequest($uri);
 
     return $response['count'];
   }

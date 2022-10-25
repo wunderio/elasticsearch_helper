@@ -20,7 +20,7 @@ class EntityOpsTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['elasticsearch_helper'];
+  protected static $modules = ['elasticsearch_helper'];
 
   /**
    * Test what happens when creating an entity.
@@ -29,13 +29,13 @@ class EntityOpsTest extends WebDriverTestBase {
     $queue = \Drupal::queue('elasticsearch_helper_indexing');
     $entity = $this->createMock(ContentEntityInterface::class);
     elasticsearch_helper_entity_insert($entity);
-    $this->assertEquals($queue->numberOfItems(), 0);
+    $this->assertEquals(0, $queue->numberOfItems());
     \Drupal::configFactory()
       ->getEditable('elasticsearch_helper.settings')
       ->set('defer_indexing', TRUE)
       ->save();
     elasticsearch_helper_entity_insert($entity);
-    $this->assertEquals($queue->numberOfItems(), 1);
+    $this->assertEquals(1, $queue->numberOfItems());
   }
 
 }

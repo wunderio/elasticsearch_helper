@@ -17,7 +17,7 @@ class UniqueQueueTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'serialization',
     'elasticsearch_helper',
@@ -27,8 +27,9 @@ class UniqueQueueTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
+
     $this->installConfig(['elasticsearch_helper']);
   }
 
@@ -73,8 +74,8 @@ class UniqueQueueTest extends KernelTestBase {
       ];
       $queue->createItem($data);
     }
-    $this->assertEquals(5, $queue->numberOfItems());
 
+    $this->assertEquals(5, $queue->numberOfItems());
   }
 
 }

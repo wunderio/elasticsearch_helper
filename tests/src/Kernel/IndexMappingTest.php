@@ -4,8 +4,6 @@ namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
-use Drupal\elasticsearch_helper\ElasticsearchHost;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 
 /**
@@ -15,12 +13,14 @@ use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
  */
 class IndexMappingTest extends EntityKernelTestBase {
 
+  use IndexOperationTrait;
+
   /**
    * The modules to load to run the test.
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node',
     'user',
     'system',
@@ -35,64 +35,38 @@ class IndexMappingTest extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installConfig(['elasticsearch_helper']);
     $this->installSchema('node', 'node_access');
-  }
 
-  /**
-   * HTTP request with curl.
-   *
-   * @param string $uri
-   *   The request uri
-   *
-   * @return array
-   *   The decoded response.
-   */
-  protected function httpRequest($uri) {
-    // Query elasticsearch.
-    // Use Curl for now because http client middleware fails in KernelTests
-    // (See: https://www.drupal.org/project/drupal/issues/2571475)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
-    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $json = curl_exec($curl);
+    // Recreate indices.
+    $this->removeIndices();
+    $this->createIndices();
 
-    return json_decode($json, TRUE);
+    sleep(1);
   }
 
   /**
    * Test index mapping.
    */
   public function testIndexMapping() {
-    $host = $this
-      ->config('elasticsearch_helper.settings')
-      ->get('hosts')[0];
-    $host = ElasticsearchHost::createFromArray($host);
-
-    $index_name = 'node_index';
+    $index_name = $this->getSimpleNodeIndexName();
 
     // Query URI for fetching the document from elasticsearch.
-    $uri = 'http://' . $host->getHost() . ':9200/' . $index_name . '/_mapping';
+    $uri = sprintf('%s/_mapping', $index_name);
 
+    // Get existing mapping.
     $response = $this->httpRequest($uri);
 
-    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-      // ES7 mapping structure with no type name.
-      $properties = $response[$index_name]['mappings']['properties'];
-    }
-    else {
-      // ES6 mapping structure with type name.
-      $properties = $response[$index_name]['mappings']['node']['properties'];
-    }
+    // Get properties.
+    $properties = $response[$index_name]['mappings']['properties'];
 
-    $this->assertEqual($properties['id']['type'], 'integer', 'ID field is found');
-    $this->assertEqual($properties['status']['type'], 'boolean', 'Status field is found');
-    $this->assertEqual($properties['title']['type'], 'text', 'Title field is found');
-    $this->assertEqual($properties['uuid']['type'], 'keyword', 'UUID field is found');
+    $this->assertEquals('integer', $properties['id']['type'], 'ID field is found');
+    $this->assertEquals('keyword', $properties['uuid']['type'], 'UUID field is found');
+    $this->assertEquals('text', $properties['title']['type'], 'Title field is found');
+    $this->assertEquals('boolean', $properties['status']['type'], 'Status field is found');
   }
 
   /**
@@ -114,7 +88,7 @@ class IndexMappingTest extends EntityKernelTestBase {
       ]
     ];
 
-    $this->assertEqual($mapping_definition->toArray(), $expected);
+    $this->assertEquals($expected, $mapping_definition->toArray());
   }
 
 }

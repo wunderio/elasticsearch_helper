@@ -8,9 +8,9 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
- *   id = "simple_node_index",
+ *   id = "elasticsearch_helper_test_simple_node_index",
  *   label = @Translation("Simple Node Index"),
- *   indexName = "simple",
+ *   indexName = "elasticsearch_helper_test_simple_node_index",
  *   typeName = "node",
  *   entityType = "node"
  * )
@@ -21,13 +21,11 @@ class SimpleNodeIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function getMappingDefinition(array $context = []) {
-    $keyword_field = FieldDefinition::create('keyword');
-
     return MappingDefinition::create()
       ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', $keyword_field)
+      ->addProperty('uuid', FieldDefinition::create('keyword'))
       ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', $keyword_field);
+      ->addProperty('status', FieldDefinition::create('boolean'));
   }
 
 }

@@ -38,38 +38,59 @@ commands:
 jobs:
   build:
     parameters:
-      version:
+      cache_name:
         type: string
+      php_version:
+        type: string
+        default: "8.1"
+      es_lib_version:
+        type: string
+        default: "^7"
+      core_version:
+        type: string
+      core_dev_version:
+        type: string
+      drush_version:
+        type: string
+        default: "11"
+      prophecy_phpunit_version:
+        type: string
+        default: "^2"
     docker:
+      - image: cimg/php:<< parameters.php_version >>
       - image: wunderio/circleci-codeception-base
     steps:
+      - run: php --version
+      - run: composer --version
       - run:
           name: Create Drupal
           command: |
-            composer create-project drupal/recommended-project:8.8.6 drupal
+            composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
-            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:^8
-            COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:9
-            COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:~<< parameters.version >>.0
+            COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:<< parameters.core_dev_version >>
+            COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:<< parameters.prophecy_phpunit_version >>
+            COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
+            COMPOSER_MEMORY_LIMIT=-1 composer require elasticsearch/elasticsearch:<< parameters.es_lib_version >>
       - save_cache:
           paths:
             - ~/project/drupal
-          key: v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
+          key: v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-<< parameters.cache_name >>
 
   test-es:
     parameters:
-      version:
+      es_version:
         type: string
-      image_version:
+        default: "7.17.6"
+      cache_name:
         type: string
     docker:
       - image: wunderio/circleci-codeception-base
-      - image: circleci/mariadb:10.2
+      - image: cimg/mariadb:10.6
         environment:
           MYSQL_DATABASE: drupal
           MYSQL_ROOT_PASSWORD: dbpassword
           MYSQL_ROOT_HOST: "%"
-      - image: docker.elastic.co/elasticsearch/elasticsearch:<< parameters.image_version >>
+      - image: docker.elastic.co/elasticsearch/elasticsearch:<< parameters.es_version >>
         environment:
           - discovery.type=single-node
           - http.host=0.0.0.0
@@ -78,33 +99,36 @@ jobs:
           - cluster.name=docker-cluster
           - bootstrap.memory_lock=true
           - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - TINI_SUBREAPER=true
 
     steps:
       - checkout:
           path: ~/project/drupal/web/modules/elasticsearch_helper
       - restore_cache:
           keys:
-            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-v<< parameters.version >>
+            - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-<< parameters.cache_name >>
       - start-drupal-test
 
 workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-es-6
-          version: "6"
+          name: build-drupal-948-es-7
+          cache_name: drupal-948-es-7
+          core_version: "9.4.8"
+          core_dev_version: "^9"
       - build:
-          name: build-es-7
-          version: "7"
+          name: build-drupal-latest-es-7
+          cache_name: drupal-latest-es-7
+          core_version: "^9"
+          core_dev_version: "^9"
       - test-es:
-          name: test-es-6
-          version: "6"
-          image_version: "6.8.10"
+          name: test-drupal-948-es-7
+          cache_name: drupal-948-es-7
           requires:
-            - build-es-6
+            - build-drupal-948-es-7
       - test-es:
-          name: test-es-7
-          version: "7"
-          image_version: "7.7.0"
+          name: test-drupal-latest-es-7
+          cache_name: drupal-latest-es-7
           requires:
-            - build-es-7
+            - build-drupal-latest-es-7
