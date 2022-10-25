@@ -611,12 +611,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   public function getTypeName(array $data = []) {
-    // Set the default type to prevent throwing notice errors.
-    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-      return static::TYPE_DEFAULT;
-    }
-
-    return $this->replacePlaceholders($this->pluginDefinition['typeName'], $data);
+    return static::TYPE_DEFAULT;
   }
 
   /**

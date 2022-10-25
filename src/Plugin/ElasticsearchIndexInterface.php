@@ -13,7 +13,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    * Defines default document type.
    *
    * @deprecated Will be removed from the codebase when support for
-   *   Elasticsearch 6 is removed.
+   *   Elasticsearch 7 is removed.
    */
   const TYPE_DEFAULT = '_doc';
 

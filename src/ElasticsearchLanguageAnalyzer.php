@@ -42,6 +42,7 @@ class ElasticsearchLanguageAnalyzer {
       'gl' => 'galician',
       'de' => 'german',
       'el' => 'greek',
+      'et' => 'estonian',
       'hi' => 'hindi',
       'hu' => 'hungarian',
       'id' => 'indonesian',
@@ -71,10 +72,6 @@ class ElasticsearchLanguageAnalyzer {
       // For improved Japanese support install the analysis-kuromoji
       // Elasticsearch plugin with the 'kuromoji' analyzer.
     ];
-
-    if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-      $language_analyzers['et'] = 'estonian';
-    }
 
     if (isset($language_analyzers[$langcode])) {
       return $language_analyzers[$langcode];

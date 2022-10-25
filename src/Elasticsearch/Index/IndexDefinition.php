@@ -114,14 +114,7 @@ class IndexDefinition extends DefinitionBase {
     }
 
     if ($mappings = $this->getMappingDefinition()) {
-      $mappings_array = $mappings->toArray();
-
-      if (ElasticsearchClientVersion::getMajorVersion() < 7) {
-        $result['mappings'][$this->getType()] = $mappings_array;
-      }
-      else {
-        $result['mappings'] = $mappings_array;
-      }
+      $result['mappings'] = $mappings->toArray();
     }
 
     return $result;

@@ -52,19 +52,9 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
           'name' => $template_name,
           'body' => [
             'index_patterns' => $this->indexNamePattern(),
+            'template' => $this->getIndexDefinition()->toArray(),
           ],
         ];
-
-        // In Elasticsearch 7 templated index definition is stored in
-        // "template" element of the request body.
-        if (ElasticsearchClientVersion::getMajorVersion() >= 7) {
-          $request_params['body']['template'] = $this->getIndexDefinition()->toArray();
-        }
-        // In Elasticsearch < 7 template index definition is part of the request
-        // body.
-        else {
-          $request_params['body'] += $this->getIndexDefinition()->toArray();
-        }
 
         // Create the template.
         $request_wrapper = $this->createRequest($operation, $callback, $request_params);
