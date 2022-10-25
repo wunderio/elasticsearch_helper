@@ -41,7 +41,6 @@ use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 class IndexDefinition extends DefinitionBase {
 
   use ObjectTrait;
-  use TypeTrait;
 
   /**
    * Index mapping definition.

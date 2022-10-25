@@ -155,9 +155,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       ->setSettingsDefinition($settings_definition)
       ->setMappingDefinition($mapping_definition);
 
-    // If you are using Elasticsearch < 7, add the type to the index definition.
-    $index_definition->setType($this->getTypeName([]));
-
     return $index_definition;
   }
 
@@ -337,7 +334,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $callback = [$this->client, 'index'];
         $request_params = [
           'index' => $this->getIndexName($serialized_data),
-          'type' => $this->getTypeName($serialized_data),
           'body' => $serialized_data,
         ];
 
@@ -366,7 +362,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $callback = [$this->client, 'get'];
       $request_params = [
         'index' => $this->getIndexName($serialized_data),
-        'type' => $this->getTypeName($serialized_data),
         'id' => $this->getId($serialized_data),
       ];
 
@@ -400,7 +395,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $callback = [$this->client, 'update'];
         $request_params = [
           'index' => $this->getIndexName($serialized_data),
-          'type' => $this->getTypeName($serialized_data),
           'id' => $this->getId($serialized_data),
           'body' => [
             'doc' => $serialized_data,
@@ -433,7 +427,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $callback = [$this->client, 'delete'];
         $request_params = [
           'index' => $this->getIndexName($serialized_data),
-          'type' => $this->getTypeName($serialized_data),
           'id' => $this->getId($serialized_data),
         ];
 
@@ -457,7 +450,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $callback = [$this->client, 'search'];
       $request_params = [
         'index' => $this->indexNamePattern(),
-        'type' => $this->typeNamePattern(),
       ] + $params;
 
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
@@ -483,7 +475,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $callback = [$this->client, 'msearch'];
       $request_params = [
         'index' => $this->indexNamePattern(),
-        'type' => $this->typeNamePattern(),
       ] + $params;
 
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
@@ -514,7 +505,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
         $callback = [$this->client, 'bulk'];
         $request_params = [
           'index' => $this->getIndexName($serialized_data),
-          'type' => $this->getTypeName($serialized_data),
           'body' => $serialized_data,
         ];
 
@@ -601,17 +591,6 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function getIndexName(array $data = []) {
     return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
-  }
-
-  /**
-   * Determine the name of the type where the given data will be indexed.
-   *
-   * @param array $data
-   *
-   * @return string
-   */
-  public function getTypeName(array $data = []) {
-    return static::TYPE_DEFAULT;
   }
 
   /**
