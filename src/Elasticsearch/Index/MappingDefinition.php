@@ -112,6 +112,23 @@ class MappingDefinition extends DefinitionBase {
   }
 
   /**
+   * Returns mapping definition as a JSON string.
+   *
+   * @param $pretty
+   *
+   * @return false|string
+   */
+  public function asString($pretty = FALSE) {
+    $args = [$this->toArray()];
+
+    if ($pretty) {
+      $args[] = JSON_PRETTY_PRINT;
+    }
+
+    return call_user_func_array('json_encode', $args);
+  }
+
+  /**
    * {@inheritdoc}
    *
    * @throws \InvalidArgumentException
