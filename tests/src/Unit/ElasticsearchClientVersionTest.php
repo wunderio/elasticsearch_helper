@@ -9,7 +9,7 @@ namespace Drupal\Tests\elasticsearch_helper\Unit;
 
 use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\Tests\UnitTestCase;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 
 /**
  * @coversDefaultClass \Drupal\elasticsearch_helper\ElasticsearchClientVersion

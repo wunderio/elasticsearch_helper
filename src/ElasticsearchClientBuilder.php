@@ -4,7 +4,7 @@ namespace Drupal\elasticsearch_helper;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 
 /**
  * Class ElasticsearchClientBuilder.
@@ -36,7 +36,7 @@ class ElasticsearchClientBuilder {
   /**
    * Builds an Elasticsearch client instance.
    *
-   * @return \Elasticsearch\Client
+   * @return \Elastic\Elasticsearch\Client
    */
   public function build() {
     // Get Elasticsearch connection settings. Raw configuration data cannot be

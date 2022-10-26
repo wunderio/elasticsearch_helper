@@ -20,7 +20,7 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   /**
    * Returns the instance of Elasticsearch client.
    *
-   * @return \Elasticsearch\Client
+   * @return \Elastic\Elasticsearch\Client
    */
   public function getClient();
 

@@ -16,7 +16,7 @@ use Elasticsearch\ClientBuilder;
 /**
  * Configure the Elasticsearch Client object.
  *
- * @param \Elasticsearch\ClientBuilder
+ * @param \Elastic\Elasticsearch\ClientBuilder
  *   The ClientBuilder object.
  */
 function hook_elasticsearch_helper_client_builder_alter(ClientBuilder $clientBuilder) {

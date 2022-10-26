@@ -5,7 +5,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -33,7 +33,7 @@ class ExampleMultilingualContentIndex extends IndexBase {
    * @param array $configuration
    * @param $plugin_id
    * @param $plugin_definition
-   * @param \Elasticsearch\Client $client
+   * @param \Elastic\Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager

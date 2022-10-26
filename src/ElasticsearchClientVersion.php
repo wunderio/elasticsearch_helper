@@ -2,7 +2,7 @@
 
 namespace Drupal\elasticsearch_helper;
 
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 
 /**
  * Class ElasticsearchClientVersion

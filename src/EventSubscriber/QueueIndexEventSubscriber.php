@@ -6,7 +6,7 @@ use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\elasticsearch_helper\Plugin\QueueWorker\IndexingQueueWorker;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -32,7 +32,7 @@ class QueueIndexEventSubscriber implements EventSubscriberInterface {
   public function onQueueIndexError(ElasticsearchOperationErrorEvent $event) {
     $index_with_queue = &drupal_static(IndexingQueueWorker::QUEUE_INDEXING_VAR_NAME);
 
-    if ($index_with_queue && $event->getError() instanceof NoNodesAvailableException) {
+    if ($index_with_queue && $event->getError() instanceof NoNodeAvailableException) {
       throw new SuspendQueueException();
     }
   }

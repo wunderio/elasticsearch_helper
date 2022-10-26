@@ -6,7 +6,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -35,7 +35,7 @@ class TestMultilingualNodeIndex extends ElasticsearchIndexBase {
    * @param array $configuration
    * @param $plugin_id
    * @param $plugin_definition
-   * @param \Elasticsearch\Client $client
+   * @param \Elastic\Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager

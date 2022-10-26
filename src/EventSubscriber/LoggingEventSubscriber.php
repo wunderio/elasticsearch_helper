@@ -6,7 +6,7 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -59,7 +59,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
     $error_message = $error->getMessage();
 
     // Log error immediately if no nodes are available.
-    if ($error instanceof NoNodesAvailableException) {
+    if ($error instanceof NoNodeAvailableException) {
       $this->logger->error($error_message);
     }
 
@@ -116,7 +116,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
     // Log the error otherwise.
     else {
       // Do not log no-nodes-available error twice.
-      if (!($error instanceof NoNodesAvailableException)) {
+      if (!($error instanceof NoNodeAvailableException)) {
         $this->logger->error($error_message);
       }
     }

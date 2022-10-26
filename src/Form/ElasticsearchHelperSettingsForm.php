@@ -8,8 +8,8 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\elasticsearch_helper\ElasticsearchConnectionSettings;
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Elastic\Elasticsearch\Client;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,7 +20,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   /**
    * The Elasticsearch client.
    *
-   * @var \Elasticsearch\Client
+   * @var \Elastic\Elasticsearch\Client
    */
   protected $client;
 
@@ -36,7 +36,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Elasticsearch\Client $elasticsearch_client
+   * @param \Elastic\Elasticsearch\Client $elasticsearch_client
    *   The Elasticsearch client.
    */
   public function __construct(ConfigFactoryInterface $config_factory, Client $elasticsearch_client) {
@@ -133,7 +133,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
           '@status' => $status,
         ]), $color_states[$status]);
       }
-      catch (NoNodesAvailableException $e) {
+      catch (NoNodeAvailableException $e) {
         $this->messenger()->addError($this->t('Could not connect to Elasticsearch'));
       }
       catch (\Exception $e) {

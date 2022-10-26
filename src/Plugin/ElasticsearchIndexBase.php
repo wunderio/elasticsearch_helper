@@ -9,7 +9,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
-use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
@@ -18,7 +17,7 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
@@ -32,7 +31,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   use MessengerTrait;
 
   /**
-   * @var \Elasticsearch\Client
+   * @var \Elastic\Elasticsearch\Client
    */
   protected $client;
 
@@ -80,7 +79,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param \Elasticsearch\Client $client
+   * @param \Elastic\Elasticsearch\Client $client
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Psr\Log\LoggerInterface $logger
    */
