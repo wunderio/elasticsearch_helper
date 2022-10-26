@@ -52,7 +52,7 @@ jobs:
         default: "8.1"
       es_lib_version:
         type: string
-        default: "^7"
+        default: "^8"
       core_version:
         type: string
       core_dev_version:
@@ -74,6 +74,8 @@ jobs:
           command: |
             composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
+            COMPOSER_MEMORY_LIMIT=-1 composer remove --no-update drupal/core-recommended
+            COMPOSER_MEMORY_LIMIT=-1 composer require --update-with-all-dependencies drupal/core
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:<< parameters.core_dev_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:<< parameters.prophecy_phpunit_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
@@ -87,7 +89,7 @@ jobs:
     parameters:
       es_version:
         type: string
-        default: "7.17.6"
+        default: "8.4.3"
       cache_name:
         type: string
       security_enabled:
@@ -131,28 +133,28 @@ workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-drupal-940-es-7
-          cache_name: drupal-940-es-7
+          name: build-drupal-940-es-8
+          cache_name: drupal-940-es-8
           core_version: "9.4.0"
           core_dev_version: "^9"
       - build:
-          name: build-drupal-latest-es-7
-          cache_name: drupal-latest-es-7
+          name: build-drupal-latest-es-8
+          cache_name: drupal-latest-es-8
           core_version: "^9"
           core_dev_version: "^9"
       - test-es:
-          name: test-drupal-940-es-7
-          cache_name: drupal-940-es-7
+          name: test-drupal-940-es-8
+          cache_name: drupal-940-es-8
           requires:
-            - build-drupal-940-es-7
+            - build-drupal-940-es-8
       - test-es:
-          name: test-drupal-latest-es-7
-          cache_name: drupal-latest-es-7
+          name: test-drupal-latest-es-8
+          cache_name: drupal-latest-es-8
           requires:
-            - build-drupal-latest-es-7
+            - build-drupal-latest-es-8
       - test-es:
-          name: test-drupal-latest-es-7-with-password
-          cache_name: drupal-latest-es-7
+          name: test-drupal-latest-es-8-with-password
+          cache_name: drupal-latest-es-8
           security_enabled: true
           requires:
-            - build-drupal-latest-es-7
+            - build-drupal-latest-es-8
