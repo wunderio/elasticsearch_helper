@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Entity\Query\QueryInterface;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 
 /**
  * @addtogroup hooks

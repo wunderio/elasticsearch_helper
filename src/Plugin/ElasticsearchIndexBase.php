@@ -305,7 +305,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
           // Delete matching indices.
           $callback = [$this->client->indices(), 'delete'];
-          $request_params = ['index' => $index];
+          $request_params = ['index' => implode(',', $indices)];
 
           $request_wrapper = $this->createRequest($operation, $callback, $request_params);
           $request_wrapper->execute();
