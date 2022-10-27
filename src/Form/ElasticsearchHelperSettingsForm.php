@@ -92,7 +92,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * @throws \Exception
    */
   protected function getServerHealthStatus() {
-    $result = $this->client->cluster()->health();
+    $result = $this->client->cluster()->health()->asArray();
 
     return $result['status'];
   }

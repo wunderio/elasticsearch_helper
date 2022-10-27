@@ -107,7 +107,7 @@ class TestMultilingualNodeIndex extends ElasticsearchIndexBase {
       $index_name = $this->getIndexName(['langcode' => $langcode]);
 
       // Check if index exists.
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
+      if (!$this->client->indices()->exists(['index' => $index_name])->asBool()) {
         // Get index definition.
         $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
         // Create index.

@@ -214,7 +214,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       if ($index_definition = $this->getIndexDefinition()) {
         $index_name = $this->getIndexName();
 
-        if (!$this->client->indices()->exists(['index' => $index_name])) {
+        if (!$this->client->indices()->exists(['index' => $index_name])->asBool()) {
           $this->createIndex($index_name, $index_definition);
         }
       }
@@ -268,7 +268,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $request_wrapper = $this->createRequest($operation, $callback, $request_params);
       $request_result = $request_wrapper->execute();
 
-      return array_keys($request_result->getResultBody());
+      return array_keys($request_result->getResultBody()->asArray());
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
@@ -367,7 +367,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $source);
       $request_result = $request_wrapper->execute();
 
-      return $request_result->getResultBody();
+      return $request_result->getResultBody()->asArray();
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
@@ -454,7 +454,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
 
-      return $request_result->getResultBody();
+      return $request_result->getResultBody()->asArray();
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
@@ -479,7 +479,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
 
-      return $request_result->getResultBody();
+      return $request_result->getResultBody()->asArray();
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;

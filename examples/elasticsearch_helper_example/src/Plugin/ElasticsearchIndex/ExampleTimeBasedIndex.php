@@ -39,7 +39,7 @@ class ExampleTimeBasedIndex extends IndexBase {
       $operation = ElasticsearchOperations::INDEX_TEMPLATE_CREATE;
       $template_name = $this->getPluginId();
 
-      if (!$this->client->indices()->existsTemplate(['name' => $template_name])) {
+      if (!$this->client->indices()->existsTemplate(['name' => $template_name])->asBool()) {
         $callback = [$this->client->indices(), 'putTemplate'];
 
         $request_params = [

@@ -129,7 +129,7 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
    */
   public function onRequestResult(ElasticsearchOperationRequestResultEvent $event) {
     // Get request result body.
-    $result = $event->getResult()->getResultBody();
+    $result = $event->getResult()->getResultBody()->asArray();
 
     // Get operation.
     $operation = $event->getRequestWrapper()->getOperation();
