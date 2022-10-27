@@ -5,7 +5,8 @@
  * Hooks provided by the elasticsearch_helper module.
  */
 
-use \Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
+use Elasticsearch\ClientBuilder;
 
 /**
  * @addtogroup hooks
@@ -18,7 +19,7 @@ use \Drupal\Core\Entity\Query\QueryInterface;
  * @param \Elasticsearch\ClientBuilder
  *   The ClientBuilder object.
  */
-function hook_elasticsearch_helper_client_builder_alter(\Elasticsearch\ClientBuilder $clientBuilder) {
+function hook_elasticsearch_helper_client_builder_alter(ClientBuilder $clientBuilder) {
   // Send log entries from the client directly to Drupal's log.
   $clientBuilder->setLogger(\Drupal::logger('elasticsearch'));
 }
