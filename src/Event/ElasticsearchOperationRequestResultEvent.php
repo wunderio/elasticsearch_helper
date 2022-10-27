@@ -57,8 +57,13 @@ class ElasticsearchOperationRequestResultEvent extends Event {
 
     $result = [
       '@index' => $request_wrapper->getDocumentIndex(),
-      '@id' => $request_wrapper->getDocumentId(),
     ];
+
+    $document_id = $request_wrapper->getDocumentId();
+
+    if (!is_null($document_id)) {
+      $result['@id'] = $document_id;
+    }
 
     return $result;
   }

@@ -146,7 +146,12 @@ class ElasticsearchOperationErrorEvent extends Event {
 
     if ($request_wrapper = $this->getRequestWrapper()) {
       $result['@index'] = $request_wrapper->getDocumentIndex();
-      $result['@id'] = $request_wrapper->getDocumentId();
+
+      $document_id = $request_wrapper->getDocumentId();
+
+      if (!is_null($document_id)) {
+        $result['@id'] = $document_id;
+      }
     }
 
     return $result;
