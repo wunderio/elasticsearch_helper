@@ -1,7 +1,7 @@
 version: 2.1
 
 commands:
-  start-drupal-test:
+  prepare-drupal:
     steps:
       - run:
           name: Install Dependencies
@@ -20,16 +20,22 @@ commands:
             chmod ug+w drupal/web/sites/default/settings.php
             echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
       - run:
+          name: Install Elasticsearch Helper module
+          command: |
+            cd drupal
+            drush pm-enable elasticsearch_helper -y
+            drush config-set elasticsearch_helper.settings scheme http -y
+            drush config-set --input-format=yaml elasticsearch_helper.settings hosts '[{host: localhost, port: 9200}]' -y
+            drush config-set elasticsearch_helper.settings authentication.basic_auth.user elastic -y
+            drush config-set elasticsearch_helper.settings authentication.basic_auth.password s98zg26aBk -y
+            drush config-set elasticsearch_helper.settings ssl.skip_verification true -y
+            drush config-get elasticsearch_helper.settings
+  start-drupal-test:
+    steps:
+      - run:
           name: Install Elasticsearch Helper Test module
           command: |
             cd drupal && drush pm-enable elasticsearch_helper_test -y
-      - run:
-          name: Clear cache
-          command: cd drupal && drush cr
-      - run:
-          name: Print Elasticsearch server information
-          command: |
-            cd drupal && drush php:eval "print_r(\Drupal::service('elasticsearch_helper.elasticsearch_client')->info())"
       - run:
           name: Run Tests
           command: |
@@ -83,8 +89,17 @@ jobs:
         default: "7.17.6"
       cache_name:
         type: string
+      security_enabled:
+        type: boolean
+        default: false
     docker:
       - image: wunderio/circleci-codeception-base
+        environment:
+          ELASTICSEARCH_HELPER_TEST_SCHEME: http
+          ELASTICSEARCH_HELPER_TEST_HOST: localhost
+          ELASTICSEARCH_HELPER_TEST_PORT: 9200
+          ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_USER: elastic
+          ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_PASSWORD: s98zg26aBk
       - image: cimg/mariadb:10.6
         environment:
           MYSQL_DATABASE: drupal
@@ -95,11 +110,12 @@ jobs:
           - discovery.type=single-node
           - http.host=0.0.0.0
           - transport.host=127.0.0.1
-          - xpack.security.enabled=false
+          - xpack.security.enabled=<< parameters.security_enabled >>
           - cluster.name=docker-cluster
           - bootstrap.memory_lock=true
           - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
           - TINI_SUBREAPER=true
+          - ELASTIC_PASSWORD=s98zg26aBk
 
     steps:
       - checkout:
@@ -107,6 +123,7 @@ jobs:
       - restore_cache:
           keys:
             - v2-composer-dependencies-{{ .Environment.CIRCLE_SHA1 }}-<< parameters.cache_name >>
+      - prepare-drupal
       - start-drupal-test
 
 workflows:
@@ -130,5 +147,11 @@ workflows:
       - test-es:
           name: test-drupal-latest-es-7
           cache_name: drupal-latest-es-7
+          requires:
+            - build-drupal-latest-es-7
+      - test-es:
+          name: test-drupal-latest-es-7-with-password
+          cache_name: drupal-latest-es-7
+          security_enabled: true
           requires:
             - build-drupal-latest-es-7

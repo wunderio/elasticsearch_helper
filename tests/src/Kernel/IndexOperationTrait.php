@@ -47,6 +47,10 @@ trait IndexOperationTrait {
       curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     }
 
+    if ($basic_auth = $this->getBasicAuth()) {
+      curl_setopt($curl, CURLOPT_USERPWD, sprintf('%s:%s', $basic_auth['user'], $basic_auth['password']));
+    }
+
     if ($body) {
       curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
     }
@@ -54,6 +58,36 @@ trait IndexOperationTrait {
     $json = curl_exec($curl);
 
     return json_decode($json, TRUE);
+  }
+
+  /**
+   * Sets Elasticsearch configuration.
+   *
+   * @return void
+   */
+  protected function setElasticsearchHelperConfiguration() {
+    $settings = $this->config('elasticsearch_helper.settings');
+
+    $settings->set('scheme', getenv('ELASTICSEARCH_HELPER_TEST_SCHEME') ?: 'http');
+    $settings->set('hosts', [
+      [
+        'host' => getenv('ELASTICSEARCH_HELPER_TEST_HOST') ?: 'localhost',
+        'port' => getenv('ELASTICSEARCH_HELPER_TEST_PORT') ?: '9200',
+      ]
+    ]);
+    $settings->set('authentication.basic_auth', [
+      'user' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_USER') ?: NULL,
+      'password' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_PASSWORD') ?: NULL,
+    ]);
+    $settings->set('ssl', [
+      'certificate' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_CERTIFICATE') ?: NULL,
+      'skip_verification' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_SKIP_VERIFICATION') ?: NULL,
+    ]);
+
+    // Save the config.
+    $settings->save();
+    // Clear static cache.
+    $this->container->get('config.factory')->clearStaticCache();
   }
 
   /**
@@ -66,6 +100,15 @@ trait IndexOperationTrait {
       'host' => NULL,
       'port' => NULL,
     ];
+  }
+
+  /**
+   * Returns an array with basic auth credentials.
+   *
+   * @return array
+   */
+  protected function getBasicAuth() {
+    return $this->config('elasticsearch_helper.settings')->get('authentication.basic_auth') ?? [];
   }
 
   /**

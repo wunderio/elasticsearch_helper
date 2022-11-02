@@ -40,6 +40,9 @@ class QueueWorkerTest extends KernelTestBase {
     $this->installConfig(['elasticsearch_helper']);
     $this->installSchema('node', 'node_access');
 
+    // Set Elasticsearch Helper configuration.
+    $this->setElasticsearchHelperConfiguration();
+
     // Remove testing Elasticsearch indices.
     $this->removeIndices();
 

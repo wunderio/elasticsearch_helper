@@ -51,6 +51,9 @@ class IndexTest extends EntityKernelTestBase {
     $this->installConfig(['elasticsearch_helper']);
     $this->installSchema('node', 'node_access');
 
+    // Set Elasticsearch Helper configuration.
+    $this->setElasticsearchHelperConfiguration();
+
     // Recreate indices.
     $this->removeIndices();
     $this->createIndices();
