@@ -1,10 +1,16 @@
+scheme: http
 hosts:
   -
-    scheme: http
     host: localhost
     port: '9200'
-    authentication:
-      enabled: false
-      user: ''
-      password: ''
+authentication:
+  basic_auth:
+    user: ''
+    password: ''
+  api_key:
+    id: ''
+    api_key: ''
+ssl:
+  certificate: ''
+  skip_verification: false
 defer_indexing: false

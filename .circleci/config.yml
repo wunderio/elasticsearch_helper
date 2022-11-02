@@ -20,16 +20,16 @@ commands:
             chmod ug+w drupal/web/sites/default/settings.php
             echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
       - run:
-          name: Install Elasticsearch Helper
+          name: Install Elasticsearch Helper Test module
           command: |
-            cd drupal && drush pm-enable elasticsearch_helper -y
+            cd drupal && drush pm-enable elasticsearch_helper_test -y
       - run:
           name: Clear cache
           command: cd drupal && drush cr
       - run:
-          name: Install Elasticsearch Helper Test module
+          name: Print Elasticsearch server information
           command: |
-            cd drupal && drush pm-enable elasticsearch_helper_test -y
+            cd drupal && drush php:eval "print_r(\Drupal::service('elasticsearch_helper.elasticsearch_client')->info())"
       - run:
           name: Run Tests
           command: |

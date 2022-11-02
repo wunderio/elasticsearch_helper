@@ -4,7 +4,6 @@ namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\ElasticsearchHost;
 
 /**
  * Elasticsearch index operation trait.
@@ -17,10 +16,10 @@ trait IndexOperationTrait {
   protected $multilingualNodeIndexPrefix = 'elasticsearch_helper_test_node_index-';
 
   /**
-   * HTTP request with curl.
+   * An HTTP request with curl.
    *
-   * @param string $uri
-   *   The request uri
+   * @param string $path
+   *   The request path.
    * @param string $method
    *   The request method.
    * @param array $headers
@@ -31,16 +30,16 @@ trait IndexOperationTrait {
    * @return array
    *   The decoded response.
    */
-  protected function httpRequest($uri, $method = 'GET', array $headers = [], $body = NULL) {
+  protected function httpRequest($path, $method = 'GET', array $headers = [], $body = NULL) {
+    $path = ltrim($path, '/');
     $host = $this->getHost();
-    $uri = ltrim($uri, '/');
-    $uri = sprintf('http://%s:%d/%s', $host->getHost(), $host->getPort(), $uri);
+    $url  = sprintf('%s://%s:%d/%s', $this->getScheme(), $host['host'], $host['port'], $path);
 
     // Query elasticsearch.
     // Use Curl for now because http client middleware fails in KernelTests
     // (See: https://www.drupal.org/project/drupal/issues/2571475)
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $uri);
+    curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
@@ -58,14 +57,24 @@ trait IndexOperationTrait {
   }
 
   /**
-   * Returns Elasticsearch host definition.
+   * Returns an array with a host and a port.
    *
-   * @return \Drupal\elasticsearch_helper\ElasticsearchHost
+   * @return array
    */
   protected function getHost() {
-    $host = $this->config('elasticsearch_helper.settings')->get('hosts')[0];
+    return $this->config('elasticsearch_helper.settings')->get('hosts')[0] ?? [
+      'host' => NULL,
+      'port' => NULL,
+    ];
+  }
 
-    return ElasticsearchHost::createFromArray($host);
+  /**
+   * Returns URI scheme.
+   *
+   * @return string
+   */
+  protected function getScheme() {
+    return $this->config('elasticsearch_helper.settings')->get('scheme');
   }
 
   /**

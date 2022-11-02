@@ -5,7 +5,7 @@ namespace Drupal\elasticsearch_helper\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\elasticsearch_helper\ElasticsearchHost;
+use Drupal\elasticsearch_helper\ElasticsearchConnectionSettings;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -77,13 +77,8 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    */
   protected function getHostDefaultSettings() {
     return [
-      'scheme' => 'http',
       'host' => NULL,
-      'authentication' => [
-        'enabled' => FALSE,
-        'user' => NULL,
-        'password' => NULL,
-      ],
+      'port' => NULL,
     ];
   }
 
@@ -117,34 +112,47 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    try {
-      // Get server health status.
-      $status = $this->getServerHealthStatus();
+    if (!$form_state->isProcessingInput()) {
+      try {
+        // Get server health status.
+        $status = $this->getServerHealthStatus();
 
-      $this->messenger()->addMessage($this->t('Connected to Elasticsearch'));
+        $this->messenger()->addMessage($this->t('Connected to Elasticsearch'));
 
-      // Get health status / message status mapping.
-      $color_states = $this->getHealthMessageMapping();
+        // Get health status / message status mapping.
+        $color_states = $this->getHealthMessageMapping();
 
-      $this->messenger()->addMessage($this->t('Elasticsearch cluster status is @status', [
-        '@status' => $status,
-      ]), $color_states[$status]);
+        $this->messenger()->addMessage($this->t('Elasticsearch cluster status is @status', [
+          '@status' => $status,
+        ]), $color_states[$status]);
+      }
+      catch (NoNodesAvailableException $e) {
+        $this->messenger()->addError($this->t('Could not connect to Elasticsearch'));
+      }
+      catch (\Exception $e) {
+        $this->messenger()->addError($e->getMessage());
+      }
     }
-    catch (NoNodesAvailableException $e) {
-      $this->messenger()->addError($this->t('Could not connect to Elasticsearch'));
-    }
-    catch (\Exception $e) {
-      $this->messenger()->addError($e->getMessage());
-    }
+
+    // Get Elasticsearch connection settings.
+    $connection = ElasticsearchConnectionSettings::createFromArray($this->config->getRawData());
 
     $header = [
       '',
-      $this->t('Scheme'),
       $this->t('Host'),
       $this->t('Port'),
-      $this->t('Authentication'),
       $this->t('Weight'),
       $this->t('Remove'),
+    ];
+
+    $form['scheme'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Scheme'),
+      '#options' => [
+        'https' => 'https',
+        'http' => 'http',
+      ],
+      '#default_value' => $connection->getScheme(),
     ];
 
     $form['hosts'] = [
@@ -162,67 +170,22 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     ];
 
     foreach ($this->getHosts($form_state) as $index => $host) {
-      $host = ElasticsearchHost::createFromArray($host);
-
       $form['hosts'][$index]['#attributes'] = ['class' => ['draggable'], 'id' => 'row-' . $index];
 
       $form['hosts'][$index]['handle'] = [];
 
-      $form['hosts'][$index]['scheme'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Scheme'),
-        '#options' => [
-          'http' => 'http',
-          'https' => 'https',
-        ],
-        '#default_value' => $host->getScheme(),
-      ];
-
       $form['hosts'][$index]['host'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Host'),
-        '#default_value' => $host->getHost(),
+        '#default_value' => $host['host'],
+        '#size' => 32,
       ];
 
       $form['hosts'][$index]['port'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Port'),
         '#maxlength' => 4,
-        '#placeholder' => ElasticsearchHost::PORT_DEFAULT,
+        '#placeholder' => ElasticsearchConnectionSettings::PORT_DEFAULT,
         '#size' => 4,
-        '#default_value' => $host->getPort(),
-      ];
-
-      $form['hosts'][$index]['authentication']['enabled'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Use authentication'),
-        '#default_value' => (int) $host->isAuthEnabled(),
-      ];
-
-      $form['hosts'][$index]['authentication']['credentials'] = [
-        '#type' => 'fieldset',
-        '#title' => $this->t('Basic authentication'),
-        '#states' => [
-          'visible' => [
-            ':input[name="hosts[' . $index . '][authentication][enabled]"]' => ['checked' => TRUE],
-          ],
-        ],
-      ];
-
-      $form['hosts'][$index]['authentication']['credentials']['user'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('User'),
-        '#default_value' => $host->getAuthUsername(),
-        '#size' => 32,
-        '#parents' => ['hosts', $index, 'authentication', 'user'],
-      ];
-
-      $form['hosts'][$index]['authentication']['credentials']['password'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('password'),
-        '#default_value' => $host->getAuthPassword(),
-        '#size' => 32,
-        '#parents' => ['hosts', $index, 'authentication', 'password'],
+        '#default_value' => $host['port'],
       ];
 
       $form['hosts'][$index]['weight'] = [
@@ -245,6 +208,78 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       '#type' => 'submit',
       '#value' => $this->t('Add host'),
       '#submit' => [[$this, 'addHost']],
+    ];
+
+    $form['authentication'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Authentication'),
+      '#open' => TRUE,
+    ];
+
+    $form['authentication']['basic_auth'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Basic auth'),
+      '#description' => $this->t('Credentials for authentication with a username and password.'),
+    ];
+
+    $form['authentication']['basic_auth']['user'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('User'),
+      '#default_value' => $connection->getBasicAuthUser(),
+      '#size' => 32,
+      '#parents' => ['authentication', 'basic_auth', 'user'],
+    ];
+
+    $form['authentication']['basic_auth']['password'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Password'),
+      '#default_value' => $connection->getBasicAuthPassword(),
+      '#size' => 32,
+      '#parents' => ['authentication', 'basic_auth', 'password'],
+    ];
+
+    $form['authentication']['api_key'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('API key'),
+      '#description' => $this->t('Credentials for authentication with an API key.'),
+    ];
+
+    $form['authentication']['api_key']['id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('ID'),
+      '#default_value' => $connection->getApiKeyId(),
+      '#size' => 32,
+      '#parents' => ['authentication', 'api_key', 'id'],
+    ];
+
+    $form['authentication']['api_key']['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Key'),
+      '#default_value' => $connection->getApiKey(),
+      '#size' => 32,
+      '#parents' => ['authentication', 'api_key', 'api_key'],
+    ];
+
+    $form['ssl'] = [
+      '#type' => 'details',
+      '#title' => $this->t('SSL'),
+      '#open' => TRUE,
+    ];
+
+    $form['ssl']['certificate'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Certificate'),
+      '#description' => $this->t('The name of a file containing a PEM formatted certificate.'),
+      '#default_value' => $connection->getSslCertificate(),
+      '#size' => 32,
+      '#parents' => ['ssl', 'certificate'],
+    ];
+
+    $form['ssl']['skip_verification'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Skip SSL certificate verification'),
+      '#default_value' => (int) $connection->skipSslVerification(),
+      '#parents' => ['ssl', 'skip_verification'],
     ];
 
     $form['defer_indexing'] = [
@@ -283,7 +318,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    */
   public function removeHost(array $form, FormStateInterface $form_state) {
     // Store submitted host values.
-    $this->copyHostValuesFromFormState($form_state);
+    $this->prepareValuesFromFormState($form_state);
 
     $triggering_element = $form_state->getTriggeringElement();
     $index = $triggering_element['#index'];
@@ -303,7 +338,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    */
   public function addHost(array $form, FormStateInterface $form_state) {
     // Store submitted host values.
-    $this->copyHostValuesFromFormState($form_state);
+    $this->prepareValuesFromFormState($form_state);
 
     // Add a new host.
     $hosts = $form_state->get('hosts');
@@ -314,11 +349,11 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Stores submitted host values.
+   * Prepares submitted values.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function copyHostValuesFromFormState(FormStateInterface $form_state) {
+  public function prepareValuesFromFormState(FormStateInterface $form_state) {
     // Filter out empty hosts.
     $hosts = array_filter($form_state->getValue('hosts'), function ($host) {
       return !empty($host['host']);
@@ -330,18 +365,29 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     // Store only necessary values.
     $hosts = array_map(function ($host) {
       return [
-        'scheme' => $host['scheme'],
         'host' => $host['host'],
         'port' => $host['port'],
-        'authentication' => [
-          'enabled' => (bool) $host['authentication']['enabled'],
-          'user' => $host['authentication']['user'],
-          'password' => $host['authentication']['password'],
-        ],
       ];
     }, $hosts);
 
     $form_state->set('hosts', $hosts);
+
+    // Cast SSL verification setting to bool.
+    $form_state->set(['ssl', 'skip_verification'], (bool) $form_state->get(['ssl', 'skip_verification']));
+  }
+
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    foreach ($form_state->getValue('hosts') as $index => $host) {
+      if (isset($host['host'])) {
+        $url = parse_url($host['host']);
+
+        if (isset($url['scheme'])) {
+          $form_state->setErrorByName(sprintf('hosts][%s][host', $index), $this->t('Host name should not include an URI scheme (https or http).'));
+        }
+      }
+    }
   }
 
   /**
@@ -350,12 +396,14 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    // Store submitted values.
-    $this->copyHostValuesFromFormState($form_state);
+    // Prepare submitted values.
+    $this->prepareValuesFromFormState($form_state);
 
-    // Reset host keys.
+    $this->config->set('scheme', $form_state->getValue('scheme'));
     $hosts = array_values($form_state->get('hosts'));
     $this->config->set('hosts', $hosts);
+    $this->config->set('authentication', $form_state->getValue('authentication'));
+    $this->config->set('ssl', $form_state->getValue('ssl'));
     $this->config->set('defer_indexing', (bool) $form_state->getValue('defer_indexing'));
 
     // Save submitted configuration values.

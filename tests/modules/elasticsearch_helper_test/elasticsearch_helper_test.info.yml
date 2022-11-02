@@ -4,4 +4,4 @@ description: Plugin implementation for the Elasticsearch Helper module tests.
 core_version_requirement: ^8.7.7 || ^9
 hidden: true
 dependencies:
-- elasticsearch_helper
+  - drupal:elasticsearch_helper

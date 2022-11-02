@@ -39,40 +39,37 @@ class ElasticsearchClientBuilder {
    * @return \Elasticsearch\Client
    */
   public function build() {
+    // Get Elasticsearch connection settings.
+    $connection = ElasticsearchConnectionSettings::createFromArray($this->config->getRawData());
+
     $clientBuilder = ClientBuilder::create();
-    $clientBuilder->setHosts($this->getHosts());
+    $clientBuilder->setHosts($connection->getFormattedHosts());
+
+    // Set basic auth credentials.
+    if ($username = $connection->getBasicAuthUser()) {
+      $password = $connection->getBasicAuthPassword();
+      $clientBuilder->setBasicAuthentication($username, $password);
+    }
+
+    // Set API key.
+    if (($api_key_id = $connection->getApiKeyId()) && ($api_key = $connection->getApiKey())) {
+      $clientBuilder->setApiKey($api_key_id, $api_key);
+    }
+
+    // Use SSL certificate if available.
+    if ($certificate = $connection->getSslCertificate()) {
+      $clientBuilder->setSSLCert($certificate);
+    }
+
+    // Skip SSL certificate verification if needed.
+    if ($connection->skipSslVerification()) {
+      $clientBuilder->setSSLVerification(FALSE);
+    }
 
     // Let other modules set their own handlers.
     $this->moduleHandler->alter('elasticsearch_helper_client_builder', $clientBuilder);
 
     return $clientBuilder->build();
-  }
-
-  /**
-   * Get the hosts based on the site configuration.
-   */
-  protected function getHosts() {
-    $hosts = [];
-
-    foreach ($this->config->get('hosts') as $host_config) {
-      $host = ElasticsearchHost::createFromArray($host_config);
-
-      $host_entry = [
-        'host' => $host->getHost(),
-        'port' => $host->getPort(),
-        'scheme' => $host->getScheme(),
-      ];
-
-      if ($host->isAuthEnabled()) {
-        $host_entry['user'] = $host->getAuthUsername();
-        $host_entry['pass'] = $host->getAuthPassword();
-      }
-
-      // Use only explicitly defined configuration.
-      $hosts[] = array_filter($host_entry);
-    }
-
-    return $hosts;
   }
 
 }
