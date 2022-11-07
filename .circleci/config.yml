@@ -130,9 +130,9 @@ workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-drupal-948-es-7
-          cache_name: drupal-948-es-7
-          core_version: "9.4.8"
+          name: build-drupal-940-es-7
+          cache_name: drupal-940-es-7
+          core_version: "9.4.0"
           core_dev_version: "^9"
       - build:
           name: build-drupal-latest-es-7
@@ -140,10 +140,10 @@ workflows:
           core_version: "^9"
           core_dev_version: "^9"
       - test-es:
-          name: test-drupal-948-es-7
-          cache_name: drupal-948-es-7
+          name: test-drupal-940-es-7
+          cache_name: drupal-940-es-7
           requires:
-            - build-drupal-948-es-7
+            - build-drupal-940-es-7
       - test-es:
           name: test-drupal-latest-es-7
           cache_name: drupal-latest-es-7
