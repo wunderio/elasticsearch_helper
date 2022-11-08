@@ -26,8 +26,9 @@ commands:
             drush pm-enable elasticsearch_helper -y
             drush config-set elasticsearch_helper.settings scheme http -y
             drush config-set --input-format=yaml elasticsearch_helper.settings hosts '[{host: localhost, port: 9200}]' -y
-            drush config-set elasticsearch_helper.settings authentication.basic_auth.user elastic -y
-            drush config-set elasticsearch_helper.settings authentication.basic_auth.password s98zg26aBk -y
+            drush config-set elasticsearch_helper.settings authentication.method basic_auth
+            drush config-set elasticsearch_helper.settings authentication.configuration.basic_auth.user elastic -y
+            drush config-set elasticsearch_helper.settings authentication.configuration.basic_auth.password s98zg26aBk -y
             drush config-set elasticsearch_helper.settings ssl.skip_verification true -y
             drush config-get elasticsearch_helper.settings
   start-drupal-test:

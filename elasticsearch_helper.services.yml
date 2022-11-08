@@ -45,3 +45,7 @@ services:
     decorates: queue
     arguments: ['@elasticsearch_helper.queue_factory_decorator.inner', '@settings']
     decoration_priority: 3
+
+  plugin.manager.elasticsearch_auth:
+    class: Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginManager
+    parent: default_plugin_manager

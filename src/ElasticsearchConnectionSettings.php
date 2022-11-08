@@ -23,28 +23,24 @@ class ElasticsearchConnectionSettings {
   protected $hosts = [];
 
   /**
-   * @var array
+   * @var null|string
    */
-  protected $basicAuth = [
-    'user' => NULL,
-    'password' => NULL,
-  ];
+  protected $authMethod = [];
 
   /**
    * @var array
    */
-  protected $apiKey = [
-    'id' => NULL,
-    'api_key' => NULL,
-  ];
+  protected $authMethodConfiguration = [];
 
   /**
-   * @var array
+   * @var null
    */
-  protected $ssl = [
-    'certificate' => NULL,
-    'skip_verification' => NULL,
-  ];
+  protected $sslCertificate = NULL;
+
+  /**
+   * @var null|bool
+   */
+  protected $skipSslVerification = NULL;
 
   /**
    * Connection settings constructor.
@@ -57,12 +53,10 @@ class ElasticsearchConnectionSettings {
   public function __construct($scheme, array $hosts, array $authentication, array $ssl) {
     $this->scheme = $scheme;
     $this->hosts = $hosts;
-    $this->basicAuth['user'] = $authentication['basic_auth']['user'] ?? NULL;
-    $this->basicAuth['password'] = $authentication['basic_auth']['password'] ?? NULL;
-    $this->apiKey['id'] = $authentication['api_key']['id'] ?? NULL;
-    $this->apiKey['api_key'] = $authentication['api_key']['api_key'] ?? NULL;
-    $this->ssl['certificate'] = $ssl['certificate'] ?? NULL;
-    $this->ssl['skip_verification'] = $ssl['skip_verification'] ?? NULL;
+    $this->authMethod = $authentication['method'] ?? NULL;
+    $this->authMethodConfiguration = $authentication['configuration'] ?? [];
+    $this->sslCertificate = $ssl['certificate'] ?? NULL;
+    $this->skipSslVerification = $ssl['skip_verification'] ?? NULL;
   }
 
   /**
@@ -118,39 +112,27 @@ class ElasticsearchConnectionSettings {
   }
 
   /**
-   * Returns basic auth user.
+   * Returns a list of authentication method plugin instances.
    *
-   * @return string
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface|null
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  public function getBasicAuthUser() {
-    return $this->basicAuth['user'];
-  }
+  public function getAuthMethodInstance() {
+    if ($this->authMethod) {
+      /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginManager $elasticsearch_auth_manager */
+      $elasticsearch_auth_manager = \Drupal::service('plugin.manager.elasticsearch_auth');
 
-  /**
-   * Returns basic auth password.
-   *
-   * @return string
-   */
-  public function getBasicAuthPassword() {
-    return $this->basicAuth['password'];
-  }
+      // Prepare authentication method plugin configuration.
+      $configuration = $this->authMethodConfiguration[$this->authMethod] ?? [];
 
-  /**
-   * Returns API key ID.
-   *
-   * @return string
-   */
-  public function getApiKeyId() {
-    return $this->apiKey['id'];
-  }
+      /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface $instance */
+      $result = $elasticsearch_auth_manager->createInstance($this->authMethod, $configuration);
 
-  /**
-   * Returns the key from the API key information.
-   *
-   * @return string
-   */
-  public function getApiKey() {
-    return $this->apiKey['api_key'];
+      return $result;
+    }
+
+    return NULL;
   }
 
   /**
@@ -159,7 +141,7 @@ class ElasticsearchConnectionSettings {
    * @return string
    */
   public function getSslCertificate() {
-    return $this->ssl['certificate'];
+    return $this->sslCertificate;
   }
 
   /**
@@ -168,7 +150,7 @@ class ElasticsearchConnectionSettings {
    * @return bool
    */
   public function skipSslVerification() {
-    return (bool) $this->ssl['skip_verification'];
+    return (bool) $this->skipSslVerification;
   }
 
 }

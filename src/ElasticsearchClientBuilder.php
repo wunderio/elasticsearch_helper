@@ -34,42 +34,42 @@ class ElasticsearchClientBuilder {
   }
 
   /**
-   * Create an elasticsearch client.
+   * Builds an Elasticsearch client instance.
    *
    * @return \Elasticsearch\Client
    */
   public function build() {
-    // Get Elasticsearch connection settings.
-    $connection = ElasticsearchConnectionSettings::createFromArray($this->config->getRawData());
+    // Get Elasticsearch connection settings. Raw configuration data cannot be
+    // used here as settings might be overridden.
+    $connection = new ElasticsearchConnectionSettings(
+      $this->config->get('scheme'),
+      $this->config->get('hosts'),
+      $this->config->get('authentication'),
+      $this->config->get('ssl')
+    );
 
-    $clientBuilder = ClientBuilder::create();
-    $clientBuilder->setHosts($connection->getFormattedHosts());
+    $client_builder = ClientBuilder::create();
+    $client_builder->setHosts($connection->getFormattedHosts());
 
-    // Set basic auth credentials.
-    if ($username = $connection->getBasicAuthUser()) {
-      $password = $connection->getBasicAuthPassword();
-      $clientBuilder->setBasicAuthentication($username, $password);
-    }
-
-    // Set API key.
-    if (($api_key_id = $connection->getApiKeyId()) && ($api_key = $connection->getApiKey())) {
-      $clientBuilder->setApiKey($api_key_id, $api_key);
+    // Apply authentication method configuration.
+    if ($auth_method_instance = $connection->getAuthMethodInstance()) {
+      $auth_method_instance->authenticate($client_builder);
     }
 
     // Use SSL certificate if available.
     if ($certificate = $connection->getSslCertificate()) {
-      $clientBuilder->setSSLCert($certificate);
+      $client_builder->setSSLCert($certificate);
     }
 
     // Skip SSL certificate verification if needed.
     if ($connection->skipSslVerification()) {
-      $clientBuilder->setSSLVerification(FALSE);
+      $client_builder->setSSLVerification(FALSE);
     }
 
     // Let other modules set their own handlers.
-    $this->moduleHandler->alter('elasticsearch_helper_client_builder', $clientBuilder);
+    $this->moduleHandler->alter('elasticsearch_helper_client_builder', $client_builder);
 
-    return $clientBuilder->build();
+    return $client_builder->build();
   }
 
 }

@@ -75,7 +75,8 @@ trait IndexOperationTrait {
         'port' => getenv('ELASTICSEARCH_HELPER_TEST_PORT') ?: '9200',
       ]
     ]);
-    $settings->set('authentication.basic_auth', [
+    $settings->set('authentication.method', 'basic_auth');
+    $settings->set('authentication.configuration.basic_auth', [
       'user' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_USER') ?: NULL,
       'password' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_PASSWORD') ?: NULL,
     ]);
@@ -108,7 +109,7 @@ trait IndexOperationTrait {
    * @return array
    */
   protected function getBasicAuth() {
-    return $this->config('elasticsearch_helper.settings')->get('authentication.basic_auth') ?? [];
+    return $this->config('elasticsearch_helper.settings')->get('authentication.configuration.basic_auth') ?? [];
   }
 
   /**

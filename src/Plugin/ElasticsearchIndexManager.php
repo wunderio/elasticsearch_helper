@@ -10,7 +10,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Elasticsearch\Common\Exceptions\ElasticsearchException;
 
 /**
  * Provides the Elasticsearch index plugin manager.
@@ -80,12 +79,10 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           // Index the entity in elasticsearch.
           $this->createInstance($plugin['id'])->index($entity);
         }
-        catch (ElasticsearchException $e) {
+        catch (\Exception $e) {
           $this->logger->error('Elasticsearch indexing failed: @message', [
             '@message' => $e->getMessage(),
           ]);
-
-          // TODO: queue for later indexing.
         }
       }
     }
@@ -110,7 +107,7 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
           // Delete the entity from elasticsearch.
           $this->createInstance($plugin['id'])->delete($entity);
         }
-        catch (ElasticsearchException $e) {
+        catch (\Exception $e) {
           $this->logger->error('Elasticsearch deletion failed: @message', [
             '@message' => $e->getMessage(),
           ]);

@@ -2,9 +2,11 @@
 
 namespace Drupal\elasticsearch_helper\Form;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\elasticsearch_helper\ElasticsearchConnectionSettings;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
@@ -109,9 +111,14 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Checks connection to Elasticsearch server.
+   *
+   * @param array $element
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return array
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function checkConnection(array $element, FormStateInterface $form_state) {
     if (!$form_state->isProcessingInput()) {
       try {
         // Get server health status.
@@ -133,6 +140,16 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
         $this->messenger()->addError($e->getMessage());
       }
     }
+
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    // Register after build method that checks connection.
+    $form['#after_build'][] = '::checkConnection';
 
     // Get Elasticsearch connection settings.
     $connection = ElasticsearchConnectionSettings::createFromArray($this->config->getRawData());
@@ -210,55 +227,44 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
       '#submit' => [[$this, 'addHost']],
     ];
 
+    // Get available authentication methods.
+    $auth_methods = $this->getAuthenticationMethodList();
+
     $form['authentication'] = [
       '#type' => 'details',
       '#title' => $this->t('Authentication'),
       '#open' => TRUE,
     ];
 
-    $form['authentication']['basic_auth'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Basic auth'),
-      '#description' => $this->t('Credentials for authentication with a username and password.'),
+    $form['authentication']['method'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Method'),
+      '#description' => $this->t('Select the authentication method.'),
+      '#options' => $auth_methods,
+      '#default_value' => $this->config->get('authentication.method') ?: NULL,
+      '#empty_option' => $this->t('- None -'),
     ];
 
-    $form['authentication']['basic_auth']['user'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('User'),
-      '#default_value' => $connection->getBasicAuthUser(),
-      '#size' => 32,
-      '#parents' => ['authentication', 'basic_auth', 'user'],
-    ];
+    foreach ($auth_methods as $auth_method => $auth_label) {
+      $auth_instance = $this->getAuthenticationMethodPlugin($auth_method);
 
-    $form['authentication']['basic_auth']['password'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Password'),
-      '#default_value' => $connection->getBasicAuthPassword(),
-      '#size' => 32,
-      '#parents' => ['authentication', 'basic_auth', 'password'],
-    ];
+      // Prepare the subform state.
+      $auth_method_form = [];
+      $auth_method_subform_state = SubformState::createForSubform($auth_method_form, $form, $form_state);
+      $auth_method_form = $auth_instance->buildConfigurationForm([], $auth_method_subform_state);
 
-    $form['authentication']['api_key'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('API key'),
-      '#description' => $this->t('Credentials for authentication with an API key.'),
-    ];
-
-    $form['authentication']['api_key']['id'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('ID'),
-      '#default_value' => $connection->getApiKeyId(),
-      '#size' => 32,
-      '#parents' => ['authentication', 'api_key', 'id'],
-    ];
-
-    $form['authentication']['api_key']['api_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Key'),
-      '#default_value' => $connection->getApiKey(),
-      '#size' => 32,
-      '#parents' => ['authentication', 'api_key', 'api_key'],
-    ];
+      $form['authentication'][$auth_method] = [
+        '#type' => 'fieldset',
+        '#title' => $auth_label,
+        '#states' => [
+          'visible' => [
+            ':input[name="method"]' => ['value' => $auth_method],
+          ],
+        ],
+        '#tree' => TRUE,
+        '#parents' => ['authentication', $auth_method],
+      ] + $auth_method_form;
+    }
 
     $form['ssl'] = [
       '#type' => 'details',
@@ -399,15 +405,74 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     // Prepare submitted values.
     $this->prepareValuesFromFormState($form_state);
 
+    // Get authentication methods.
+    $auth_method = $form_state->getValue('method') ?: NULL;
+    $authentication = [
+      'method' => $auth_method,
+      'configuration' => [],
+    ];
+
+    // Create authentication method plugin instance.
+    if ($auth_method && $auth_instance = $this->getAuthenticationMethodPlugin($auth_method)) {
+      // Get values from authentication method plugin form.
+      $subform = &NestedArray::getValue($form, ['authentication', $auth_method]);
+      $subform_state = SubformState::createForSubform($subform, $form, $form_state);
+      $auth_instance->submitConfigurationForm($subform, $subform_state);
+
+      $authentication['configuration'][$auth_method] = $auth_instance->getConfiguration();
+    }
+
+    // Save values.
     $this->config->set('scheme', $form_state->getValue('scheme'));
-    $hosts = array_values($form_state->get('hosts'));
-    $this->config->set('hosts', $hosts);
-    $this->config->set('authentication', $form_state->getValue('authentication'));
+    $this->config->set('hosts', array_values($form_state->get('hosts')));
+    $this->config->set('authentication', $authentication);
     $this->config->set('ssl', $form_state->getValue('ssl'));
     $this->config->set('defer_indexing', (bool) $form_state->getValue('defer_indexing'));
 
     // Save submitted configuration values.
     $this->config->save();
+  }
+
+  /**
+   * Returns a list of authentication method titles, keyed by method ID.
+   *
+   * @return array
+   */
+  protected function getAuthenticationMethodList() {
+    /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginManager $elasticsearch_auth_manager */
+    $elasticsearch_auth_manager = \Drupal::service('plugin.manager.elasticsearch_auth');
+
+    // Get authentication methods.
+    $auth_methods = $elasticsearch_auth_manager->getDefinitions();
+    // Sort by weight.
+    uasort($auth_methods, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
+
+    // Fetch authentication method labels.
+    return array_map(function($method) {
+      return $method['label'];
+    }, $auth_methods);
+  }
+
+  /**
+   * Returns authentication method plugin instance.
+   *
+   * @param $plugin_id
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  protected function getAuthenticationMethodPlugin($plugin_id) {
+    /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginManager $elasticsearch_auth_manager */
+    $elasticsearch_auth_manager = \Drupal::service('plugin.manager.elasticsearch_auth');
+
+    // Prepare authentication method plugin configuration.
+    $configuration = $this->config->get('authentication.configuration.' . $plugin_id) ?: [];
+
+    /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface $instance */
+    $instance = $elasticsearch_auth_manager->createInstance($plugin_id, $configuration);
+
+    return $instance;
   }
 
 }

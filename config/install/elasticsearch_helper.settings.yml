@@ -4,12 +4,8 @@ hosts:
     host: localhost
     port: '9200'
 authentication:
-  basic_auth:
-    user: ''
-    password: ''
-  api_key:
-    id: ''
-    api_key: ''
+  method: null
+  configuration: {  }
 ssl:
   certificate: ''
   skip_verification: false
