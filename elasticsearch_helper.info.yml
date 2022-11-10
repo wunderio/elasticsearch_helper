@@ -1,7 +1,7 @@
 name: Elasticsearch Helper
 type: module
 description: Provides tools to integrate Elasticsearch with Drupal.
-core_version_requirement: ^8.7.7 || ^9
+core_version_requirement: ^9.4
 package: Elasticsearch Helper
 configure: elasticsearch_helper.elasticsearch_helper_settings_form
 dependencies:
