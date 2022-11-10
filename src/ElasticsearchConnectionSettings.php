@@ -25,7 +25,7 @@ class ElasticsearchConnectionSettings {
   /**
    * @var null|string
    */
-  protected $authMethod = [];
+  protected $authMethod;
 
   /**
    * @var array
@@ -33,7 +33,7 @@ class ElasticsearchConnectionSettings {
   protected $authMethodConfiguration = [];
 
   /**
-   * @var null
+   * @var null|string
    */
   protected $sslCertificate = NULL;
 
@@ -51,8 +51,8 @@ class ElasticsearchConnectionSettings {
    * @param array $ssl
    */
   public function __construct($scheme, array $hosts, array $authentication, array $ssl) {
+    $this->setHosts($hosts);
     $this->scheme = $scheme;
-    $this->hosts = $hosts;
     $this->authMethod = $authentication['method'] ?? NULL;
     $this->authMethodConfiguration = $authentication['configuration'] ?? [];
     $this->sslCertificate = $ssl['certificate'] ?? NULL;
@@ -73,6 +73,26 @@ class ElasticsearchConnectionSettings {
       $values['authentication'] ?? [],
       $values['ssl'] ?? [],
     );
+  }
+
+  /**
+   * Sets hosts.
+   *
+   * @param array $hosts
+   *
+   * @return void
+   */
+  public function setHosts(array $hosts) {
+    $result = [];
+
+    foreach ($hosts as $host) {
+      $result[] = [
+        'host' => $host['host'] ?? '',
+        'port' => $host['port'] ?? '',
+      ];
+    }
+
+    $this->hosts = $result;
   }
 
   /**
@@ -112,6 +132,26 @@ class ElasticsearchConnectionSettings {
   }
 
   /**
+   * Returns authentication method.
+   *
+   * @return null|string
+   */
+  public function getAuthMethod() {
+    return $this->authMethod;
+  }
+
+  /**
+   * Returns authentication method configuration.
+   *
+   * @param $auth_method
+   *
+   * @return array
+   */
+  public function getAuthMethodConfiguration($auth_method) {
+    return $this->authMethodConfiguration[$auth_method] ?? [];
+  }
+
+  /**
    * Returns a list of authentication method plugin instances.
    *
    * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface|null
@@ -123,13 +163,13 @@ class ElasticsearchConnectionSettings {
       /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginManager $elasticsearch_auth_manager */
       $elasticsearch_auth_manager = \Drupal::service('plugin.manager.elasticsearch_auth');
 
-      // Prepare authentication method plugin configuration.
-      $configuration = $this->authMethodConfiguration[$this->authMethod] ?? [];
+      $auth_method = $this->getAuthMethod();
+      $configuration = $this->getAuthMethodConfiguration($auth_method);
 
       /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthInterface $instance */
-      $result = $elasticsearch_auth_manager->createInstance($this->authMethod, $configuration);
+      $instance = $elasticsearch_auth_manager->createInstance($auth_method, $configuration);
 
-      return $result;
+      return $instance;
     }
 
     return NULL;

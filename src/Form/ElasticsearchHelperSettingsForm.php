@@ -359,31 +359,45 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function prepareValuesFromFormState(FormStateInterface $form_state) {
-    // Filter out empty hosts.
-    $hosts = array_filter($form_state->getValue('hosts'), function ($host) {
-      return !empty($host['host']);
-    });
-
-    // Sort hosts by weight.
-    uasort($hosts, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
-
+  protected function prepareValuesFromFormState(FormStateInterface $form_state) {
     // Store only necessary values.
     $hosts = array_map(function ($host) {
       return [
-        'host' => $host['host'],
-        'port' => $host['port'],
+        'host' => $host['host'] ?? '',
+        'port' => $host['port'] ?? '',
       ];
-    }, $hosts);
+    }, $form_state->getValue('hosts'));
 
     $form_state->set('hosts', $hosts);
 
-    // Cast SSL verification setting to bool.
+    // Cast values to bool.
     $form_state->set(['ssl', 'skip_verification'], (bool) $form_state->get(['ssl', 'skip_verification']));
+    $form_state->set('defer_indexing', (bool) $form_state->getValue('defer_indexing'));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+
+    $hosts = $form_state->getValue('hosts');
+
+    // Make sure that hosts is always an array.
+    if (!is_array($hosts)) {
+      $hosts = [];
+    }
+
+    // Filter out empty hosts.
+    $hosts = array_filter($hosts, function ($host) {
+      return !empty($host['host']);
+    });
+
+    // Set the hosts values back.
+    $form_state->setValue('hosts', $hosts);
+
+    // Sort hosts by weight.
+    uasort($hosts, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
 
     foreach ($form_state->getValue('hosts') as $index => $host) {
       if (isset($host['host'])) {
@@ -406,13 +420,13 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     $this->prepareValuesFromFormState($form_state);
 
     // Get authentication methods.
-    $auth_method = $form_state->getValue('method') ?: NULL;
+    $auth_method = $form_state->getValue('method');
     $authentication = [
       'method' => $auth_method,
       'configuration' => [],
     ];
 
-    // Create authentication method plugin instance.
+    // Get authentication method configuration from plugin instance.
     if ($auth_method && $auth_instance = $this->getAuthenticationMethodPlugin($auth_method)) {
       // Get values from authentication method plugin form.
       $subform = &NestedArray::getValue($form, ['authentication', $auth_method]);
@@ -427,7 +441,7 @@ class ElasticsearchHelperSettingsForm extends ConfigFormBase {
     $this->config->set('hosts', array_values($form_state->get('hosts')));
     $this->config->set('authentication', $authentication);
     $this->config->set('ssl', $form_state->getValue('ssl'));
-    $this->config->set('defer_indexing', (bool) $form_state->getValue('defer_indexing'));
+    $this->config->set('defer_indexing', $form_state->getValue('defer_indexing'));
 
     // Save submitted configuration values.
     $this->config->save();
