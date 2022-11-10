@@ -43,7 +43,7 @@ class BasicAuth extends ElasticsearchAuthPluginBase {
     $form['user'] = [
       '#type' => 'textfield',
       '#title' => $this->t('User'),
-      '#description' => $this->t('Enter Elasticsearch native or manager user name.'),
+      '#description' => $this->t('Enter Elasticsearch built-in or native user name.'),
       '#default_value' => $this->configuration['user'],
       '#size' => 32,
     ];
