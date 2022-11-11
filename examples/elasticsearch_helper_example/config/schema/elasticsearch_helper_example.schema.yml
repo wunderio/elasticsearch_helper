@@ -1,0 +1,10 @@
+elasticsearch_helper.authentication_configuration.knock_auth:
+  type: mapping
+  label: 'Knock auth method'
+  mapping:
+    knock_times:
+      type: number
+      label: 'Knock times'
+    passcode:
+      type: string
+      label: Passcode

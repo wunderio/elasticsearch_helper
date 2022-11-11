@@ -277,12 +277,20 @@ reason). Event listeners can log the error or perform other actions.
 
 See event listeners provided with the module for inspiration.
 
-## Updating from 7.x dev version to 7.0 release version.
+### Authentication methods
+
+Modules can provide `ElasticsearchAuth` plugins which authenticate with Elasticsearch server.
+
+By default Elasticsearch Helper 7.0 provides two authentication method plugins:
+  - Basic authentication (`basic_auth`) for authentication against built-in and native Elasticsearch users.
+  - API key (`api_key`) for authentication using API keys.
+
+## Updating from 7.x dev version to 7.0 release version
 
 If Elasticsearch Helper is being updated from 7.x development version, it's important to see
 that an `elasticsearch_helper_update_8004()` update hook is run in order to make proper changes
 to the configuration structure.
 
-If Elasticsearch Helper configuration was stored in `settings.php` file, make adjustments to the
+If Elasticsearch Helper configuration was stored in the `settings.php` file, make adjustments to the
 configuration override code according to configuration structure described in the [settings.php](#settingsphp)
 section of this file.
