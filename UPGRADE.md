@@ -1,12 +1,12 @@
 # Upgrade guide
 
 This guide is intended to describe the process of upgrading
-Elasticsearch Helper from version 5.x or 6.x to version 7.x.
+Elasticsearch Helper from version 5.x or 6.x to version 7.0.
 
-The most notable changes in version 7.x:
+The most notable changes in version 7.0:
 
-1. Compatibility with Elasticsearch 6 and 7.
-2. Multi-host configuration for use in cluster environment.
+1. Elasticsearch Helper 7.0 is compatible only with Elasticsearch 7.
+2. Multi-host configuration for use in a cluster environment.
 3. Support for event subscribers to react to most common Elasticsearch operations.
 4. Support for object-oriented description of index settings and field mappings.
 5. Simplified index plugin structure (no need to explicitly create an index in `setup()` method).
@@ -26,12 +26,12 @@ index settings in `getIndexDefinition()` rather than in `setup()` method.
 3. [ ] Run `drush updb` to update the configuration.
 4. [ ] Run `drush cr` to clear caches (this is necessary to discover changed permission name).
 5. [ ] Run `drush cex` to export the configuration.
-6. [ ] Commit the changes in Export Elasticsearch Helper configuration and in role configuration
+6. [ ] Commit the changes in exported Elasticsearch Helper configuration and in role configuration
 with updated permission name.
 
 ## Changes in included sub-modules
 
-As sub-modules in Elasticsearch Helper 7.x have been moved to their own project pages, add them
+As sub-modules in Elasticsearch Helper 7.0 have been moved to their own projects, add them
 manually to the project if necessary:
 
 ```
@@ -56,9 +56,9 @@ Three new methods are added to `ElasticsearchIndexInterface`:
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined field mappings in `setup()`
 method as arrays.
 
-In Elasticsearch Helper 7.x `ElasticsearchIndexInterface` requires `getMappingDefinition()`
+In Elasticsearch Helper 7.0 `ElasticsearchIndexInterface` requires `getMappingDefinition()`
 method to be present in all implementation classes. This method should return an instance of
-`MappindDefinition` class which contains index field mappings described in an object oriented way.
+`MappindDefinition` class which contains index field mappings described in an object-oriented way.
 
 Each field can be described with an instance of `FieldDefinition` class. It has the following methods:
 * Nested fields can be added using `addProperty()` or `addProperties()` methods.
@@ -96,7 +96,7 @@ This method needs to be explicitly implemented in every index plugin.
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
 method.
 
-In Elasticsearch Helper 7.x method `getIndexDefinition()` makes it easier to configure index settings.
+In Elasticsearch Helper 7.0 method `getIndexDefinition()` makes it easier to configure index settings.
 
 Example:
 
@@ -156,7 +156,7 @@ public function getIndexDefinition(array $context = []) {
 In Elasticsearch Helper 5.x and 6.x running `drush elasticsearch-helper-reindex` would only affect index plugins
 that index entities of type defined in `entityType` plugin definition.
 
-In Elasticsearch Helper 7.x index plugins can define their own reindex logic in `reindex()` method, allowing index
+In Elasticsearch Helper 7.0 index plugins can define their own reindex logic in `reindex()` method, allowing index
 plugins that manage non-entity content react when `drush elasticsearch-helper-reindex` command is run.
 
 By default `ElasticsearchIndexBase::reindex()` method re-indexes entities managed by index plugins that define entity
@@ -177,7 +177,7 @@ protected function typeNamePattern()
 public function replacePlaceholders($haystack, array $data)
 ```
 
-After (Elasticsearch Helper 7.x):
+After (Elasticsearch Helper 7.0):
 
 ```
 public function getIndexName(array $data = [])
@@ -208,7 +208,7 @@ elasticsearch_helper:
   defer_indexing: false
 ```
 
-After (Elasticsearch Helper 7.x):
+After (Elasticsearch Helper 7.0):
 
 ```
 hosts:
@@ -236,7 +236,7 @@ Before (Elasticsearch Helper 5.x and 6.x):
  $config['elasticsearch_helper.settings']['elasticsearch_helper']['port'] = '9200';
  ```
 
-After (Elasticsearch Helper 7.x):
+After (Elasticsearch Helper 7.0):
 
  ```
  $config['elasticsearch_helper.settings']['hosts'][0]['host'] = 'localhost';
@@ -254,7 +254,7 @@ listeners can block entity indexing if entity should not be indexed for certain 
 2. `ElasticsearchEvents::OPERATION_REQUEST` event is fired before request is sent to
 Elasticsearch client. Event listeners can change the request callback or request parameters.
 
-3. `ElasticsearchEvents::OPERATION_RESULT` event is fired when request to Elasticsearch
+3. `ElasticsearchEvents::OPERATION_REQUEST_RESULT` event is fired when request to Elasticsearch
 has been successfully completed without errors. Event listeners can log the event or perform
 other actions.
 
