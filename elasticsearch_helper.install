@@ -139,3 +139,63 @@ function elasticsearch_helper_update_8003() {
     }
   }
 }
+
+/**
+ * Change configuration to enable configurable authentication, SSL settings.
+ */
+function elasticsearch_helper_update_8004() {
+  // Get module configuration.
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('elasticsearch_helper.settings');
+
+  // Get hosts.
+  $hosts = $config->get('hosts') ?: [];
+
+  // Prepare hosts.
+  $updated_hosts = [];
+
+  foreach ($hosts as $host) {
+    if (!empty($host['host'])) {
+      $updated_hosts[] = [
+        'host' => $host['host'],
+        'port' => $host['port'] ?? '',
+      ];
+    }
+  }
+
+  // Set hosts.
+  $config->set('hosts', $updated_hosts);
+
+  // Set scheme.
+  $existing_scheme = $hosts[0]['scheme'] ?? 'http';
+  $config->set('scheme', $existing_scheme);
+
+  // Set SSL configuration.
+  $config->set('ssl', [
+    'certificate' => '',
+    // Skip verification by default if scheme is https.
+    'skip_verification' => ($existing_scheme == 'https'),
+  ]);
+
+  // Prepare authentication.
+  $existing_auth = $hosts[0]['authentication'] ?? [];
+
+  if (!empty($existing_auth['enabled']) && !empty($existing_auth['user'])) {
+    $authentication['method'] = 'basic_auth';
+    $authentication['configuration']['basic_auth']['user'] = $existing_auth['user'];
+
+    if (isset($hosts[0]['authentication']['password'])) {
+      $authentication['configuration']['basic_auth']['password'] = $existing_auth['password'];
+    }
+  }
+  else {
+    $authentication['method'] = '';
+    $authentication['configuration'] = [];
+  }
+
+  // Set authentication.
+  $config->set('authentication', $authentication);
+
+  // Save the configuration.
+  $config->save();
+}

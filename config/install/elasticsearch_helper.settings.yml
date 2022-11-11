@@ -4,7 +4,7 @@ hosts:
     host: localhost
     port: '9200'
 authentication:
-  method: null
+  method: ''
   configuration: {  }
 ssl:
   certificate: ''
