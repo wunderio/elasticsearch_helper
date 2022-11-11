@@ -3,7 +3,7 @@
 [![<wunderio>](https://circleci.com/gh/wunderio/elasticsearch_helper/tree/8.x-7.x.svg?style=svg)](<https://app.circleci.com/pipelines/github/wunderio/elasticsearch_helper?branch=8.x-7.x>)
 
 ## System requirements
-* Drupal >= 8.7.7 or 9.0
+* Drupal > 9.4
 * [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php) library
 
 ## Installation
@@ -12,7 +12,7 @@ The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch
 communicate with Elasticsearch server. Please make sure you install the version of the library compatible with
 the version of the server (see the [compatibility matrix](https://github.com/elastic/elasticsearch-php#version-matrix)).
 
-To install the library for use with Elasticsearch 7.x:
+To install the library for use with Elasticsearch 7.0:
 ```
 composer require elasticsearch/elasticsearch:^7.0
 ```
