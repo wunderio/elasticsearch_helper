@@ -3,5 +3,6 @@ type: module
 description: Example plugin implementation for the Elasticsearch Helper module.
 core_version_requirement: ^9.4
 hidden: true
+package: Elasticsearch Helper
 dependencies:
   - drupal:elasticsearch_helper

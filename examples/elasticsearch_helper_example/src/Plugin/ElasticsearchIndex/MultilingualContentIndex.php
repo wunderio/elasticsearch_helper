@@ -6,6 +6,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
@@ -100,28 +101,34 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function setup() {
-    // Create one index per language, so that we can have different analyzers.
-    foreach ($this->language_manager->getLanguages() as $langcode => $language) {
-      // Get index name.
-      $index_name = $this->getIndexName(['langcode' => $langcode]);
+    try {
+      // Create one index per language, so that we can have different analyzers.
+      foreach ($this->language_manager->getLanguages() as $langcode => $language) {
+        // Get index name.
+        $index_name = $this->getIndexName(['langcode' => $langcode]);
 
-      // Check if index exists.
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
-        // Get index definition.
-        $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
+        // Check if index exists.
+        if (!$this->client->indices()->exists(['index' => $index_name])) {
+          // Get index definition.
+          $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
 
-        // Get analyzer for the language.
-        $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+          // Get analyzer for the language.
+          $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
 
-        // Put analyzer parameter to all "text" fields in the mapping.
-        foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
-          if ($property->getDataType()->getType() == 'text') {
-            $property->addOption('analyzer', $analyzer);
+          // Put analyzer parameter to all "text" fields in the mapping.
+          foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
+            if ($property->getDataType()->getType() == 'text') {
+              $property->addOption('analyzer', $analyzer);
+            }
           }
-        }
 
-        $this->createIndex($index_name, $index_definition);
+          $this->createIndex($index_name, $index_definition);
+        }
       }
+    }
+    catch (\Throwable $e) {
+      $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
+      $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE, $request_wrapper);
     }
   }
 
