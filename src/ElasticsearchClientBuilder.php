@@ -42,10 +42,10 @@ class ElasticsearchClientBuilder {
     // Get Elasticsearch connection settings. Raw configuration data cannot be
     // used here as settings might be overridden.
     $connection = new ElasticsearchConnectionSettings(
-      $this->config->get('scheme'),
-      $this->config->get('hosts'),
-      $this->config->get('authentication'),
-      $this->config->get('ssl')
+      $this->config->get('hosts') ?: [],
+      $this->config->get('scheme') ?: NULL,
+      $this->config->get('authentication') ?: [],
+      $this->config->get('ssl') ?: []
     );
 
     $client_builder = ClientBuilder::create();

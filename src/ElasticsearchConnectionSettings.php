@@ -13,9 +13,14 @@ class ElasticsearchConnectionSettings {
   const PORT_DEFAULT = 9200;
 
   /**
+   * Defines default scheme.
+   */
+  const SCHEME_DEFAULT = 'http';
+
+  /**
    * @var string
    */
-  protected $scheme = 'https';
+  protected $scheme;
 
   /**
    * @var array[]
@@ -45,14 +50,14 @@ class ElasticsearchConnectionSettings {
   /**
    * Connection settings constructor.
    *
-   * @param $scheme
    * @param array $hosts
+   * @param string|null $scheme
    * @param array $authentication
    * @param array $ssl
    */
-  public function __construct($scheme, array $hosts, array $authentication, array $ssl) {
+  public function __construct(array $hosts, $scheme, array $authentication, array $ssl) {
     $this->setHosts($hosts);
-    $this->scheme = $scheme;
+    $this->scheme = $scheme ?: static::SCHEME_DEFAULT;
     $this->authMethod = $authentication['method'] ?? NULL;
     $this->authMethodConfiguration = $authentication['configuration'] ?? [];
     $this->sslCertificate = $ssl['certificate'] ?? NULL;
@@ -68,8 +73,8 @@ class ElasticsearchConnectionSettings {
    */
   public static function createFromArray(array $values) {
     return new static(
-      $values['scheme'] ?? NULL,
       $values['hosts'] ?? [],
+      $values['scheme'] ?? NULL,
       $values['authentication'] ?? [],
       $values['ssl'] ?? [],
     );
@@ -178,7 +183,7 @@ class ElasticsearchConnectionSettings {
   /**
    * Returns a path to the SSL certificate.
    *
-   * @return string
+   * @return null|string
    */
   public function getSslCertificate() {
     return $this->sslCertificate;
