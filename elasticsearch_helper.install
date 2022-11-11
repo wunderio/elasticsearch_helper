@@ -142,6 +142,9 @@ function elasticsearch_helper_update_8003() {
 
 /**
  * Change configuration to enable configurable authentication, SSL settings.
+ *
+ * NOTE: This update hook changes the 7.x development version config structure
+ * to the new 7.0 release version config structure.
  */
 function elasticsearch_helper_update_8004() {
   // Get module configuration.

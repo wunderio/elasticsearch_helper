@@ -211,15 +211,17 @@ elasticsearch_helper:
 After (Elasticsearch Helper 7.0):
 
 ```
+scheme: http
 hosts:
   -
-    scheme: http
     host: localhost
     port: '9200'
-    authentication:
-      enabled: true
-      user: ''
-      password: ''
+authentication:
+  method: ''
+  configuration: {  }
+ssl:
+  certificate: ''
+  skip_verification: false
 defer_indexing: false
 ```
 
@@ -243,6 +245,17 @@ After (Elasticsearch Helper 7.0):
  $config['elasticsearch_helper.settings']['hosts'][0]['port'] = '9200';
  ```
 
+More advanced configuration (Elasticsearch Helper 7.0):
+
+```
+$config['elasticsearch_helper.settings']['hosts'][0]['host'] = 'localhost';
+$config['elasticsearch_helper.settings']['hosts'][0]['port'] = '9200';
+$config['elasticsearch_helper.settings']['scheme'] = 'http';
+$config['elasticsearch_helper.settings']['authentication']['method'] = 'basic_auth';
+$config['elasticsearch_helper.settings']['authentication']['configuration']['basic_auth']['user'] = 'elastic';
+$config['elasticsearch_helper.settings']['authentication']['configuration']['basic_auth']['password'] = '[password]';
+```
+
 ### Event listening
 
 Events are emitted when certain Elasticsearch operations are about to be performed. Other
@@ -263,3 +276,13 @@ not be completed (for example, call to `index()` throws an instance of `\Throwab
 reason). Event listeners can log the error or perform other actions.
 
 See event listeners provided with the module for inspiration.
+
+## Updating from 7.x dev version to 7.0 release version.
+
+If Elasticsearch Helper is being updated from 7.x development version, it's important to see
+that an `elasticsearch_helper_update_8004()` update hook is run in order to make proper changes
+to the configuration structure.
+
+If Elasticsearch Helper configuration was stored in `settings.php` file, make adjustments to the
+configuration override code according to configuration structure described in the [settings.php](#settingsphp)
+section of this file.
