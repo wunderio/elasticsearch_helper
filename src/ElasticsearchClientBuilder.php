@@ -58,7 +58,7 @@ class ElasticsearchClientBuilder {
 
     // Use SSL certificate if available.
     if ($certificate = $connection->getSslCertificate()) {
-      $client_builder->setSSLVerification($certificate);
+      $client_builder->setCABundle($certificate);
     }
 
     // Skip SSL certificate verification if needed.
