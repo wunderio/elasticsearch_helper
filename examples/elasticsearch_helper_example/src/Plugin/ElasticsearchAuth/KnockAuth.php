@@ -4,7 +4,7 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchAuth;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchAuthPluginBase;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 
 /**
  * Example auth authentication.
