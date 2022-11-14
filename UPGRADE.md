@@ -1,11 +1,11 @@
 # Upgrade guide
 
 This guide is intended to describe the process of upgrading
-Elasticsearch Helper from version 5.x or 6.x to version 7.0.
+Elasticsearch Helper from version 5.x or 6.x to version 8.0.
 
-The most notable changes in version 7.0:
+The most notable changes in version 8.0:
 
-1. Elasticsearch Helper 7.0 is compatible only with Elasticsearch 7.
+1. Elasticsearch Helper 8.0 is compatible with Elasticsearch 8.
 2. Multi-host configuration for use in a cluster environment.
 3. Support for event subscribers to react to most common Elasticsearch operations.
 4. Support for object-oriented description of index settings and field mappings.
@@ -31,7 +31,7 @@ with updated permission name.
 
 ## Changes in included sub-modules
 
-As sub-modules in Elasticsearch Helper 7.0 have been moved to their own projects, add them
+As sub-modules in Elasticsearch Helper 8.0 have been moved to their own projects, add them
 manually to the project if necessary:
 
 ```
@@ -56,7 +56,7 @@ Three new methods are added to `ElasticsearchIndexInterface`:
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined field mappings in `setup()`
 method as arrays.
 
-In Elasticsearch Helper 7.0 `ElasticsearchIndexInterface` requires `getMappingDefinition()`
+In Elasticsearch Helper 8.0 `ElasticsearchIndexInterface` requires `getMappingDefinition()`
 method to be present in all implementation classes. This method should return an instance of
 `MappindDefinition` class which contains index field mappings described in an object-oriented way.
 
@@ -96,7 +96,7 @@ This method needs to be explicitly implemented in every index plugin.
 In Elasticsearch Helper 5.x and 6.x index plugins usually defined index settings in `setup()`
 method.
 
-In Elasticsearch Helper 7.0 method `getIndexDefinition()` makes it easier to configure index settings.
+In Elasticsearch Helper 8.0 method `getIndexDefinition()` makes it easier to configure index settings.
 
 Example:
 
@@ -156,7 +156,7 @@ public function getIndexDefinition(array $context = []) {
 In Elasticsearch Helper 5.x and 6.x running `drush elasticsearch-helper-reindex` would only affect index plugins
 that index entities of type defined in `entityType` plugin definition.
 
-In Elasticsearch Helper 7.0 index plugins can define their own reindex logic in `reindex()` method, allowing index
+In Elasticsearch Helper 8.0 index plugins can define their own reindex logic in `reindex()` method, allowing index
 plugins that manage non-entity content react when `drush elasticsearch-helper-reindex` command is run.
 
 By default `ElasticsearchIndexBase::reindex()` method re-indexes entities managed by index plugins that define entity
@@ -177,7 +177,7 @@ protected function typeNamePattern()
 public function replacePlaceholders($haystack, array $data)
 ```
 
-After (Elasticsearch Helper 7.0):
+After (Elasticsearch Helper 8.0):
 
 ```
 public function getIndexName(array $data = [])
@@ -208,7 +208,7 @@ elasticsearch_helper:
   defer_indexing: false
 ```
 
-After (Elasticsearch Helper 7.0):
+After (Elasticsearch Helper 8.0):
 
 ```
 scheme: http
@@ -238,14 +238,14 @@ Before (Elasticsearch Helper 5.x and 6.x):
  $config['elasticsearch_helper.settings']['elasticsearch_helper']['port'] = '9200';
  ```
 
-After (Elasticsearch Helper 7.0):
+After (Elasticsearch Helper 8.0):
 
  ```
  $config['elasticsearch_helper.settings']['hosts'][0]['host'] = 'localhost';
  $config['elasticsearch_helper.settings']['hosts'][0]['port'] = '9200';
  ```
 
-More advanced configuration (Elasticsearch Helper 7.0):
+More advanced configuration (Elasticsearch Helper 8.0):
 
 ```
 $config['elasticsearch_helper.settings']['hosts'][0]['host'] = 'localhost';
@@ -281,11 +281,11 @@ See event listeners provided with the module for inspiration.
 
 Modules can provide `ElasticsearchAuth` plugins which authenticate with Elasticsearch server.
 
-By default Elasticsearch Helper 7.0 provides two authentication method plugins:
+By default Elasticsearch Helper 8.0 provides two authentication method plugins:
   - Basic authentication (`basic_auth`) for authentication against built-in and native Elasticsearch users.
   - API key (`api_key`) for authentication using API keys.
 
-## Updating from 7.x dev version to 7.0 release version
+## Updating from 7.x dev version to 8.0 release version
 
 If Elasticsearch Helper is being updated from 7.x development version, it's important to see
 that an `elasticsearch_helper_update_8004()` update hook is run in order to make proper changes

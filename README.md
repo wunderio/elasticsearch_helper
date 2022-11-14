@@ -12,9 +12,9 @@ The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch
 communicate with Elasticsearch server. Please make sure you install the version of the library compatible with
 the version of the server (see the [compatibility matrix](https://github.com/elastic/elasticsearch-php#version-matrix)).
 
-To install the library for use with Elasticsearch 7.0:
+To install the library for use with Elasticsearch 8.0:
 ```
-composer require elasticsearch/elasticsearch:^7.0
+composer require elasticsearch/elasticsearch:^8.0
 ```
 
 ## Drush commands
