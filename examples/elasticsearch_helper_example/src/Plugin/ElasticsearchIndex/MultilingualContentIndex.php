@@ -7,7 +7,6 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,12 +21,12 @@ use Symfony\Component\Serializer\Serializer;
  *   entityType = "node"
  * )
  */
-class MultilingualContentIndex extends ElasticsearchIndexBase {
+class MultilingualContentIndex extends IndexBase {
 
   /**
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
-  protected $language_manager;
+  protected $languageManager;
 
   /**
    * MultilingualContentIndex constructor.
@@ -43,7 +42,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $client, Serializer $serializer, LoggerInterface $logger, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $client, $serializer, $logger);
 
-    $this->language_manager = $language_manager;
+    $this->languageManager = $language_manager;
   }
 
   /**
@@ -63,10 +62,10 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\node\Entity\Node $source
    */
   public function serialize($source, $context = []) {
-    /** @var \Drupal\node\NodeInterface $source */
-
     $data = parent::serialize($source, $context);
 
     // Add the language code to be used as a token.
@@ -103,7 +102,7 @@ class MultilingualContentIndex extends ElasticsearchIndexBase {
   public function setup() {
     try {
       // Create one index per language, so that we can have different analyzers.
-      foreach ($this->language_manager->getLanguages() as $langcode => $language) {
+      foreach ($this->languageManager->getLanguages() as $langcode => $language) {
         // Get index name.
         $index_name = $this->getIndexName(['langcode' => $langcode]);
 

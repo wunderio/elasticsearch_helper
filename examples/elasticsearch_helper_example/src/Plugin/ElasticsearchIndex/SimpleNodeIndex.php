@@ -4,7 +4,6 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
@@ -15,7 +14,7 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   entityType = "node"
  * )
  */
-class SimpleNodeIndex extends ElasticsearchIndexBase {
+class SimpleNodeIndex extends IndexBase {
 
   /**
    * {@inheritdoc}

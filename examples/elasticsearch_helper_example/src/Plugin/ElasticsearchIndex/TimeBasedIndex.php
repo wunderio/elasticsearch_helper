@@ -5,7 +5,6 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
@@ -16,19 +15,16 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   entityType = "node"
  * )
  */
-class TimeBasedIndex extends ElasticsearchIndexBase {
+class TimeBasedIndex extends IndexBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\node\Entity\Node $source
    */
   public function serialize($source, $context = []) {
-    /** @var \Drupal\node\Entity\Node $source */
-
-    $data = parent::serialize($source);
-
-    // Add the creation date.
+    $data['id'] = $source->id();
     $data['created'] = $source->getCreatedTime();
-
     // Add attributes matching the placeholders in the indexName.
     $data['year'] = date('Y', $source->getCreatedTime());
     $data['month'] = date('m', $source->getCreatedTime());
@@ -51,8 +47,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
           'name' => $template_name,
           'body' => [
             'index_patterns' => $this->indexNamePattern(),
-            'template' => $this->getIndexDefinition()->toArray(),
-          ],
+          ] + $this->getIndexDefinition()->toArray(),
         ];
 
         // Create the template.
@@ -79,6 +74,7 @@ class TimeBasedIndex extends ElasticsearchIndexBase {
       ->addOption('enabled', FALSE);
 
     return MappingDefinition::create()
+      ->addProperty('id', FieldDefinition::create('keyword'))
       ->addProperty('created', $created_field)
       ->addProperty('year', $disabled_field)
       ->addProperty('month', $disabled_field);
