@@ -21,7 +21,7 @@ class NodeNormalizer extends ContentEntityNormalizer {
    *
    * @var array
    */
-  protected $format = ['elasticsearch_helper'];
+  protected $format = ['elasticsearch_helper_test'];
 
   /**
    * {@inheritdoc}

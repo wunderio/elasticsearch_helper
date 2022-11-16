@@ -16,7 +16,8 @@ use Symfony\Component\Serializer\Serializer;
  *   id = "test_multilingual_node_index",
  *   label = @Translation("Test multilingual node index"),
  *   indexName = "test-multilingual-node-index-{langcode}",
- *   entityType = "node"
+ *   entityType = "node",
+ *   normalizerFormat = "elasticsearch_helper_test"
  * )
  */
 class TestMultilingualNodeIndex extends ElasticsearchIndexBase {

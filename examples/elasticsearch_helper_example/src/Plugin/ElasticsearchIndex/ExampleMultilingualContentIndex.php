@@ -3,8 +3,6 @@
 namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Client;
@@ -154,15 +152,6 @@ class ExampleMultilingualContentIndex extends IndexBase {
     ]);
 
     return $index_definition;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMappingDefinition(array $context = []) {
-    // Define only one field. Other fields will be created dynamically.
-    return MappingDefinition::create()
-      ->addProperty('title', FieldDefinition::create('text'));
   }
 
 }

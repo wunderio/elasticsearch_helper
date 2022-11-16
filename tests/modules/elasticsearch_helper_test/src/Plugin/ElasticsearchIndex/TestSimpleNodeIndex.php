@@ -11,7 +11,8 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
  *   id = "test_simple_node_index",
  *   label = @Translation("Test simple node index"),
  *   indexName = "test-simple-node-index",
- *   entityType = "node"
+ *   entityType = "node",
+ *   normalizerFormat = "elasticsearch_helper_test"
  * )
  */
 class TestSimpleNodeIndex extends ElasticsearchIndexBase {
