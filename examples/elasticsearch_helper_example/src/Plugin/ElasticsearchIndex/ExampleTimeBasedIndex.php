@@ -8,14 +8,13 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 
 /**
  * @ElasticsearchIndex(
- *   id = "time_based_index",
+ *   id = "example_time_based_index",
  *   label = @Translation("Example time-based index"),
- *   indexName = "time-based-{year}{month}",
- *   typeName = "node",
+ *   indexName = "example-time-based-{year}{month}",
  *   entityType = "node"
  * )
  */
-class TimeBasedIndex extends IndexBase {
+class ExampleTimeBasedIndex extends IndexBase {
 
   /**
    * {@inheritdoc}

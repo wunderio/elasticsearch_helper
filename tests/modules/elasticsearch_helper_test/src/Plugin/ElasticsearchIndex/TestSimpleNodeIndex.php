@@ -8,14 +8,13 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
 
 /**
  * @ElasticsearchIndex(
- *   id = "elasticsearch_helper_test_simple_node_index",
- *   label = @Translation("Simple Node Index"),
- *   indexName = "elasticsearch_helper_test_simple_node_index",
- *   typeName = "node",
+ *   id = "test_simple_node_index",
+ *   label = @Translation("Test simple node index"),
+ *   indexName = "test-simple-node-index",
  *   entityType = "node"
  * )
  */
-class SimpleNodeIndex extends ElasticsearchIndexBase {
+class TestSimpleNodeIndex extends ElasticsearchIndexBase {
 
   /**
    * {@inheritdoc}

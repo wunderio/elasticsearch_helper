@@ -7,7 +7,7 @@ use Drupal\serialization\Normalizer\ContentEntityNormalizer;
 /**
  * Normalizes / denormalizes Drupal nodes into an array structure good for ES.
  */
-class NodeNormalizer extends ContentEntityNormalizer {
+class ExampleNodeNormalizer extends ContentEntityNormalizer {
 
   /**
    * The interface or class that this Normalizer supports.

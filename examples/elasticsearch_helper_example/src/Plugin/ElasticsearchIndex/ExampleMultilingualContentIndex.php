@@ -1,11 +1,12 @@
 <?php
 
-namespace Drupal\elasticsearch_helper_test\Plugin\ElasticsearchIndex;
+namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
+use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
+use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -13,23 +14,23 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @ElasticsearchIndex(
- *   id = "elasticsearch_helper_test_node_index",
- *   label = @Translation("Multilingual node index"),
- *   indexName = "elasticsearch_helper_test_node_index-{langcode}",
+ *   id = "example_multilingual_content_index",
+ *   label = @Translation("Example multilingual content index"),
+ *   indexName = "example-multilingual-{langcode}",
  *   entityType = "node"
  * )
  */
-class MultilingualNodeIndex extends ElasticsearchIndexBase {
+class ExampleMultilingualContentIndex extends IndexBase {
 
   /**
-   * Language manager instance.
+   * The language manager instance.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
 
   /**
-   * MultilingualContentIndex constructor.
+   * ExampleMultilingualContentIndex constructor.
    *
    * @param array $configuration
    * @param $plugin_id
@@ -62,10 +63,10 @@ class MultilingualNodeIndex extends ElasticsearchIndexBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\node\Entity\Node $source
    */
   public function serialize($source, $context = []) {
-    /** @var \Drupal\node\NodeInterface $source */
-
     $data = parent::serialize($source, $context);
 
     // Add the language code to be used as a token.
@@ -100,31 +101,68 @@ class MultilingualNodeIndex extends ElasticsearchIndexBase {
    * {@inheritdoc}
    */
   public function setup() {
-    // Create one index per language, so that we can have different analyzers.
-    foreach ($this->languageManager->getLanguages() as $langcode => $language) {
-      // Get index name.
-      $index_name = $this->getIndexName(['langcode' => $langcode]);
+    try {
+      // Create one index per language, so that we can have different analyzers.
+      foreach ($this->languageManager->getLanguages() as $langcode => $language) {
+        // Get index name.
+        $index_name = $this->getIndexName(['langcode' => $langcode]);
 
-      // Check if index exists.
-      if (!$this->client->indices()->exists(['index' => $index_name])) {
-        // Get index definition.
-        $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
-        // Create index.
-        $this->createIndex($index_name, $index_definition);
+        // Check if index exists.
+        if (!$this->client->indices()->exists(['index' => $index_name])) {
+          // Get index definition.
+          $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
+
+          // Get analyzer for the language.
+          $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+
+          // Put analyzer parameter to all "text" fields in the mapping.
+          foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
+            if ($property->getDataType()->getType() == 'text') {
+              $property->addOption('analyzer', $analyzer);
+            }
+          }
+
+          $this->createIndex($index_name, $index_definition);
+        }
       }
+    }
+    catch (\Throwable $e) {
+      $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
+      $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE, $request_wrapper);
     }
   }
 
   /**
    * {@inheritdoc}
    */
+  public function getIndexDefinition(array $context = []) {
+    // Get index definition.
+    $index_definition = parent::getIndexDefinition($context);
+
+    // Get analyzer for the language.
+    $analyzer = ElasticsearchLanguageAnalyzer::get($context['langcode']);
+
+    // Add custom settings.
+    $index_definition->getSettingsDefinition()->addOptions([
+      'analysis' => [
+        'analyzer' => [
+          $analyzer => [
+            'tokenizer' => 'standard',
+          ],
+        ],
+      ],
+    ]);
+
+    return $index_definition;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getMappingDefinition(array $context = []) {
+    // Define only one field. Other fields will be created dynamically.
     return MappingDefinition::create()
-      ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', FieldDefinition::create('keyword'))
-      ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', FieldDefinition::create('boolean'))
-      ->addProperty('langcode', FieldDefinition::create('keyword'));
+      ->addProperty('title', FieldDefinition::create('text'));
   }
 
 }

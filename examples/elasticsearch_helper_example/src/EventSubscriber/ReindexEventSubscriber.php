@@ -8,13 +8,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ReindexEventSubscriber
+ *
+ * This example event subscriber shows how modules can intercept Elasticsearch
+ * Helper events and modify the behaviour of the operation.
  */
 class ReindexEventSubscriber implements EventSubscriberInterface {
 
   /**
    * @var string
    */
-  protected $ignoredPluginId = 'time_based_index';
+  protected $ignoredPluginId = 'example_time_based_index';
 
   /**
    * {@inheritdoc}
@@ -27,14 +30,14 @@ class ReindexEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Replaces the callback to dummy callback.
+   * Replaces the callback to dummy callback on reindex operation.
    *
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent $event
    */
   public function onReindex(ElasticsearchHelperCallbackEvent $event) {
     $plugin = $event->getPluginInstance();
 
-    // Change the reindex callback for "time_based_index" index plugin.
+    // Change the reindex callback for "example_time_based_index" index plugin.
     if ($plugin->getPluginId() == $this->ignoredPluginId) {
       $callback = &$event->getCallback();
       $callback = [$this, 'reindexNone'];

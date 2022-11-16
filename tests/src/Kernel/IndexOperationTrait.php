@@ -13,7 +13,7 @@ trait IndexOperationTrait {
   /**
    * Defines multilingual node index prefix.
    */
-  protected $multilingualNodeIndexPrefix = 'elasticsearch_helper_test_node_index-';
+  protected $multilingualNodeIndexPrefix = 'test-multilingual-node-index-';
 
   /**
    * An HTTP request with curl.
@@ -33,7 +33,7 @@ trait IndexOperationTrait {
   protected function httpRequest($path, $method = 'GET', array $headers = [], $body = NULL) {
     $path = ltrim($path, '/');
     $host = $this->getHost();
-    $url  = sprintf('%s://%s:%d/%s', $this->getScheme(), $host['host'], $host['port'], $path);
+    $url = sprintf('%s://%s:%d/%s', $this->getScheme(), $host['host'], $host['port'], $path);
 
     // Query elasticsearch.
     // Use Curl for now because http client middleware fails in KernelTests
@@ -129,7 +129,7 @@ trait IndexOperationTrait {
   protected function getMappingDefinitions() {
     $result = [];
 
-    $result['elasticsearch_helper_test_simple_node_index'] = MappingDefinition::create()
+    $result['test-simple-node-index'] = MappingDefinition::create()
       ->addProperty('id', FieldDefinition::create('integer'))
       ->addProperty('uuid', FieldDefinition::create('keyword'))
       ->addProperty('title', FieldDefinition::create('text'))
@@ -187,11 +187,11 @@ trait IndexOperationTrait {
    * Creates index mapping.
    *
    * @param $index_name
-   * @param $mapping_definition
+   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition $mapping_definition
    *
    * @return array
    */
-  protected function createIndex($index_name, $mapping_definition) {
+  protected function createIndex($index_name, MappingDefinition $mapping_definition) {
     // Put mapping.
     return $this->httpRequest(
       $index_name,
@@ -218,7 +218,7 @@ trait IndexOperationTrait {
    * @return string
    */
   protected function getSimpleNodeIndexName() {
-    return 'elasticsearch_helper_test_simple_node_index';
+    return 'test-simple-node-index';
   }
 
 }

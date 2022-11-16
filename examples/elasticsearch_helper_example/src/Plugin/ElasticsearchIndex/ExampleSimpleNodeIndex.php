@@ -7,14 +7,13 @@ use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 
 /**
  * @ElasticsearchIndex(
- *   id = "simple_node_index",
- *   label = @Translation("Simple node index"),
- *   indexName = "simple",
- *   typeName = "node",
+ *   id = "example_simple_node_index",
+ *   label = @Translation("Example simple node index"),
+ *   indexName = "example-simple",
  *   entityType = "node"
  * )
  */
-class SimpleNodeIndex extends IndexBase {
+class ExampleSimpleNodeIndex extends IndexBase {
 
   /**
    * {@inheritdoc}
