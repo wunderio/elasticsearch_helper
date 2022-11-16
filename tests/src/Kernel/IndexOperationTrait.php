@@ -75,14 +75,20 @@ trait IndexOperationTrait {
         'port' => getenv('ELASTICSEARCH_HELPER_TEST_PORT') ?: '9200',
       ]
     ]);
-    $settings->set('authentication.method', 'basic_auth');
-    $settings->set('authentication.configuration.basic_auth', [
-      'user' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_USER') ?: NULL,
-      'password' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_PASSWORD') ?: NULL,
-    ]);
+
+    $basic_auth_user = getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_USER') ?: '';
+
+    if ($basic_auth_user) {
+      $settings->set('authentication.method', 'basic_auth');
+      $settings->set('authentication.configuration.basic_auth', [
+        'user' => $basic_auth_user,
+        'password' => getenv('ELASTICSEARCH_HELPER_TEST_BASIC_AUTH_PASSWORD') ?: '',
+      ]);
+    }
+
     $settings->set('ssl', [
-      'certificate' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_CERTIFICATE') ?: NULL,
-      'skip_verification' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_SKIP_VERIFICATION') ?: NULL,
+      'certificate' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_CERTIFICATE') ?: '',
+      'skip_verification' => getenv('ELASTICSEARCH_HELPER_TEST_SSL_SKIP_VERIFICATION') ?: FALSE,
     ]);
 
     // Save the config.
