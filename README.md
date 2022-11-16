@@ -1,9 +1,9 @@
 # Elasticsearch Helper
 
-[![<wunderio>](https://circleci.com/gh/wunderio/elasticsearch_helper/tree/8.x-7.x.svg?style=svg)](<https://app.circleci.com/pipelines/github/wunderio/elasticsearch_helper?branch=8.x-7.x>)
+[![<wunderio>](https://circleci.com/gh/wunderio/elasticsearch_helper/tree/7.x.svg?style=svg)](<https://app.circleci.com/pipelines/github/wunderio/elasticsearch_helper?branch=8.x-7.x>)
 
 ## System requirements
-* Drupal > 9.4
+* Drupal ^9.4
 * [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php) library
 
 ## Installation
