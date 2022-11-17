@@ -3,6 +3,9 @@
     "description": "Provide tools to integrate Elasticsearch with Drupal.",
     "type": "drupal-module",
     "license": "GPL-2.0+",
+    "require": {
+        "drupal/core": "^9.4"
+    },
     "extra": {
         "drush": {
             "services": {
