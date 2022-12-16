@@ -4,6 +4,16 @@ commands:
   prepare-drupal:
     steps:
       - run:
+          name: Set drush in PATH
+          command: |
+            echo 'export PATH=/home/circleci/project/drupal/vendor/drush/drush:"$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+      - run:
+          name: Versions
+          command: |
+            php --version
+            composer --version
+      - run:
           name: Install Dependencies
           command: |
             cd drupal && COMPOSER_MEMORY_LIMIT=-1 composer install -n --prefer-dist --ignore-platform-reqs
@@ -15,7 +25,7 @@ commands:
           command: |
             cd drupal && drush si --db-url=mysql://root:dbpassword@127.0.0.1:3306/drupal --account-pass=admin -y
       - run:
-          name: Enable scannning of test module directory
+          name: Enable scanning of test module directory
           command: |
             chmod ug+w drupal/web/sites/default/settings.php
             echo '$settings["extension_discovery_scan_tests"] = TRUE;' >> drupal/web/sites/default/settings.php
@@ -59,23 +69,25 @@ jobs:
         type: string
       drush_version:
         type: string
-        default: "11"
+        default: "^11"
       prophecy_phpunit_version:
         type: string
         default: "^2"
     docker:
       - image: cimg/php:<< parameters.php_version >>
-      - image: wunderio/circleci-codeception-base
     steps:
-      - run: php --version
-      - run: composer --version
+      - run:
+          name: Versions
+          command: |
+            php --version
+            composer --version
       - run:
           name: Create Drupal
           command: |
             composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer remove --no-update drupal/core-recommended
-            COMPOSER_MEMORY_LIMIT=-1 composer require --update-with-all-dependencies drupal/core
+            COMPOSER_MEMORY_LIMIT=-1 composer require --update-with-all-dependencies drupal/core:<< parameters.core_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:<< parameters.core_dev_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:<< parameters.prophecy_phpunit_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
@@ -90,13 +102,16 @@ jobs:
       es_version:
         type: string
         default: "8.4.3"
+      php_version:
+        type: string
+        default: "8.1"
       cache_name:
         type: string
       security_enabled:
         type: boolean
         default: false
     docker:
-      - image: wunderio/circleci-codeception-base
+      - image: cimg/php:<< parameters.php_version >>
         environment:
           ELASTICSEARCH_HELPER_TEST_SCHEME: http
           ELASTICSEARCH_HELPER_TEST_HOST: localhost
@@ -133,20 +148,30 @@ workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-drupal-940-es-8
-          cache_name: drupal-940-es-8
-          core_version: "9.4.0"
+          name: build-drupal-9-es-8
+          cache_name: drupal-9-es-8
+          core_version: "^9"
           core_dev_version: "^9"
+      - build:
+          name: build-drupal-10-es-8
+          cache_name: drupal-10-es-8
+          core_version: "^10.0"
+          core_dev_version: "^10.0"
       - build:
           name: build-drupal-latest-es-8
           cache_name: drupal-latest-es-8
-          core_version: "^9"
-          core_dev_version: "^9"
+          core_version: "^10"
+          core_dev_version: "^10"
       - test-es:
-          name: test-drupal-940-es-8
-          cache_name: drupal-940-es-8
+          name: test-drupal-9-es-8
+          cache_name: drupal-9-es-8
           requires:
-            - build-drupal-940-es-8
+            - build-drupal-9-es-8
+      - test-es:
+          name: test-drupal-10-es-8
+          cache_name: drupal-10-es-8
+          requires:
+            - build-drupal-10-es-8
       - test-es:
           name: test-drupal-latest-es-8
           cache_name: drupal-latest-es-8

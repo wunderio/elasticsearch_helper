@@ -15,7 +15,7 @@ class EntityOpsTest extends WebDriverTestBase {
   /**
    * @var string
    */
-  protected $defaultTheme = 'stable';
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

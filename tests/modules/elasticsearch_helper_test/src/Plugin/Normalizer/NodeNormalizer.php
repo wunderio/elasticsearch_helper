@@ -25,10 +25,10 @@ class NodeNormalizer extends ContentEntityNormalizer {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\node\Entity\Node $object
    */
-  public function normalize($object, $format = NULL, array $context = []) {
-    /** @var \Drupal\node\Entity\Node $object */
-
+  public function normalize($object, $format = NULL, array $context = []): array|string|int|float|bool|\ArrayObject|NULL {
     $data = [
       'id' => $object->id(),
       'uuid' => $object->uuid(),
