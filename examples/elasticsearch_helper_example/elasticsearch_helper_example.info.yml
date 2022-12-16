@@ -1,7 +1,7 @@
 name: Elasticsearch Helper Example
 type: module
 description: Example plugin implementation for the Elasticsearch Helper module.
-core_version_requirement: ^9.4
+core_version_requirement: ^9.4 || ^10
 hidden: true
 package: Elasticsearch Helper
 dependencies:
