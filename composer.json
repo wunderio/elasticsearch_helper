@@ -2,9 +2,9 @@
     "name": "drupal/elasticsearch_helper",
     "description": "Provide tools to integrate Elasticsearch with Drupal.",
     "type": "drupal-module",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "require": {
-        "drupal/core": "^9.4 || ^10"
+        "elasticsearch/elasticsearch": "^8.0"
     },
     "extra": {
         "drush": {

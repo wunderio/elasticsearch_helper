@@ -8,14 +8,11 @@
 
 ## Installation
 
-The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php) library to
-communicate with Elasticsearch server. Please make sure you install the version of the library compatible with
-the version of the server (see the [compatibility matrix](https://github.com/elastic/elasticsearch-php#version-matrix)).
-
-To install the library for use with Elasticsearch 8.0:
-```
-composer require elasticsearch/elasticsearch:^8.0
-```
+The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php)
+library to communicate with Elasticsearch server. The recommended installation
+method for this module is with composer, which will automatically install
+the correct version of the library. See how to [install modules with
+Composer](https://www.drupal.org/docs/develop/using-composer/manage-dependencies#managing-contributed).
 
 ## Drush commands
 
