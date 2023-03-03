@@ -22,7 +22,6 @@ use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
-use stdClass;
 
 /**
  * Base class for Elasticsearch index plugins.
@@ -571,7 +570,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
           $callback = [$this->client, 'deleteByQuery'];
           $request_params = [
             'index' => $index,
-            'body' => ['query' => ['match_all' => new stdClass()]]
+            'body' => ['query' => ['match_all' => new \stdClass()]]
           ];
 
           $request_wrapper = $this->createRequest($operation, $callback, $request_params);
