@@ -147,4 +147,55 @@ class ElasticsearchHelperCommands extends DrushCommands {
     $this->elasticsearchPluginManager->reindex($indices, $context);
   }
 
+  /**
+   * Truncates Elasticsearch indices.
+   *
+   * @param string|null $indices
+   *   Comma separated list of indices to be truncated
+   *
+   * @command elasticsearch:helper:truncate
+   * @aliases esht,elasticsearch-helper-truncate
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  public function helperTruncate($indices = NULL) {
+    // Indices can be specified with a comma-separate value.
+    if ($indices && is_string($indices)) {
+      $indices = explode(',', $indices);
+    }
+
+    foreach ($this->elasticsearchPluginManager->getDefinitions() as $plugin) {
+      $plugin_id = $plugin['id'];
+
+      if (!$indices || in_array($plugin_id, $indices)) {
+        /** @var \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin */
+        $plugin = $this->elasticsearchPluginManager->createInstance($plugin_id);
+
+        $rows = [];
+
+        try {
+          foreach ($plugin->getExistingIndices() as $index) {
+            $rows[] = [$index];
+          }
+        }
+        catch (\Throwable $e) {
+        }
+
+        if (count($rows)) {
+          $this->output()->writeln(dt('The following indices exist in Elasticsearch:'));
+          $table = new Table($this->output());
+          $table->addRows($rows);
+          $table->render();
+          if ($this->io()->confirm(dt('Are you sure you want to truncate them?'))) {
+            $plugin->truncate();
+          }
+        }
+        else {
+          $t_args = ['@plugin_id' => $plugin_id];
+          $this->output()->writeln(dt('There are no indices to be truncated for "@plugin_id" index plugin.', $t_args));
+        }
+      }
+    }
+  }
+
 }

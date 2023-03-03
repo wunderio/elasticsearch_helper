@@ -22,6 +22,7 @@ use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 /**
  * Base class for Elasticsearch index plugins.
@@ -543,6 +544,49 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       catch (\Throwable $e) {
         $this->dispatchOperationErrorEvent($e, $operation);
       }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function truncate() {
+    try {
+      $operation = ElasticsearchOperations::INDEX_TRUNCATE;
+
+      // Quietly get existing indices.
+      try {
+        $indices = $this->getExistingIndices();
+      }
+      catch (\Throwable $e) {
+        $indices = [];
+      }
+
+      if ($indices) {
+        $index = $this->indexNamePattern();
+        $operation_event = $this->dispatchOperationEvent($operation, $index);
+
+        if ($operation_event->isOperationAllowed()) {
+          // Truncate matching indices.
+          $callback = [$this->client, 'deleteByQuery'];
+          $request_params = [
+            'index' => $index,
+            'body' => ['query' => ['match_all' => new stdClass()]]
+          ];
+
+          $request_wrapper = $this->createRequest($operation, $callback, $request_params);
+          $request_wrapper->execute();
+
+          // Notify user that indices have been truncated.
+          foreach ($indices as $index_name) {
+            $this->messenger()->addStatus($this->t('Index @indexName was truncated.', ['@indexName' => $index_name]));
+          }
+        }
+      }
+    }
+    catch (\Throwable $e) {
+      $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
+      $this->dispatchOperationErrorEvent($e, $operation, $request_wrapper);
     }
   }
 

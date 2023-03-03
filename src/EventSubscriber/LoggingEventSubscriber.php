@@ -113,6 +113,11 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
 
       $this->logger->notice($error_message, $t_args);
     }
+    elseif ($operation == ElasticsearchOperations::INDEX_TRUNCATE) {
+      $t_args = $event->getMessageContextArguments();
+
+      $this->logger->notice('Elasticsearch index matching "@index" could not be truncated due to the following error: @error. ', $t_args);
+    }
     // Log the error otherwise.
     else {
       // Do not log no-nodes-available error twice.
