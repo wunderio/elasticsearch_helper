@@ -1,4 +1,4 @@
-id: elasticsearch_helper_reindex_node
+id: elasticsearch_helper_reindex_node_action
 label: 'Re-index content'
 status: true
 langcode: en

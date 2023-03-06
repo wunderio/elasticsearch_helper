@@ -6,7 +6,7 @@ use Drupal\Core\Action\ActionBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
 /**
  * Elasticsearch entity re-index action.
@@ -14,25 +14,38 @@ use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager;
  * @Action(
  *   id = "elasticsearch_helper_reindex",
  *   label = @Translation("Re-index entity"),
+ *   confirm_form_route_name = "elasticsearch_helper.reindex_content_confirm"
  * )
  */
 class ReindexAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var ElasticsearchIndexManager
+   * The tempstore factory.
+   *
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
-  protected $elasticsearchPluginManager;
+  protected $tempStoreFactory;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
 
   /**
    * Constructs an ReindexAction object.
    *
-   * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager $manager
-   *   The Elasticsearch index plugin manager.
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
+   *   The tempstore factory.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   Current user.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ElasticsearchIndexManager $manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PrivateTempStoreFactory $temp_store_factory, AccountInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->elasticsearchPluginManager = $manager;
+    $this->tempStoreFactory = $temp_store_factory;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -43,16 +56,23 @@ class ReindexAction extends ActionBase implements ContainerFactoryPluginInterfac
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('plugin.manager.elasticsearch_index.processor')
+      $container->get('tempstore.private'),
+      $container->get('current_user')
     );
   }
-
 
   /**
    * {@inheritdoc}
    */
-  public function execute($entity = NULL) {
-    $this->elasticsearchPluginManager->indexEntity($entity);
+  public function executeMultiple(array $entities) {
+    $this->tempStoreFactory->get('content_operations_reindex')->set($this->currentUser->id(), $entities);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute($object = NULL) {
+    $this->executeMultiple([$object]);
   }
 
   /**
