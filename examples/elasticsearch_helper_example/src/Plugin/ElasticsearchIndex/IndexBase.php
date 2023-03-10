@@ -38,7 +38,42 @@ abstract class IndexBase extends ElasticsearchIndexBase {
     // a specific normalizer class is used to normalize the object.
     $data = $this->getNormalizer()->normalize($source, 'elasticsearch_helper', $context);
 
+    if ($this->isMultilingual()) {
+      // Add the language code to be used as a token.
+      $data['langcode'] = $source->language()->getId();
+    }
+
     return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function index($source) {
+    if ($this->isMultilingual() && $source->getEntityType()->isTranslatable()) {
+      foreach ($source->getTranslationLanguages() as $langcode => $language) {
+        $translation = $source->getTranslation($langcode);
+        parent::index($translation);
+      }
+    }
+    else {
+      parent::index($source);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete($source) {
+    if ($this->isMultilingual() && $source->getEntityType()->isTranslatable()) {
+      foreach ($source->getTranslationLanguages() as $langcode => $language) {
+        $translation = $source->getTranslation($langcode);
+        parent::delete($translation);
+      }
+    }
+    else {
+      parent::delete($source);
+    }
   }
 
   /**
