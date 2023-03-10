@@ -77,4 +77,9 @@ class ElasticsearchOperations {
    */
   const QUERY_MULTI_SEARCH = 'query.msearch';
 
+  /**
+   * Defines index truncate operation.
+   */
+  const INDEX_TRUNCATE = 'index.truncate';
+
 }

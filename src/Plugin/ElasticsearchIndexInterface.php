@@ -131,4 +131,9 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
    */
   public function reindex(array $context = []);
 
+  /**
+   * Truncate all related Elasticsearch indices.
+   */
+  public function truncate();
+
 }

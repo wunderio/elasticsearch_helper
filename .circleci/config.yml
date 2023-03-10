@@ -86,6 +86,10 @@ jobs:
           command: |
             composer create-project drupal/recommended-project:<< parameters.core_version >> drupal
             cd drupal
+            COMPOSER_MEMORY_LIMIT=-1 composer config --no-plugins allow-plugins.composer/installers true
+            COMPOSER_MEMORY_LIMIT=-1 composer config --no-plugins allow-plugins.php-http/discovery true
+            COMPOSER_MEMORY_LIMIT=-1 composer remove --no-update drupal/core-recommended
+            COMPOSER_MEMORY_LIMIT=-1 composer require --update-with-all-dependencies drupal/core:<< parameters.core_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drupal/core-dev:<< parameters.core_dev_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpspec/prophecy-phpunit:<< parameters.prophecy_phpunit_version >>
             COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:<< parameters.drush_version >>
