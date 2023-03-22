@@ -3,7 +3,9 @@
 namespace Drupal\elasticsearch_helper_test_subscriber\EventSubscriber;
 
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent;
+use Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\Core\State\StateInterface;
@@ -36,11 +38,12 @@ class TestElasticsearchHelperEvents implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     $events = [];
     $events[ElasticsearchEvents::OPERATION_REQUEST_RESULT][] = ['onRequestResult'];
+    $events[ElasticsearchHelperEvents::REINDEX][] = ['onReIndex'];
     return $events;
   }
 
   /**
-   * Logs a message upon successful Elasticsearch operation.
+   * Updates state upon successful Elasticsearch operation.
    *
    * @param \Drupal\elasticsearch_helper\Event\ElasticsearchOperationRequestResultEvent $event
    */
@@ -83,7 +86,21 @@ class TestElasticsearchHelperEvents implements EventSubscriberInterface {
         $this->state->set('query_msearch', $result['hits']['total']['value']);
       }
     }
+  }
 
+  /**
+   * Updates state upon successful Elasticsearch event.
+   *
+   * @param \Drupal\elasticsearch_helper\Event\ElasticsearchHelperCallbackEvent $event
+   */
+  public function onReIndex(ElasticsearchHelperCallbackEvent $event) {
+    $plugin = $event->getPluginInstance();
+    $plugins = [];
+    if ($this->state->get('reindex_plugins')) {
+      $plugins = $this->state->get('reindex_plugins');
+    }
+    $plugins[] = $plugin->getPluginId();
+    $this->state->set('reindex_plugins', $plugins);
   }
 
 }

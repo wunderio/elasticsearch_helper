@@ -97,6 +97,7 @@ class EventSubscriberTest extends EntityKernelTestBase {
       'document_upsert',
       'document_delete',
       'query_search',
+      'reindex_plugins',
     ]);
 
     sleep(1);
@@ -137,7 +138,7 @@ class EventSubscriberTest extends EntityKernelTestBase {
   public function testDocumentIndex() {
     $this->index_plugin_manager->indexEntity($this->node);
     sleep(1);
-    $this->assertEquals($this->node->id(), $this->container->get('state')->get('document_index'), 'Document index event triggered successfully');
+    $this->assertEquals($this->node->id(), $this->container->get('state')->get('document_index'), 'Document index event triggered');
   }
 
   /**
@@ -147,7 +148,7 @@ class EventSubscriberTest extends EntityKernelTestBase {
     $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
     $this->assertEquals($this->node->getTitle(), $response['hits']['hits'][0]['_source']['title'], 'Node found in index');
     $this->index_plugin_manager->createInstance('test_multilingual_node_index')->get($this->node);
-    $this->assertEquals($this->node->getTitle(), $this->container->get('state')->get('document_get'), 'Document get event triggered successfully');
+    $this->assertEquals($this->node->getTitle(), $this->container->get('state')->get('document_get'), 'Document get event triggered');
   }
 
   /**
@@ -159,7 +160,7 @@ class EventSubscriberTest extends EntityKernelTestBase {
     $this->index_plugin_manager->createInstance('test_multilingual_node_index')->upsert($this->node);
     // Wait for Elasticsearch indexing to complete.
     sleep(1);
-    $this->assertEquals($this->node->getTitle(), $this->container->get('state')->get('document_upsert'), 'Document upsert event triggered successfully');
+    $this->assertEquals($this->node->getTitle(), $this->container->get('state')->get('document_upsert'), 'Document upsert event triggered');
   }
 
   /**
@@ -172,7 +173,7 @@ class EventSubscriberTest extends EntityKernelTestBase {
     $this->node->delete();
     // Wait for Elasticsearch indexing to complete.
     sleep(1);
-    $this->assertEquals($this->node->id(), $this->container->get('state')->get('document_delete'), 'Document delete event triggered successfully');
+    $this->assertEquals($this->node->id(), $this->container->get('state')->get('document_delete'), 'Document delete event triggered');
     $response = $this->queryIndex($this->node->id(), $this->getMultilingualNodeIndexName('en'));
     $this->assertEmpty($response['hits']['hits'], 'Document not found');
   }
@@ -190,6 +191,16 @@ class EventSubscriberTest extends EntityKernelTestBase {
       $total = $response['hits']['total']['value'];
     }
     $this->assertEquals($this->container->get('state')->get('query_search'), $total, 'Total documents in index');
+  }
+
+  /**
+   * Test re-index.
+   */
+  public function testReindex() {
+    $this->index_plugin_manager->reindex();
+    sleep(1);
+    $plugins = $this->container->get('state')->get('reindex_plugins');
+    $this->assertContains('test_multilingual_node_index', $plugins, 'Re-index event triggered');
   }
 
 }
