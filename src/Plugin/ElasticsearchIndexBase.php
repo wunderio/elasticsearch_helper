@@ -282,6 +282,28 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   /**
    * {@inheritdoc}
    */
+  public function checkMappingStatus() {
+
+    $mapping_definition = $this->getMappingDefinition()->toArray();
+    $defined_properties = $mapping_definition['properties'];
+
+    $params = ['index' => $this->getExistingIndices()];
+    $existing_mapping = $this->client->indices()->getMapping($params);
+    $differ = [];
+    foreach ($existing_mapping as $index_name => $values) {
+      $props = $values['mappings']['properties'];
+      foreach ($props as $key => $data) {
+        if (isset($defined_properties[$key]) && $defined_properties[$key]['type'] != $data['type']) {
+          $differ[$this->pluginId][] = $index_name;
+        }
+      }
+    }
+    return $differ;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function drop() {
     try {
       $operation = ElasticsearchOperations::INDEX_DROP;

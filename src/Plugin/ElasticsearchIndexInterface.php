@@ -87,6 +87,13 @@ interface ElasticsearchIndexInterface extends PluginInspectionInterface {
   public function getExistingIndices();
 
   /**
+   * Compares mapping definitions between code and ES server.
+   *
+   * @return array
+   */
+  public function checkMappingStatus();
+
+  /**
    * Delete all related Elasticsearch indices.
    */
   public function drop();
