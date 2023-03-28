@@ -8,7 +8,6 @@
 
 ## Installation
 
-<<<<<<< HEAD
 The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php)
 library to communicate with Elasticsearch server. The recommended installation
 method for this module is with composer, which will automatically install
@@ -36,4 +35,14 @@ Use the following command before any indexing:
 
 ```
 drush elasticsearch-helper-setup
+```
+
+## Other
+
+To stop logging information about a document that doesn't exist when an entity
+is deleted and that document is not present in the index, add the
+following line to the settings.php file:
+
+```
+$settings['elasticsearch_helper.silent_delete'] = TRUE;
 ```
