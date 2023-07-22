@@ -8,6 +8,32 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function elasticsearch_helper_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the elasticsearch_helper module.
+    case 'help.page.elasticsearch_helper':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Elasticsearch Helper is a helper module to work
+      with Elasticsearch on Drupal project.') . '</p>';
+      $output .= '<p>' . t('Whereas modules like elasticsearch_connector and
+      other search_api plugins try to abstract away the actual API of Elasticsearch,
+      this module tries to embrace it instead. It provides some common tools on
+      which to build your own integration.') . '</p>';
+      $output .= '<p>' . t('The module defines an "ElasticsearchIndex" plugin
+      type and a base implementation for you to extend. Unless you define your
+      own plugin, this module will not do anything. Take a look at the included
+      elasticsearch_helper_example module for example plugins.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
 
 /**
  * Implements hook_entity_insert().
