@@ -8,7 +8,6 @@
 
 ## Installation
 
-<<<<<<< HEAD
 The module requires [Elasticsearch-PHP](https://github.com/elastic/elasticsearch-php)
 library to communicate with Elasticsearch server. The recommended installation
 method for this module is with composer, which will automatically install
