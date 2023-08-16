@@ -17,7 +17,7 @@ services:
 
   elasticsearch_helper.logging_event_subscriber:
     class: Drupal\elasticsearch_helper\EventSubscriber\LoggingEventSubscriber
-    arguments: ['@logger.channel.elasticsearch_helper']
+    arguments: ['@logger.channel.elasticsearch_helper', '@settings']
     tags:
       - { name: event_subscriber }
 
