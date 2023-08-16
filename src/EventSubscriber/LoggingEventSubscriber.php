@@ -9,6 +9,7 @@ use Drupal\elasticsearch_helper\Event\ElasticsearchOperations;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Drupal\Core\Site\Settings;
 
 /**
  * Logs an error when throwable is thrown during Elasticsearch operation.
@@ -21,12 +22,19 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
   protected $logger;
 
   /**
+   * @var \Drupal\Core\Site\Settings
+   */
+  protected $settings;
+
+  /**
    * LoggingEventSubscriber constructor.
    *
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \Drupal\Core\Site\Settings $settings
    */
-  public function __construct(LoggerInterface $logger) {
+  public function __construct(LoggerInterface $logger, Settings $settings) {
     $this->logger = $logger;
+    $this->settings = $settings;
   }
 
   /**
@@ -105,18 +113,15 @@ class LoggingEventSubscriber implements EventSubscriberInterface {
       $this->logger->error($error_message, $t_args);
     }
     elseif ($operation == ElasticsearchOperations::DOCUMENT_DELETE) {
-      $t_args = $event->getMessageContextArguments();
+      if (!$this->settings->get('elasticsearch_helper.silent_delete')) {
+        $t_args = $event->getMessageContextArguments();
 
-      $error_message = $request_wrapper && $request_wrapper->getDocumentId()
-        ? 'Could not delete document "@id" from "@index" Elasticsearch index due to the following error: @error'
-        : '@error';
+        $error_message = $request_wrapper && $request_wrapper->getDocumentId()
+          ? 'Could not delete document "@id" from "@index" Elasticsearch index due to the following error: @error'
+          : '@error';
 
-      $this->logger->notice($error_message, $t_args);
-    }
-    elseif ($operation == ElasticsearchOperations::INDEX_TRUNCATE) {
-      $t_args = $event->getMessageContextArguments();
-
-      $this->logger->notice('Elasticsearch index matching "@index" could not be truncated due to the following error: @error. ', $t_args);
+        $this->logger->notice($error_message, $t_args);
+      }
     }
     // Log the error otherwise.
     else {
