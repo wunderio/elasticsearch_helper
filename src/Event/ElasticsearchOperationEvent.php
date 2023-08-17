@@ -48,16 +48,28 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
   protected $object;
 
   /**
+   * Additional contextual information pertinent to the operation.
+   *
+   * For index create operations, the context variable can be an array
+   * containing the index settings object.
+   *
+   * @var mixed|null
+   */
+  protected $context;
+
+  /**
    * ElasticsearchOperationEvent constructor.
    *
    * @param $operation
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param mixed|null $object
+   * @param mixed|null $context
    */
-  public function __construct($operation, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
+  public function __construct($operation, ElasticsearchIndexInterface $plugin_instance, $object = NULL, $context = NULL) {
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
     $this->object = $object;
+    $this->context = $context;
   }
 
   /**
@@ -78,6 +90,15 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns the context for the operation.
+   *
+   * @return mixed|null
+   */
+  public function &getContext() {
+    return $this->context;
   }
 
   /**

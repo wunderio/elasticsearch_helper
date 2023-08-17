@@ -70,6 +70,7 @@ class IndexMappingTest extends EntityKernelTestBase {
     $this->assertEquals('keyword', $properties['uuid']['type'], 'UUID field is found');
     $this->assertEquals('text', $properties['title']['type'], 'Title field is found');
     $this->assertEquals('boolean', $properties['status']['type'], 'Status field is found');
+    $this->assertEquals('keyword', $properties['extra']['type'], 'Extra field is found');
   }
 
   /**

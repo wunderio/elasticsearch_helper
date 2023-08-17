@@ -4,3 +4,7 @@ services:
     tags:
       - { name: normalizer, priority: 50 }
     arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+  elasticsearch_helper_test.alter_mapping_event_subscriber:
+    class: Drupal\elasticsearch_helper_test\EventSubscriber\AlterMappingEventSubscriber
+    tags:
+      - { name: event_subscriber }

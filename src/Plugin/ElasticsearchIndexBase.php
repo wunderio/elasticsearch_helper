@@ -161,12 +161,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Creates Elasticsearch operation event.
    *
    * @param $operation
-   * @param mixed|null $source
+   * @param mixed|null $object
+   * @param mixed|null $context
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent
    */
-  protected function dispatchOperationEvent($operation, $source = NULL) {
-    $event = new ElasticsearchOperationEvent($operation, $this, $source);
+  protected function dispatchOperationEvent($operation, $object = NULL, $context = NULL) {
+    $event = new ElasticsearchOperationEvent($operation, $this, $object, $context);
     $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION);
 
     return $event;
@@ -178,12 +179,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @param \Throwable $error
    * @param $operation
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null $request_wrapper
-   * @param mixed|null $source
+   * @param mixed|null $object
+   * @param mixed|null $context
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
-  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $source = NULL) {
-    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper, $source);
+  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL, $context = NULL) {
+    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper, $object, $context);
     $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION_ERROR);
 
     return $event;
@@ -234,7 +236,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function createIndex($index_name, IndexDefinition $index_definition) {
     try {
       $operation = ElasticsearchOperations::INDEX_CREATE;
-      $operation_event = $this->dispatchOperationEvent($operation, $index_name);
+      $context = ['index_definition' => $index_definition];
+      $operation_event = $this->dispatchOperationEvent($operation, $index_name, $context);
 
       if ($operation_event->isOperationAllowed()) {
         $callback = [$this->client->indices(), 'create'];

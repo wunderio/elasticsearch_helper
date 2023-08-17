@@ -53,11 +53,18 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $requestWrapper;
 
   /**
-   * Index-able object.
+   * An object on which the operation is performed.
    *
    * @var mixed|null
    */
   protected $object;
+
+  /**
+   * Additional contextual information pertinent to the operation.
+   *
+   * @var mixed|null
+   */
+  protected $context;
 
   /**
    * ElasticsearchOperationErrorEvent constructor.
@@ -67,13 +74,15 @@ class ElasticsearchOperationErrorEvent extends Event {
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
    * @param mixed|null $object
+   * @param mixed|null $context
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL, $context = NULL) {
     $this->error = $error;
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
     $this->requestWrapper = $request_wrapper;
     $this->object = $object;
+    $this->context = $context;
   }
 
   /**
@@ -119,6 +128,15 @@ class ElasticsearchOperationErrorEvent extends Event {
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns the context for the operation.
+   *
+   * @return mixed|null
+   */
+  public function &getContext() {
+    return $this->context;
   }
 
   /**
