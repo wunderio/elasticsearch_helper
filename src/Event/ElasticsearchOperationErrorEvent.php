@@ -29,7 +29,7 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $error;
 
   /**
-   * Elasticsearch operation.
+   * The Elasticsearch operation.
    *
    * @var string
    */
@@ -53,27 +53,44 @@ class ElasticsearchOperationErrorEvent extends Event {
   protected $requestWrapper;
 
   /**
-   * Index-able object.
+   * An object on which the operation is performed.
    *
    * @var mixed|null
    */
   protected $object;
 
   /**
+   * Additional metadata related to the object.
+   *
+   * For index create operations, the metadata variable can be an array
+   * containing the index settings object.
+   *
+   * @var array
+   */
+  protected $metadata;
+
+  /**
    * ElasticsearchOperationErrorEvent constructor.
    *
    * @param \Throwable $error
    * @param $operation
+   *   The operation being performed.
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
-   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface $request_wrapper
+   *   The Elasticsearch index plugin instance.
+   * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null $request_wrapper
+   *   The request wrapper instance.
    * @param mixed|null $object
+   *   The index-able object or an index name.
+   * @param array $metadata
+   *   The metadata related to the object.
    */
-  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL) {
+  public function __construct(\Throwable $error, $operation, ElasticsearchIndexInterface $plugin_instance, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL, $metadata = []) {
     $this->error = $error;
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
     $this->requestWrapper = $request_wrapper;
     $this->object = $object;
+    $this->metadata = $metadata;
   }
 
   /**
@@ -95,14 +112,16 @@ class ElasticsearchOperationErrorEvent extends Event {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the Elasticsearch index plugin instance.
+   *
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
    */
   public function getPluginInstance() {
     return $this->pluginInstance;
   }
 
   /**
-   * Returns Elasticsearch request wrapper instance.
+   * Returns the Elasticsearch request wrapper instance.
    *
    * @return \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null
    */
@@ -119,6 +138,15 @@ class ElasticsearchOperationErrorEvent extends Event {
    */
   public function &getObject() {
     return $this->object;
+  }
+
+  /**
+   * Returns metadata related to the object.
+   *
+   * @return array
+   */
+  public function &getMetadata() {
+    return $this->metadata;
   }
 
   /**

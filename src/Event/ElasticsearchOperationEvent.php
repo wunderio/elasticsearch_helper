@@ -22,7 +22,7 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
   use OperationPermissionTrait;
 
   /**
-   * Elasticsearch operation.
+   * The Elasticsearch operation.
    *
    * @var string
    */
@@ -48,16 +48,32 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
   protected $object;
 
   /**
+   * Additional metadata related to the object.
+   *
+   * For index create operations, the metadata variable can be an array
+   * containing the index settings object.
+   *
+   * @var array
+   */
+  protected $metadata;
+
+  /**
    * ElasticsearchOperationEvent constructor.
    *
    * @param $operation
+   *   The operation being performed.
    * @param \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface $plugin_instance
+   *   The Elasticsearch index plugin instance.
    * @param mixed|null $object
+   *   The index-able object or an index name.
+   * @param array $metadata
+   *   The metadata related to the object.
    */
-  public function __construct($operation, ElasticsearchIndexInterface $plugin_instance, $object = NULL) {
+  public function __construct($operation, ElasticsearchIndexInterface $plugin_instance, $object = NULL, $metadata = []) {
     $this->operation = $operation;
     $this->pluginInstance = $plugin_instance;
     $this->object = $object;
+    $this->metadata = $metadata;
   }
 
   /**
@@ -81,7 +97,16 @@ class ElasticsearchOperationEvent extends Event implements OperationPermissionIn
   }
 
   /**
-   * Returns Elasticsearch index plugin instance.
+   * Returns metadata related to the object.
+   *
+   * @return array
+   */
+  public function &getMetadata() {
+    return $this->metadata;
+  }
+
+  /**
+   * Returns the Elasticsearch index plugin instance.
    *
    * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexInterface
    */

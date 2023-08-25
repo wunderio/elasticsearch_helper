@@ -161,12 +161,16 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Creates Elasticsearch operation event.
    *
    * @param $operation
-   * @param mixed|null $source
+   *   The operation being performed.
+   * @param mixed|null $object
+   *   The index-able object or an index name.
+   * @param array $metadata
+   *   The metadata related to the object.
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationEvent
    */
-  protected function dispatchOperationEvent($operation, $source = NULL) {
-    $event = new ElasticsearchOperationEvent($operation, $this, $source);
+  protected function dispatchOperationEvent($operation, $object = NULL, $metadata = []) {
+    $event = new ElasticsearchOperationEvent($operation, $this, $object, $metadata);
     $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION);
 
     return $event;
@@ -176,14 +180,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * Dispatches Elasticsearch operation error event.
    *
    * @param \Throwable $error
+   *   The thrown error.
    * @param $operation
+   *   The operation being performed.
    * @param \Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface|null $request_wrapper
-   * @param mixed|null $source
+   *   The request wrapper instance.
+   * @param mixed|null $object
+   *   The index-able object or an index name.
+   * @param array $metadata
+   *   The metadata related to the object.
    *
    * @return \Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent
    */
-  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $source = NULL) {
-    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper, $source);
+  protected function dispatchOperationErrorEvent(\Throwable $error, $operation, ElasticsearchRequestWrapperInterface $request_wrapper = NULL, $object = NULL, $metadata = []) {
+    $event = new ElasticsearchOperationErrorEvent($error, $operation, $this, $request_wrapper, $object, $metadata);
     $this->getEventDispatcher()->dispatch($event, ElasticsearchEvents::OPERATION_ERROR);
 
     return $event;
@@ -234,7 +244,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   public function createIndex($index_name, IndexDefinition $index_definition) {
     try {
       $operation = ElasticsearchOperations::INDEX_CREATE;
-      $operation_event = $this->dispatchOperationEvent($operation, $index_name);
+      $metadata = ['index_definition' => $index_definition];
+      $operation_event = $this->dispatchOperationEvent($operation, $index_name, $metadata);
 
       if ($operation_event->isOperationAllowed()) {
         $callback = [$this->client->indices(), 'create'];
@@ -524,7 +535,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     if (isset($this->pluginDefinition['entityType'])) {
       try {
         $operation = ElasticsearchHelperEvents::REINDEX;
-        $operation_event = $this->dispatchOperationEvent($operation);
+        $metadata = ['context' => $context];
+        $operation_event = $this->dispatchOperationEvent($operation, NULL, $metadata);
 
         if ($operation_event->isOperationAllowed()) {
           $entity_type = $this->pluginDefinition['entityType'];
