@@ -40,6 +40,8 @@ class ExampleNodeNormalizer extends ContentEntityNormalizer {
       ],
     ];
 
+    fwrite(STDERR, print_r($data, TRUE));
+
     return $data;
   }
 

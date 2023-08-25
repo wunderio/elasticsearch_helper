@@ -5,7 +5,6 @@ namespace Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
 use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
-use Drupal\elasticsearch_helper_example\Plugin\Normalizer\ExampleNodeNormalizer;
 
 /**
  * Index base class.
@@ -13,12 +12,19 @@ use Drupal\elasticsearch_helper_example\Plugin\Normalizer\ExampleNodeNormalizer;
 abstract class IndexBase extends ElasticsearchIndexBase {
 
   /**
+   * Defines the normalizer class name.
+   *
+   * @var string
+   */
+  protected $normalizerClass = '\Drupal\elasticsearch_helper_example\Plugin\Normalizer\ExampleNodeNormalizer';
+
+  /**
    * Returns node normalizer.
    *
    * @return \Drupal\elasticsearch_helper_example\Plugin\Normalizer\ExampleNodeNormalizer
    */
   protected function getNormalizer() {
-    return new ExampleNodeNormalizer(
+    return new $this->normalizerClass(
       \Drupal::service('entity_type.manager'),
       \Drupal::service('entity_type.repository'),
       \Drupal::service('entity_field.manager')

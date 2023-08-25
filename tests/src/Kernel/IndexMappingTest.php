@@ -69,7 +69,7 @@ class IndexMappingTest extends EntityKernelTestBase {
     $this->assertEquals('integer', $properties['id']['type'], 'ID field is found');
     $this->assertEquals('keyword', $properties['uuid']['type'], 'UUID field is found');
     $this->assertEquals('text', $properties['title']['type'], 'Title field is found');
-    $this->assertEquals('boolean', $properties['status']['type'], 'Status field is found');
+    $this->assertEquals('keyword', $properties['status']['type'], 'Status field is found');
   }
 
   /**
@@ -80,14 +80,14 @@ class IndexMappingTest extends EntityKernelTestBase {
       ->addProperty('id', FieldDefinition::create('integer'))
       ->addProperty('uuid', FieldDefinition::create('keyword'))
       ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', FieldDefinition::create('boolean'));
+      ->addProperty('status', FieldDefinition::create('keyword'));
 
     $expected = [
       'properties' => [
         'id' => ['type' => 'integer'],
         'uuid' => ['type' => 'keyword'],
         'title' => ['type' => 'text'],
-        'status' => ['type' => 'boolean'],
+        'status' => ['type' => 'keyword'],
       ]
     ];
 

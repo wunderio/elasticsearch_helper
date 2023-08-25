@@ -2,30 +2,16 @@
 
 namespace Drupal\elasticsearch_helper_test\Plugin\ElasticsearchIndex;
 
-use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-use Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexBase;
+use Drupal\elasticsearch_helper_example\Plugin\ElasticsearchIndex\ExampleSimpleNodeIndex;
 
 /**
  * @ElasticsearchIndex(
  *   id = "test_simple_node_index",
  *   label = @Translation("Test simple node index"),
- *   indexName = "test-simple-node-index",
- *   entityType = "node",
- *   normalizerFormat = "elasticsearch_helper_test"
+ *   indexName = "test-simple",
+ *   entityType = "node"
  * )
  */
-class TestSimpleNodeIndex extends ElasticsearchIndexBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMappingDefinition(array $context = []) {
-    return MappingDefinition::create()
-      ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', FieldDefinition::create('keyword'))
-      ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', FieldDefinition::create('boolean'));
-  }
+class TestSimpleNodeIndex extends ExampleSimpleNodeIndex {
 
 }

@@ -2,18 +2,10 @@
 
 namespace Drupal\Tests\elasticsearch_helper\Kernel;
 
-use Drupal\elasticsearch_helper\Elasticsearch\Index\FieldDefinition;
-use Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition;
-
 /**
  * Elasticsearch index operation trait.
  */
 trait IndexOperationTrait {
-
-  /**
-   * Defines multilingual node index prefix.
-   */
-  protected $multilingualNodeIndexPrefix = 'test-multilingual-node-index-';
 
   /**
    * An HTTP request with curl.
@@ -35,6 +27,8 @@ trait IndexOperationTrait {
     $host = $this->getHost();
     $url = sprintf('%s://%s:%d/%s', $this->getScheme(), $host['host'], $host['port'], $path);
 
+    fwrite(STDERR, print_r($url, TRUE));
+
     // Query elasticsearch.
     // Use Curl for now because http client middleware fails in KernelTests
     // (See: https://www.drupal.org/project/drupal/issues/2571475)
@@ -55,7 +49,11 @@ trait IndexOperationTrait {
       curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
     }
 
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->verifySslCertificate());
+
     $json = curl_exec($curl);
+
+    fwrite(STDERR, print_r($json, TRUE));
 
     return json_decode($json, TRUE);
   }
@@ -98,6 +96,15 @@ trait IndexOperationTrait {
   }
 
   /**
+   * Returns URI scheme.
+   *
+   * @return string
+   */
+  protected function getScheme() {
+    return $this->config('elasticsearch_helper.settings')->get('scheme');
+  }
+
+  /**
    * Returns an array with a host and a port.
    *
    * @return array
@@ -119,92 +126,43 @@ trait IndexOperationTrait {
   }
 
   /**
-   * Returns URI scheme.
+   * Returns TRUE if SSL certificate needs to be verified.
    *
-   * @return string
+   * @return bool
    */
-  protected function getScheme() {
-    return $this->config('elasticsearch_helper.settings')->get('scheme');
+  protected function verifySslCertificate() {
+    return (bool) $this->config('elasticsearch_helper.settings')->get('ssl.configuration.skip_verification') ?? FALSE;
   }
 
   /**
-   * Returns a list of mapping definitions keyed by index name.
+   * Returns Elasticsearch index manager instance.
    *
-   * @return MappingDefinition[]
+   * @return \Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
    */
-  protected function getMappingDefinitions() {
-    $result = [];
-
-    $result['test-simple-node-index'] = MappingDefinition::create()
-      ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', FieldDefinition::create('keyword'))
-      ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', FieldDefinition::create('boolean'));
-
-    $multilingual_mapping_definition = MappingDefinition::create()
-      ->addProperty('id', FieldDefinition::create('integer'))
-      ->addProperty('uuid', FieldDefinition::create('keyword'))
-      ->addProperty('title', FieldDefinition::create('text'))
-      ->addProperty('status', FieldDefinition::create('boolean'))
-      ->addProperty('langcode', FieldDefinition::create('keyword'));
-
-    foreach (['en', 'lv'] as $langcode) {
-      $result[$this->multilingualNodeIndexPrefix . $langcode] = $multilingual_mapping_definition;
-    }
-
-    return $result;
+  protected function getElasticsearchIndexManager() {
+    return \Drupal::service('plugin.manager.elasticsearch_index.processor');
   }
 
   /**
    * Removes Elasticsearch indices used for testing purposes.
-   *
-   * @return array[]
-   *   A list of responses.
    */
   protected function removeIndices() {
-    $responses = [];
+    $index_manager = $this->getElasticsearchIndexManager();
 
-    foreach (array_keys($this->getMappingDefinitions()) as $index_name) {
-      // Remove the index.
-      $responses[] = $this->httpRequest($index_name, 'DELETE');
+    foreach ($index_manager->getDefinitions() as $plugin_id => $definition) {
+      $index_manager->createInstance($plugin_id)->drop();
     }
-
-    return $responses;
   }
 
   /**
    * Creates Elasticsearch indices for testing purposes.
-   *
-   * @return array[]
-   *   A list of responses.
    */
   protected function createIndices() {
-    $responses = [];
+    $index_manager = $this->getElasticsearchIndexManager();
 
-    foreach ($this->getMappingDefinitions() as $index_name => $mapping_definition) {
-      // Create the index.
-      $responses[] = $this->createIndex($index_name, $mapping_definition);
+    foreach ($index_manager->getDefinitions() as $plugin_id => $definition) {
+      $index_manager->createInstance($plugin_id)->setup();
     }
-
-    return $responses;
-  }
-
-  /**
-   * Creates index mapping.
-   *
-   * @param $index_name
-   * @param \Drupal\elasticsearch_helper\Elasticsearch\Index\MappingDefinition $mapping_definition
-   *
-   * @return array
-   */
-  protected function createIndex($index_name, MappingDefinition $mapping_definition) {
-    // Put mapping.
-    return $this->httpRequest(
-      $index_name,
-      'PUT',
-      ['Content-Type: application/json'],
-      sprintf('{"mappings": %s}', $mapping_definition->asString())
-    );
   }
 
   /**
@@ -215,7 +173,10 @@ trait IndexOperationTrait {
    * @return string
    */
   protected function getMultilingualNodeIndexName($langcode) {
-    return $this->multilingualNodeIndexPrefix . $langcode;
+    $index_manager = $this->getElasticsearchIndexManager();
+    $instance = $index_manager->createInstance('test_multilingual_node_index');
+
+    return $instance->getIndexName(['langcode' => $langcode]);
   }
 
   /**
@@ -224,7 +185,10 @@ trait IndexOperationTrait {
    * @return string
    */
   protected function getSimpleNodeIndexName() {
-    return 'test-simple-node-index';
+    $index_manager = $this->getElasticsearchIndexManager();
+    $instance = $index_manager->createInstance('test_simple_node_index');
+
+    return $instance->getIndexName();
   }
 
 }
