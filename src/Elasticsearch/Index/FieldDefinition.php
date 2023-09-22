@@ -11,7 +11,7 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
  *
  * Elasticsearch mapping consists of fields (or properties) which vary by
  * type. Field definition contains the methods that allow to create index
- * mapping in an object oriented way.
+ * mapping in an object-oriented way.
  *
  * Field definition class has support for field parameters, field properties
  * (used with complex types like "object") and multi-fields.
@@ -21,20 +21,22 @@ use Drupal\elasticsearch_helper\Elasticsearch\ObjectTrait;
  *   Company name is indexed as text with "keyword" multi-field saved as keyword
  *   for aggregation.
  *
- *     $company_name_field = FieldDefinition('text')
- *       ->addMultiField('keyword', FieldDefinition('keyword'));
+ *     $company_name_field = FieldDefinition::create('text')
+ *       ->addMultiField('keyword', FieldDefinition::create('keyword')
+ *         ->setMetadata('label', 'Company')
+ *       );
  *
- *   Birth date is indexed as date in a specific format.
+ *   Birthdate is indexed as date in a specific format.
  *
- *     $birth_date_field = FieldDefinition('date')
+ *     $birth_date_field = FieldDefinition::create('date')
  *       ->addOptions(['format' => 'yyyy-MM-dd']);
  *
  *   Person is indexed as an object with multiple sub-properties.
  *
- *     $person_field = FieldDefinition('object')
- *       ->addProperty('first_name', FieldDefinition('text'))
- *       ->addProperty('last_name', FieldDefinition('text'))
- *       ->addProperty('age', FieldDefinition('short'))
+ *     $person_field = FieldDefinition::create('object')
+ *       ->addProperty('first_name', FieldDefinition::create('text'))
+ *       ->addProperty('last_name', FieldDefinition::create('text'))
+ *       ->addProperty('age', FieldDefinition::create('short'))
  *       ->addProperty('company_name', $company_name_field)
  *       ->addProperty('birth_date', $birth_date_field);
  *
@@ -48,7 +50,7 @@ class FieldDefinition extends DefinitionBase {
    *
    * @var \Drupal\elasticsearch_helper\Elasticsearch\DataType\DataType
    */
-  protected $data_type;
+  protected $dataType;
 
   /**
    * Field properties (used with complex data types, e.g., object).
@@ -65,6 +67,13 @@ class FieldDefinition extends DefinitionBase {
   protected $multiFields = [];
 
   /**
+   * The metadata information.
+   *
+   * @var array
+   */
+  protected $metadata = [];
+
+  /**
    * FieldDefinition constructor.
    *
    * @param \Drupal\elasticsearch_helper\Elasticsearch\DataType\DataType $type
@@ -73,7 +82,7 @@ class FieldDefinition extends DefinitionBase {
    * @throws \InvalidArgumentException
    */
   public function __construct(DataType $type, array $options = []) {
-    $this->data_type = $type;
+    $this->dataType = $type;
     $this->addOptions($options);
   }
 
@@ -97,7 +106,7 @@ class FieldDefinition extends DefinitionBase {
    * @return \Drupal\elasticsearch_helper\Elasticsearch\DataType\DataType
    */
   public function getDataType() {
-    return $this->data_type;
+    return $this->dataType;
   }
 
   /**
@@ -207,6 +216,40 @@ class FieldDefinition extends DefinitionBase {
    */
   public function hasMultiFields() {
     return !empty($this->multiFields);
+  }
+
+  /**
+   * Sets metadata.
+   *
+   * @param $key
+   * @param $value
+   *
+   * @return self
+   */
+  public function setMetadata($key, $value) {
+    $this->metadata[$key] = $value;
+
+    return $this;
+  }
+
+  /**
+   * Returns the metadata.
+   *
+   * @param $key
+   *
+   * @return mixed|null
+   */
+  public function getMetadata($key) {
+    return $this->metadata[$key] ?? NULL;
+  }
+
+  /**
+   * Returns the metadata bag as array.
+   *
+   * @return array
+   */
+  public function getMetadataBag() {
+    return $this->metadata;
   }
 
   /**
