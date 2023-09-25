@@ -149,7 +149,11 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
 
     if ($bundle) {
       $entity_type_instance = $this->entityTypeManager->getDefinition($entity_type);
-      $query->condition($entity_type_instance->getKey('bundle'), $bundle);
+
+      // Add bundle condition only if the entity type supports bundles.
+      if ($entity_key = $entity_type_instance->getKey('bundle')) {
+        $query->condition($entity_key, $bundle);
+      }
     }
 
     // Allow other modules to alter the entity query prior to execution.
