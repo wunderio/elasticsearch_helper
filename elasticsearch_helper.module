@@ -7,8 +7,8 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 
 /**
  * Implements hook_help().
@@ -91,7 +91,7 @@ function elasticsearch_helper_modules_installed($modules) {
       }
     }
   }
-  catch (NoNodesAvailableException $e) {
+  catch (NoNodeAvailableException $e) {
     $t_args = ['@modules' => implode(', ', $modules)];
     \Drupal::messenger()->addError(t('Elasticsearch indices provided by modules "@modules" could not be created (no alive nodes).', $t_args));
   }
@@ -117,10 +117,10 @@ function elasticsearch_helper_module_preuninstall($module) {
       }
     }
   }
-  catch (NoNodesAvailableException $e) {
-      $t_args = ['@module' => $module];
-      \Drupal::messenger()->addError(t('Elasticsearch indices provided by module @module could not be dropped (no alive nodes).', $t_args));
-    }
+  catch (NoNodeAvailableException $e) {
+    $t_args = ['@module' => $module];
+    \Drupal::messenger()->addError(t('Elasticsearch indices provided by module @module could not be dropped (no alive nodes).', $t_args));
+  }
   catch (\Exception $e) {
     $t_args = ['@module' => $module];
     \Drupal::messenger()->addError(t('Elasticsearch indices provided by module @module could not be dropped.', $t_args));
