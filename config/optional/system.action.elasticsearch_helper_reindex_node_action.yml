@@ -1,0 +1,12 @@
+id: elasticsearch_helper_reindex_node_action
+label: 'Re-index content'
+status: true
+langcode: en
+type: node
+plugin: elasticsearch_helper_reindex
+dependencies:
+  enforced:
+    module:
+      - node
+  module:
+    - elasticsearch_helper

@@ -8,3 +8,11 @@ elasticsearch_helper.elasticsearch_helper_settings_form:
     _permission: 'configure elasticsearch helper'
   options:
     _admin_route: TRUE
+
+elasticsearch_helper.reindex_content_confirm:
+  path: '/admin/content/reindex'
+  defaults:
+    _form: '\Drupal\elasticsearch_helper\Form\ElasticsearchReindexConfirm'
+    _title: 'Re-index conntent'
+  requirements:
+    _permission: 'access administration pages'
