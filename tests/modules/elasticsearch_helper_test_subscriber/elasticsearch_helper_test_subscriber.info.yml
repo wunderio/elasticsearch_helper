@@ -1,0 +1,7 @@
+name: Elasticsearch Helper Events Subscriber Test Module
+type: module
+description: Plugin implementation for the Elasticsearch Helper module Events tests.
+core_version_requirement: ^9.4 || ^10
+hidden: true
+dependencies:
+  - drupal:elasticsearch_helper_test

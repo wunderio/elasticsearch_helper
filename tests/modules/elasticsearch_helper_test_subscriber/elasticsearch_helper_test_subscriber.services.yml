@@ -1,0 +1,6 @@
+services:
+  elasticsearch_helper_test_subscriber.elasticsearch_helper_event_subscriber:
+    class: Drupal\elasticsearch_helper_test_subscriber\EventSubscriber\TestElasticsearchHelperEvents
+    arguments: ['@state']
+    tags:
+      - { name: event_subscriber }
