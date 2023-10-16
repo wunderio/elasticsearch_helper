@@ -13,7 +13,7 @@ services:
 
   plugin.manager.elasticsearch_index.processor:
     class: Drupal\elasticsearch_helper\Plugin\ElasticsearchIndexManager
-    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@entity_type.manager', '@queue', '@logger.factory']
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@entity_type.manager', '@queue', '@logger.factory', '@config.factory']
 
   elasticsearch_helper.logging_event_subscriber:
     class: Drupal\elasticsearch_helper\EventSubscriber\LoggingEventSubscriber
