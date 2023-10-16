@@ -9,9 +9,9 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\IndexDefinition;
 use Drupal\elasticsearch_helper\Elasticsearch\Index\SettingsDefinition;
-use Drupal\elasticsearch_helper\ElasticsearchClientVersion;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapper;
 use Drupal\elasticsearch_helper\ElasticsearchRequestWrapperInterface;
+use Drupal\elasticsearch_helper\ElasticsearchLanguageAnalyzer;
 use Drupal\elasticsearch_helper\Event\ElasticsearchEvents;
 use Drupal\elasticsearch_helper\Event\ElasticsearchOperationErrorEvent;
 use Drupal\elasticsearch_helper\Event\ElasticsearchHelperEvents;
@@ -22,6 +22,7 @@ use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 /**
  * Base class for Elasticsearch index plugins.
@@ -57,6 +58,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   protected $indexPluginManager;
 
   /**
+   * The language manager instance.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * The regular expression used to identify placeholders in index and type names.
    *
    * @var string
@@ -77,6 +85,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   /**
    * ElasticsearchIndexBase constructor.
+   *
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
@@ -90,6 +99,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $this->client = $client;
     $this->serializer = $serializer;
     $this->logger = $logger;
+    $this->languageManager = \Drupal::languageManager();
   }
 
   /**
@@ -106,7 +116,8 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $plugin_definition,
       $container->get('elasticsearch_helper.elasticsearch_client'),
       $container->get('serializer'),
-      $container->get('logger.factory')->get('elasticsearch_helper')
+      $container->get('logger.factory')->get('elasticsearch_helper'),
+      $container->get('language_manager')
     );
   }
 
@@ -150,6 +161,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     $settings_definition = SettingsDefinition::create()
       ->addOptions($this->defaultIndexSettings);
     $mapping_definition = $this->getMappingDefinition($context);
+
+    if (isset($context['langcode'])) {
+      // Get analyzer for the language.
+      $analyzer = ElasticsearchLanguageAnalyzer::get($context['langcode']);
+      $settings_definition->addOptions([
+        'analysis' => [
+          'analyzer' => [
+            $analyzer => [
+              'tokenizer' => 'standard',
+            ],
+          ],
+        ],
+      ]);
+    }
 
     $index_definition = IndexDefinition::create()
       ->setSettingsDefinition($settings_definition)
@@ -223,16 +248,49 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
     try {
       // Create an index if index definition is provided by the index plugin.
       if ($index_definition = $this->getIndexDefinition()) {
-        $index_name = $this->getIndexName();
-
-        if (!$this->client->indices()->exists(['index' => $index_name])) {
-          $this->createIndex($index_name, $index_definition);
+        if ($this->isMultilingual()) {
+          foreach ($this->languageManager->getLanguages() as $langcode => $language) {
+            if (!$this->languageExcluded($langcode)) {
+              $this->setupMultilingualIndex($langcode);
+            }
+          }
+        }
+        else {
+          $index_name = $this->getIndexName();
+          if (!$this->client->indices()->exists(['index' => $index_name])) {
+            $this->createIndex($index_name, $index_definition);
+          }
         }
       }
     }
     catch (\Throwable $e) {
       $request_wrapper = isset($request_wrapper) ? $request_wrapper : NULL;
       $this->dispatchOperationErrorEvent($e, ElasticsearchOperations::INDEX_CREATE, $request_wrapper);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setupMultilingualIndex($langcode) {
+    $data = [
+      'indexName' => $this->pluginDefinition['indexName'],
+      'langcode' => $langcode,
+    ];
+    $index_name = $this->getIndexName($data);
+    // Check if index exists.
+    if (!$this->client->indices()->exists(['index' => $index_name])) {
+      // Get index definition.
+      $index_definition = $this->getIndexDefinition(['langcode' => $langcode]);
+      // Get analyzer for the language.
+      $analyzer = ElasticsearchLanguageAnalyzer::get($langcode);
+      // Put analyzer parameter to all "text" fields in the mapping.
+      foreach ($index_definition->getMappingDefinition()->getProperties() as $property) {
+        if ($property->getDataType()->getType() == 'text') {
+          $property->addOption('analyzer', $analyzer);
+        }
+      }
+      $this->createIndex($index_name, $index_definition);
     }
   }
 
@@ -459,9 +517,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $operation = ElasticsearchOperations::QUERY_SEARCH;
 
       $callback = [$this->client, 'search'];
-      $request_params = [
-        'index' => $this->indexNamePattern(),
-      ] + $params;
+      if (isset($params['index'])) {
+        $request_params = $params;
+      }
+      else {
+        $request_params = [
+          'index' => $this->indexNamePattern(),
+        ] + $params;
+      }
 
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
@@ -484,9 +547,14 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       $operation = ElasticsearchOperations::QUERY_MULTI_SEARCH;
 
       $callback = [$this->client, 'msearch'];
-      $request_params = [
-        'index' => $this->indexNamePattern(),
-      ] + $params;
+      if (isset($params['index'])) {
+        $request_params = $params;
+      }
+      else {
+        $request_params = [
+          'index' => $this->indexNamePattern(),
+        ] + $params;
+      }
 
       $request_wrapper = $this->createRequest($operation, $callback, $request_params, $params);
       $request_result = $request_wrapper->execute();
@@ -614,6 +682,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function serialize($source, $context = []) {
     if ($source instanceof EntityInterface) {
+
       if (isset($this->pluginDefinition['normalizerFormat'])) {
         // Use custom normalizerFormat if it's defined in plugin.
         $format = $this->pluginDefinition['normalizerFormat'];
@@ -645,7 +714,22 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    * @return string
    */
   public function getIndexName(array $data = []) {
-    return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
+    if (isset($data['langcode']) && $this->isMultilingual()) {
+      $multilingual_definition = $this->pluginDefinition['multilingual'];
+      $data = [
+        'indexName' => $this->pluginDefinition['indexName'],
+        'langcode' => $data['langcode'],
+      ];
+      if (isset($multilingual_definition['index_pattern'])) {
+        return $this->replacePlaceholders($multilingual_definition['index_pattern'], $data);
+      }
+      else {
+        return $this->replacePlaceholders('{indexName}-{langcode}', $data);
+      }
+    }
+    else {
+      return $this->replacePlaceholders($this->pluginDefinition['indexName'], $data);
+    }
   }
 
   /**
@@ -667,13 +751,63 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
   }
 
   /**
+   * Determine if multilingual definition exists.
+   *
+   * @param array $data
+   *
+   * @return bool
+   */
+  public function isMultilingual() {
+    if (isset($this->pluginDefinition['multilingual'])) {
+      if (!\Drupal::moduleHandler()->moduleExists('language')) {
+        throw new RuntimeException('The Language module is not installed');
+      }
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Determine if language is excluded.
+   *
+   * @param array $data
+   *
+   * @return bool
+   */
+  public function languageExcluded($langcode) {
+    if (isset($this->pluginDefinition['multilingual']) && isset($this->pluginDefinition['multilingual']['exclude'])) {
+      $excluded_languages = $this->pluginDefinition['multilingual']['exclude'];
+      if (in_array($langcode, $excluded_languages)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
    * Define a pattern that will match all indices. This is used for tasks like
    * deleting indices which can be done as one operation.
    *
    * @return string
    */
   public function indexNamePattern() {
-    return preg_replace($this->placeholder_regex, '*', $this->pluginDefinition['indexName']);
+    if ($this->isMultilingual()) {
+      $multilingual_definition = $this->pluginDefinition['multilingual'];
+      $data = [
+        'indexName' => $this->pluginDefinition['indexName'],
+        'langcode' => '*',
+      ];
+      if (isset($multilingual_definition['index_pattern'])) {
+        $index_name = $this->replacePlaceholders($multilingual_definition['index_pattern'], $data);
+      }
+      else {
+        $index_name = $this->replacePlaceholders('{indexName}-{langcode}', $data);
+      }
+    }
+    else {
+      $index_name = $this->pluginDefinition['indexName'];
+    }
+    return preg_replace($this->placeholder_regex, '*', $index_name);
   }
 
   /**
