@@ -61,9 +61,33 @@ class ElasticsearchIndexManager extends DefaultPluginManager {
   }
 
   /**
+   * Clear the serialized data cache of the entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  public function clearEntityCache(EntityInterface $entity) {
+    foreach ($this->getDefinitions() as $plugin) {
+      if (isset($plugin['entityType']) && $entity->getEntityTypeId() == $plugin['entityType'] && (isset($plugin['cache']) && (bool) $plugin['cache'])) {
+        try {
+          $this->createInstance($plugin['id'])->clearEntityCache($entity);
+        }
+        catch (ElasticsearchException $e) {
+          $this->logger->error('Elasticsearch failed to clear entity cache: @message', [
+            '@message' => $e->getMessage(),
+          ]);
+        }
+      }
+    }
+  }
+
+  /**
    * Indexes the entity into any matching indices.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to index.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */

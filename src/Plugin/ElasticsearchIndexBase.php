@@ -3,6 +3,7 @@
 namespace Drupal\elasticsearch_helper\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -30,6 +31,13 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
   use StringTranslationTrait;
   use MessengerTrait;
+
+  /**
+   * Cache ID prefix.
+   *
+   * @var string
+   */
+  const CID_PREFIX = 'elasticsearch_helper_cache:';
 
   /**
    * @var \Elasticsearch\Client
@@ -340,6 +348,7 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
 
       if ($operation_event->isOperationAllowed()) {
         $source = $operation_event->getObject();
+
         $serialized_data = $this->serialize($source, ['method' => 'index']);
 
         $callback = [$this->client, 'index'];
@@ -614,6 +623,20 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
    */
   public function serialize($source, $context = []) {
     if ($source instanceof EntityInterface) {
+      // Get index's cache configuration.
+      $cached = isset($this->pluginDefinition['cache']) ? $this->pluginDefinition['cache'] : FALSE;
+
+      // Set the cache id from entity attributes.
+      $cache_id = $this->getCacheId($source);
+
+      // Load a cached version of the data if it exists.
+      // Cache should only be used when indexing content.
+      if ($cached && $context['method'] == 'index') {
+        if ($cache = \Drupal::cache()->get($cache_id)) {
+          return $cache->data;
+        }
+      }
+
       if (isset($this->pluginDefinition['normalizerFormat'])) {
         // Use custom normalizerFormat if it's defined in plugin.
         $format = $this->pluginDefinition['normalizerFormat'];
@@ -629,12 +652,50 @@ abstract class ElasticsearchIndexBase extends PluginBase implements Elasticsearc
       // it will be use by the getID() method.
       $data['id'] = $source->id();
 
+      // Store data to cache after serialization.
+      if ($cached && $context['method'] == 'index') {
+        $tags = [
+          'elasticsearch_helper_cache',
+          'elasticsearch_helper_cache:' . $source->getEntityTypeId() . ':' . $source->id(),
+        ];
+
+        \Drupal::cache()->set($cache_id, $data, Cache::PERMANENT, $tags);
+      }
+
       return $data;
     }
     else {
       // Non-entities are simply kept as they are.
       return $source;
     }
+  }
+
+  /**
+   * Delete the entity's cached serialized data.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to be processed.
+   */
+  public function clearEntityCache(EntityInterface $entity) {
+    if ($entity instanceof EntityInterface) {
+      $cid = $this->getCacheId($entity);
+
+      \Drupal::cache()->delete($cid);
+    }
+  }
+
+  /**
+   * Determine the cache id for the entity.
+   *
+   * @param Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to be cached.
+   *
+   * @return string
+   *   The cache id.
+   */
+  public function getCacheId(EntityInterface $entity) {
+    $index_id = $this->pluginDefinition['id'];
+    return static::CID_PREFIX . 'entity:' . $index_id . ':' . $entity->getEntityTypeId() . ':' . $entity->language()->getId() . ':' . $entity->id();
   }
 
   /**
