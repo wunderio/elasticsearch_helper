@@ -17,20 +17,33 @@ use Elastic\Elasticsearch\Client;
  */
 class ElasticsearchClientVersionTest extends UnitTestCase {
 
-  /** @var string $majorVersion */
+  /**
+   * The major version of Elasticsearch.
+   *
+   * @var string
+   */
   protected $majorVersion;
 
-  /** @var string $minorVersion */
+  /**
+   * The minor version of Elasticsearch.
+   *
+   * @var string
+   */
   protected $minorVersion;
 
-  /** @var string $patchVersion */
+  /**
+   * The patch version of Elasticsearch.
+   *
+   * @var string
+   */
   protected $patchVersion;
 
   /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    list($majorVersion, $minorVersion, $patchVersion) = explode('.', Client::VERSION);
+    parent::setUp();
+    [$majorVersion, $minorVersion, $patchVersion] = explode('.', Client::VERSION);
 
     $this->majorVersion = $majorVersion;
     $this->minorVersion = $minorVersion;

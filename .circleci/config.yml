@@ -69,7 +69,7 @@ jobs:
         type: string
       drush_version:
         type: string
-        default: "^11"
+        default: "^12"
       prophecy_phpunit_version:
         type: string
         default: "^2"
@@ -150,11 +150,6 @@ workflows:
   build_and_test:
     jobs:
       - build:
-          name: build-drupal-9-es-8
-          cache_name: drupal-9-es-8
-          core_version: "^9"
-          core_dev_version: "^9"
-      - build:
           name: build-drupal-10-es-8
           cache_name: drupal-10-es-8
           core_version: "^10.0"
@@ -164,11 +159,6 @@ workflows:
           cache_name: drupal-latest-es-8
           core_version: "^10"
           core_dev_version: "^10"
-      - test-es:
-          name: test-drupal-9-es-8
-          cache_name: drupal-9-es-8
-          requires:
-            - build-drupal-9-es-8
       - test-es:
           name: test-drupal-10-es-8
           cache_name: drupal-10-es-8
