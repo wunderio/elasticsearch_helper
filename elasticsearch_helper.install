@@ -5,6 +5,7 @@
  * Installation functions for the Elasticsearch Helper module.
  */
 
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use Drupal\user\Entity\Role;
 
@@ -56,7 +57,14 @@ function elasticsearch_helper_requirements($phase) {
       catch (NoNodesAvailableException $e) {
         $requirements['elasticsearch_health'] = [
           'title' => t('Elasticsearch status'),
-          'description' => t('Could not connect to Elasticsearch'),
+          'description' => t('No nodes available.'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+      catch (ElasticsearchException $e) {
+        $requirements['elasticsearch_health'] = [
+          'title' => t('Elasticsearch status'),
+          'description' => t('Could not connect to Elasticsearch. Return code %code.', ['%code' => $e->getCode()]),
           'severity' => REQUIREMENT_ERROR,
         ];
       }
