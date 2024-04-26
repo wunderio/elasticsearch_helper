@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticsearch_helper_test\Plugin\Normalizer;
 
+use Drupal\node\Entity\Node;
 use Drupal\serialization\Normalizer\ContentEntityNormalizer;
 
 /**
@@ -37,6 +38,15 @@ class NodeNormalizer extends ContentEntityNormalizer {
     ];
 
     return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedTypes(?string $format): array {
+    return [
+      Node::class => TRUE,
+    ];
   }
 
 }
