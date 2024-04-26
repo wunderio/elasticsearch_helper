@@ -69,7 +69,7 @@ jobs:
         type: string
       drush_version:
         type: string
-        default: "^11"
+        default: "^12"
       prophecy_phpunit_version:
         type: string
         default: "^2"
