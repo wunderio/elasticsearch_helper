@@ -30,6 +30,7 @@ class ElasticsearchClientVersionTest extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    parent::setUp();
     list($majorVersion, $minorVersion, $patchVersion) = explode('.', Client::VERSION);
 
     $this->majorVersion = $majorVersion;
